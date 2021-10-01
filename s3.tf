@@ -1,7 +1,7 @@
 module "s3_bucket" {
   source = "terraform-aws-modules/s3-bucket/aws"
 
-  bucket = "datalake"
+  bucket = "wyatt-datalake"
   acl    = "private"
 
   force_destroy = true
