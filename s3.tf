@@ -1,7 +1,11 @@
+locals {
+  bucket_name = "wyatt-datalake"
+}
+
 module "s3_bucket" {
   source = "terraform-aws-modules/s3-bucket/aws"
 
-  bucket = "wyatt-datalake"
+  bucket = "${local.bucket_name}"
   acl    = "private"
 
   force_destroy = true
@@ -21,4 +25,10 @@ module "s3_bucket" {
     }]
     }
   ]
+}
+
+resource "aws_s3_bucket_object" "data" {
+  bucket = "${local.bucket_name}"
+  acl    = "private"
+  key    = "data/"
 }
