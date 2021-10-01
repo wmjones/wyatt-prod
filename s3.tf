@@ -11,6 +11,10 @@ module "s3_bucket" {
   }
 
   lifecycle_rule = [{
+    id      = "log"
+    enabled = true
+    prefix  = "data/"
+
     transition = [{
       days          = 30
       storage_class = "INTELLIGENT_TIERING"
