@@ -15,8 +15,8 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Setup Terraform
-        working-directory: ./main
         uses: hashicorp/setup-terraform@v1
+        working-directory: ./main
         with:
           # terraform_version: 0.13.0:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
