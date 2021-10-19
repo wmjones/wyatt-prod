@@ -15,32 +15,34 @@ jobs:
         uses: actions/checkout@v2
 
       - name: Setup Terraform
+        working-directory: ./main
         uses: hashicorp/setup-terraform@v1
         with:
           # terraform_version: 0.13.0:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
       - name: Terraform Format
+        working-directory: ./main
         id: fmt
         run: terraform fmt -check
-        working-directory: ./main
+        
 
       - name: Terraform Init
-        id: init
-        run: terraform init
         working-directory: ./main
+        id: init
+        run: terraform init      
       
       - name: Terraform Validate
+        working-directory: ./main
         id: validate
         run: terraform validate -no-color
-        working-directory: ./main
 
       - name: Terraform Plan
+        working-directory: ./main
         id: plan
         if: github.event_name == 'pull_request'
         run: terraform plan -no-color
         continue-on-error: true
-        working-directory: ./main
 
       - uses: actions/github-script@0.9.0
         if: github.event_name == 'pull_request'
@@ -76,6 +78,6 @@ jobs:
         run: exit 1
 
       - name: Terraform Apply
+        working-directory: ./main            
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform apply -auto-approve
-        working-directory: ./main
