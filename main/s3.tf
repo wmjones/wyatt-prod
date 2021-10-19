@@ -15,7 +15,7 @@ module "s3_bucket" {
   }
 
   lifecycle_rule = [{
-    id      = "log"
+    id      = "data"
     enabled = true
     prefix  = "data/"
 

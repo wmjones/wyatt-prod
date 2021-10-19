@@ -21,18 +21,23 @@ jobs:
           cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
 
       - name: Terraform Format
+        working-directory: ./main
         id: fmt
         run: terraform fmt -check
+        
 
       - name: Terraform Init
+        working-directory: ./main
         id: init
-        run: terraform init
+        run: terraform init      
       
       - name: Terraform Validate
+        working-directory: ./main
         id: validate
         run: terraform validate -no-color
 
       - name: Terraform Plan
+        working-directory: ./main
         id: plan
         if: github.event_name == 'pull_request'
         run: terraform plan -no-color
@@ -72,5 +77,6 @@ jobs:
         run: exit 1
 
       - name: Terraform Apply
+        working-directory: ./main            
         if: github.ref == 'refs/heads/main' && github.event_name == 'push'
         run: terraform apply -auto-approve
