@@ -22,5 +22,10 @@ provider "aws" {
 
 output "vpc_cidr_block" {
   description = "The CIDR block of the VPC"
-  value       = module.vpc.vpc_cidr_block
+  value       = remote.vpc.vpc_cidr_block
+}
+
+output "aws_region" {
+  description = "The aws_region chosen"
+  value       = var.aws_region
 }
