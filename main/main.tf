@@ -2,10 +2,14 @@ terraform {
   required_providers {
     aws = {
       source  = "hashicorp/aws"
-      version = ">=3.61.0"
+      version = "5.53.0"
+    }
+    random = {
+      source  = "hashicorp/random"
+      version = "3.4.3"
     }
   }
-  required_version = ">= 0.14"
+  required_version = ">= 1.1.0"
 
   backend "remote" {
     organization = "wyatt-prod"
