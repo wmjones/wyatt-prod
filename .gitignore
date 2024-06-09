@@ -1,3 +1,5 @@
+**/deployment_pkg/**
+
 # Local .terraform directories
 **/.terraform/*
 
