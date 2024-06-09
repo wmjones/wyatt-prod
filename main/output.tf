@@ -1,5 +1,5 @@
 output "s3_bucket_name" {
-  value = aws_s3_bucket.wyatt-step-function-bucket-1.bucket
+  value = aws_s3_bucket.wyatt-datalake-35315550.bucket
 }
 
 output "step_function_arn" {

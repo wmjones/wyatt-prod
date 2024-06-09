@@ -26,7 +26,7 @@ resource "aws_iam_role_policy" "lambda_policy" {
           "s3:GetObject",
         ],
         Effect   = "Allow",
-        Resource = "${aws_s3_bucket.wyatt-step-function-bucket-1.arn}/*",
+        Resource = "${aws_s3_bucket.wyatt-datalake-35315550.arn}/*",
       },
       {
         Action   = "logs:*",
