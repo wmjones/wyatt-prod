@@ -1,3 +1,7 @@
+variable "todoist_api_key" {
+  description = "API key for Todoist"
+}
+
 resource "aws_lambda_function" "todoist_lambda" {
   filename         = "lambda_function.zip"
   function_name    = "todoist_lambda"
@@ -8,7 +12,7 @@ resource "aws_lambda_function" "todoist_lambda" {
 
   environment {
     variables = {
-      TODOIST_API_KEY = "9593c48930e891084fde61fa56a7a5c59336535e"
+      TODOIST_API_KEY = var.todoist_api_key
       S3_BUCKET_NAME  = aws_s3_bucket.data.bucket
     }
   }
