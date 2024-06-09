@@ -27,6 +27,7 @@ resource "aws_iam_role_policy" "lambda_policy" {
         ],
         Effect   = "Allow",
         Resource = "${aws_s3_bucket.wyatt-datalake-35315550.arn}/*",
+
       },
       {
         Action   = "logs:*",
