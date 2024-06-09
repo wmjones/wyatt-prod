@@ -4,7 +4,7 @@ variable "todoist_api_key" {
 }
 
 resource "aws_lambda_function" "todoist_lambda" {
-    filename         = "lambda_function.zip"
+    filename         = "getTodoist.py.zip"
     function_name    = "todoist_lambda"
     role             = aws_iam_role.lambda_role.arn
     handler          = "lambda_function.handler"
