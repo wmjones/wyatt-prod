@@ -16,7 +16,6 @@ resource "aws_lambda_function" "todoist_lambda" {
   handler          = "main.getTodoist.lambda_handler" # Update the handler to the correct module and function name
   runtime          = "python3.8"
   source_code_hash = filebase64sha256("deployment_pkg.zip")
-
   environment {
     variables = {
       TODOIST_API_KEY = var.todoist_api_key
