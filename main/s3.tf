@@ -27,8 +27,6 @@ module "s3_bucket" {
   ]
 }
 
-resource "aws_s3_bucket_object" "data" {
+resource "aws_s3_bucket" "data" {
   bucket = local.bucket_name
-  acl    = "private"
-  key    = "data/"
 }
