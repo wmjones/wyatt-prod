@@ -1,5 +1,5 @@
 output "s3_bucket_name" {
-  value = aws_s3_bucket.data.bucket
+  value = aws_s3_bucket.step_function_bucket.bucket
 }
 
 output "step_function_arn" {

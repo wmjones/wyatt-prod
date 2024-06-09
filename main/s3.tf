@@ -15,9 +15,9 @@ module "s3_bucket" {
   }
 
   lifecycle_rule = [{
-    id      = "data"
+    id      = "step_function_bucket"
     enabled = true
-    prefix  = "data/"
+    prefix  = "step_function_bucket/"
 
     transition = [{
       days          = 30
@@ -27,6 +27,6 @@ module "s3_bucket" {
   ]
 }
 
-resource "aws_s3_bucket" "data" {
+resource "aws_s3_bucket" "step_function_bucket" {
   bucket = local.bucket_name
 }
