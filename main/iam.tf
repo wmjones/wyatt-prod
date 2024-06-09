@@ -40,6 +40,11 @@ resource "aws_iam_role_policy" "lambda_policy" {
         Action   = "logs:*",
         Effect   = "Allow",
         Resource = "*"
+      },
+      {
+        Action   = "lambda:InvokeFunction",
+        Effect   = "Allow",
+        Resource = "${aws_lambda_function.todoist_lambda.arn}"
       }
     ],
   })
