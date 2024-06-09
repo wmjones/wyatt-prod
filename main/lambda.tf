@@ -14,7 +14,7 @@ resource "aws_lambda_function" "todoist_lambda" {
     environment {
         variables = {
             TODOIST_API_KEY = var.todoist_api_key
-            S3_BUCKET_NAME  = aws_s3_bucket.wyatt-step-function-bucket-1.bucket
+            S3_BUCKET_NAME  = aws_s3_bucket.wyatt-datalake-35315550.bucket
         }
     }
 }
