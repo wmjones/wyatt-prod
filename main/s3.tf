@@ -1,3 +1,3 @@
 resource "aws_s3_bucket" "wyatt-datalake-35315550" {
-  bucket = "step-function-bucket-1"
+  bucket = "step-function-bucket-35315550"
 }
