@@ -1,5 +1,5 @@
 locals {
-  bucket_name = "wyatt-datalake"
+  bucket_name = "wyatt-lake"
 }
 
 module "s3_bucket" {
