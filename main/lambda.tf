@@ -1,4 +1,4 @@
-variable "todoist_api_key" {
+variable "TODOIST_API_TOKEN" {
   description = "API key for Todoist"
   default     = ""
 }
@@ -18,7 +18,7 @@ resource "aws_lambda_function" "todoist_lambda" {
   source_code_hash = filebase64sha256("deployment_pkg.zip")
   environment {
     variables = {
-      TODOIST_API_KEY = var.todoist_api_key
+      TODOIST_API_KEY = var.TODOIST_API_TOKEN
       S3_BUCKET_NAME  = aws_s3_bucket.wyatt-datalake-35315550.bucket
     }
   }

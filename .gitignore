@@ -1,4 +1,5 @@
 **/deployment_pkg/**
+**.DS_Store**
 
 # Local .terraform directories
 **/.terraform/*
