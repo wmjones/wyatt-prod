@@ -1,0 +1,2 @@
+urllib3==1.26.6
+todoist-api-python==2.1.5

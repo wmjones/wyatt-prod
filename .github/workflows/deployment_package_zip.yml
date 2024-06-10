@@ -1,0 +1,37 @@
+name: Deployment Package Zip
+
+on:
+    push:
+        branches:
+            - main
+
+jobs:
+    build:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Checkout code
+              uses: actions/checkout@v2
+
+            - name: Set up Python
+              uses: actions/setup-python@v2
+              with:
+                  python-version: 3.8
+
+            - name: Install dependencies
+              run: pip install -r requirements.txt -t ./
+            
+            - name: Zip dependencies
+              run: zip -r9 deployment_package.zip .
+
+            - name: Include file
+              run: cp src/lambda/getTodoist.py .
+
+            - name: Zip files
+              run: zip -r deployment_package.zip getTodoist.py
+
+            - name: Upload artifact
+              uses: actions/upload-artifact@v2
+              with:
+                  name: deployment-package
+                  path: deployment_package.zip
