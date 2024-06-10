@@ -39,28 +39,25 @@ def strip_rich_text(text: str) -> str:
     u"\U00010000-\U0010ffff"
     "]+", flags=re.UNICODE)
     clean_text = emoji_pattern.sub(r'', text)
+    clean_text = "testing"
     return clean_text
 
 def task_to_dict(task: Task) -> dict:
     task.content = strip_rich_text(task.content)
     return asdict(task)
 
-def tasks_to_json(tasks: List[Task]):
+def tasks_to_json(tasks: List[Task]) -> str:
     tasks_dict = [task_to_dict(task) for task in tasks]
-    return json.dumps(tasks_dict, indent=4), tasks
+    return json.dumps(tasks_dict, indent=4)
 
 def lambda_handler(event, context):
-    # todoist_api_key = os.environ["TODOIST_API_KEY"]
-    todoist_api_key = "9593c48930e891084fde61fa56a7a5c59336535e"
+    todoist_api_key = os.environ["TODOIST_API_KEY"]
     s3_bucket_name = os.environ["S3_BUCKET_NAME"]
     api = TodoistAPI(todoist_api_key)
 
     try:
         tasks = api.get_tasks()
-        json_str, tasks_instances = tasks_to_json(tasks)
-        print(json_str)
-        print(tasks_instances)
-        # parsed_tasks = [task_to_json(tasks[i]) for i in range(len(tasks))]
+        json_str = tasks_to_json(tasks)
 
         s3 = boto3.client("s3")
         s3.put_object(
@@ -72,11 +69,3 @@ def lambda_handler(event, context):
         print(error)
 
     return {"statusCode": 200, "body": json.dumps("Data saved to S3")}
-
-
-if __name__ == "__main__":
-    lambda_handler(None, None)
-
-
-if __name__ == "__main__":
-    lambda_handler(None, None)
