@@ -38,7 +38,7 @@ def strip_rich_text(text: str) -> str:
         "\U0001F300-\U0001F5FF"  # symbols & pictographs
         "\U0001F680-\U0001F6FF"  # transport & map symbols
         "\U0001F1E0-\U0001F1FF"  # flags (iOS)
-        "\U00010000-\U0010ffff"
+        "\U00010000-\U0010ffff"  # emoticons
         "]+",
         flags=re.UNICODE,
     )
