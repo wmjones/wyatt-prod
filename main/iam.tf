@@ -45,7 +45,17 @@ resource "aws_iam_role_policy" "lambda_policy" {
         Action   = "lambda:InvokeFunction",
         Effect   = "Allow",
         Resource = "${aws_lambda_function.todoist_lambda.arn}"
-      }
+      },
+      {
+        Action   = "lambda:InvokeFunction",
+        Effect   = "Allow",
+        Resource = "${aws_lambda_function.chatgpt_lambda.arn}"
+      },
+      {
+        Action   = "lambda:InvokeFunction",
+        Effect   = "Allow",
+        Resource = "${aws_lambda_function.notion_lambda.arn}"
+      }      
     ],
   })
 }
