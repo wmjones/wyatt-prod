@@ -11,10 +11,10 @@ env:
   CONFIG_DIRECTORY: "./"
 
 jobs:
-  call-reusable-workflow:
+  deployment_package_zip:
     uses: ./.github/workflows/deployment_package_zip.yml  
   terraform:
-    needs: call-reusable-workflow
+    needs: deployment_package_zip
     if: github.repository != 'hashicorp-education/learn-terraform-github-actions'
     name: "Terraform Plan"
     runs-on: ubuntu-latest

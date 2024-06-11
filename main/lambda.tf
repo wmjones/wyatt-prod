@@ -14,7 +14,7 @@ variable "NOTION_TOKEN" {
 }
 
 data "local_file" "lambda_zip" {
-  filename = "${path.module}/artifact/deployment_package.zip"
+  filename = "${path.module}/deployment_package.zip"
 }
 
 resource "aws_lambda_function" "todoist_lambda" {
