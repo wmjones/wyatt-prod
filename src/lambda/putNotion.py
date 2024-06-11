@@ -22,11 +22,3 @@ def lambda_handler(event, context):
         return {"statusCode": 500, "body": json.dumps({"error": str(error)})}
 
     return {"statusCode": 200, "body": json.dumps({"message": "Task created successfully!", "task_id": new_page["id"]})}
-
-
-if __name__ == "__main__":
-    # For testing purposes, you can pass a sample event with content
-    sample_event = {
-        "body": json.dumps({"Team": "Todoist", "task_description": "Sample description", "task_name": "Sample task"})
-    }
-    lambda_handler(sample_event, None)
