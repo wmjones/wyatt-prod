@@ -6,11 +6,10 @@ on:
 env:
   TF_CLOUD_ORGANIZATION: "wyatt-prod"
   TF_API_TOKEN: "${{ secrets.TF_API_TOKEN }}"
-  TODOIST_API_TOKEN: ${{ secrets.TODOIST_API_TOKEN }}
-  OPEN_AI_KEY: ${{ secrets.OPEN_AI_KEY }}
-  NOTION_API_TOKEN: ${{ secrets.NOTION_API_TOKEN }}
-  TF_WORKSPACE: "wyatt-prod"
   TODOIST_API_TOKEN: "${{ secrets.TODOIST_API_TOKEN }}"
+  OPEN_AI_KEY: "${{ secrets.OPEN_AI_KEY }}"
+  NOTION_API_TOKEN: "${{ secrets.NOTION_API_TOKEN }}"
+  TF_WORKSPACE: "wyatt-prod"
   CONFIG_DIRECTORY: "./"
 
 jobs:
