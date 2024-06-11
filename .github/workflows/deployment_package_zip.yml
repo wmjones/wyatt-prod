@@ -16,6 +16,9 @@ jobs:
               with:
                   python-version: 3.12
 
+            - name: Create target directory
+              run: mkdir -p deploy
+
             - name: Include getTodoist
               run: cp src/lambda/getTodoist.py ./deploy
     
