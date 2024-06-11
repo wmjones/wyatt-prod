@@ -17,19 +17,16 @@ jobs:
                   python-version: 3.12
 
             - name: Install dependencies
-              run: pip install -r requirements.txt -t ./
+              run: pip install -r requirements.txt -t ./deploy
 
             - name: Zip dependencies
-              run: zip -r9 deployment_package.zip .
-
-            - name: Include file
-              run: cp src/lambda/getTodoist.py .
+              run: zip -r9 ./deploy/deployment_package.zip ./deploy
 
             - name: Zip files
-              run: zip -r deployment_package.zip getTodoist.py
+              run: zip -r ./deploy/deployment_package.zip src/lambda/getTodoist.py src/lambda/putChatGPT.py src/lambda/putNotion.py src/lambda/getTodoist.py
 
             - name: Upload artifact
               uses: actions/upload-artifact@v4
               with:
                   name: deployment-package
-                  path: ./deployment_package.zip
+                  path: ./deploy/deployment_package.zip
