@@ -8,6 +8,11 @@ variable "OPENAI_API_KEY" {
   default     = ""
 }
 
+variable "NOTION_TOKEN" {
+  description = "API key for Notion"
+  default     = ""
+}
+
 # data "archive_file" "lambda" {
 #   type        = "zip"
 #   source_file = "lambda.js"
@@ -38,8 +43,8 @@ resource "aws_lambda_function" "chatgpt_lambda" {
   source_code_hash = filebase64sha256("deployment_package.zip")
   environment {
     variables = {
-      TODOIST_API_KEY = var.OPENAI_API_KEY
-      S3_BUCKET_NAME  = aws_s3_bucket.wyatt-datalake-35315550.bucket
+      OPENAI_API_KEY = var.OPENAI_API_KEY
+      S3_BUCKET_NAME = aws_s3_bucket.wyatt-datalake-35315550.bucket
     }
   }
 }
@@ -53,8 +58,8 @@ resource "aws_lambda_function" "notion_lambda" {
   source_code_hash = filebase64sha256("deployment_package.zip")
   environment {
     variables = {
-      TODOIST_API_KEY = var.OPENAI_API_KEY
-      S3_BUCKET_NAME  = aws_s3_bucket.wyatt-datalake-35315550.bucket
+      NOTION_TOKEN   = var.NOTION_TOKEN
+      S3_BUCKET_NAME = aws_s3_bucket.wyatt-datalake-35315550.bucket
     }
   }
 }
