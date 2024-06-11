@@ -8,6 +8,7 @@ on:
         paths:
             - 'src/lambda/**'
             - 'requirements.txt'
+            - '.github/workflows/deployment_package_zip.yml'
 
 jobs:
     build:
