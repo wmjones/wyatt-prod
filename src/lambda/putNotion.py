@@ -4,7 +4,7 @@ from notion_client import Client
 
 
 def lambda_handler(event, context):
-    notion_token = os.environ["NOTION_TOKEN"]
+    notion_token = os.environ["NOTION_API_TOKEN"]
     notion = Client(auth=notion_token)
 
     # Parse the incoming request data

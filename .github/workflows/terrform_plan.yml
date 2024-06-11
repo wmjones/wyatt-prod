@@ -56,8 +56,8 @@ jobs:
               "category": "terraform"
             },
             {
-              "key": "OPENAI_API_KEY",
-              "value": "${{ secrets.OPENAI_API_KEY }}",
+              "key": "OPEN_AI_KEY",
+              "value": "${{ secrets.OPEN_AI_KEY }}",
               "category": "terraform"
             },
             {

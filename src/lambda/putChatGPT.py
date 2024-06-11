@@ -6,7 +6,7 @@ import boto3
 
 def lambda_handler(event, context):
     s3_bucket_name = os.environ["S3_BUCKET_NAME"]
-    open_ai_key = os.environ["OPENAI_API_KEY"]
+    open_ai_key = os.environ["OPEN_AI_KEY"]
     # task = json.loads(event["body"])
     # Read from S3 incomplete_tasks.json and get the content field of each task
     s3 = boto3.client("s3")
