@@ -24,7 +24,7 @@ resource "aws_lambda_function" "todoist_lambda" {
   function_name    = "todoist_lambda"
   role             = aws_iam_role.lambda_role.arn
   handler          = "getTodoist.lambda_handler" # Update the handler to the correct module and function name
-  runtime          = "python3.8"
+  runtime          = "python3.12"
   source_code_hash = filebase64sha256("deployment_package.zip")
   environment {
     variables = {
@@ -39,7 +39,7 @@ resource "aws_lambda_function" "chatgpt_lambda" {
   function_name    = "ChatGPT_lambda"
   role             = aws_iam_role.lambda_role.arn
   handler          = "putChatGPT.lambda_handler" # Update the handler to the correct module and function name
-  runtime          = "python3.8"
+  runtime          = "python3.12"
   source_code_hash = filebase64sha256("deployment_package.zip")
   environment {
     variables = {
@@ -54,7 +54,7 @@ resource "aws_lambda_function" "notion_lambda" {
   function_name    = "notion_lambda"
   role             = aws_iam_role.lambda_role.arn
   handler          = "putNotion.lambda_handler" # Update the handler to the correct module and function name
-  runtime          = "python3.8"
+  runtime          = "python3.12"
   source_code_hash = filebase64sha256("deployment_package.zip")
   environment {
     variables = {
