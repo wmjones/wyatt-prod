@@ -20,7 +20,7 @@ jobs:
 
             - name: Install dependencies
               run: pip install -r requirements.txt -t ./
-            
+
             - name: Zip dependencies
               run: zip -r9 deployment_package.zip .
 
