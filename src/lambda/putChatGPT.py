@@ -35,11 +35,11 @@ def lambda_handler(event, context):
             messages=[
                 {
                     "role": "user",
-                    "content": biftu_system_prompt,
+                    "content": f"{biftu_system_prompt}",
                 },
                 {
                     "role": "user",
-                    "content": task,
+                    "content": f"Create a detailed, actionable Kanban user story using this short prompt.\n{task}",
                 },
             ],
             model="gpt-4o",
