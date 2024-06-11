@@ -56,7 +56,3 @@ def lambda_handler(event, context):
 
     print(completions)
     return {"statusCode": 200, "body": json.dumps(completions)}  # Serialize completions list to JSON
-
-
-if __name__ == "__main__":
-    lambda_handler(None, None)
