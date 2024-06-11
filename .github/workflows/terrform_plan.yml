@@ -14,6 +14,7 @@ jobs:
   call-reusable-workflow:
     uses: ./.github/workflows/deployment_package_zip.yml  
   terraform:
+    needs: call-reusable-workflow
     if: github.repository != 'hashicorp-education/learn-terraform-github-actions'
     name: "Terraform Plan"
     runs-on: ubuntu-latest
