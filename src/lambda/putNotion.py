@@ -1,9 +1,11 @@
 import json
+import os
 from notion_client import Client
 
 
 def lambda_handler(event, context):
     notion_token = os.environ["NOTION_TOKEN"]
+    print(f"notion_token: {notion_token}")
     notion = Client(auth=notion_token)
 
     # Parse the incoming request data

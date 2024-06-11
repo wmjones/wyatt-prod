@@ -12,7 +12,7 @@ env:
 
 jobs:
   deployment_package_zip:
-    uses: ./.github/workflows/deployment_package_zip.yml  
+    uses: ./.github/workflows/deployment_package_zip.yml
   terraform:
     needs: deployment_package_zip
     if: github.repository != 'hashicorp-education/learn-terraform-github-actions'
