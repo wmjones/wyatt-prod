@@ -32,17 +32,14 @@ class Task:
 
 
 def strip_rich_text(text: str) -> str:
-    emoji_pattern = re.compile(
-        "["
-        "\U0001F600-\U0001F64F"  # emoticons
-        "\U0001F300-\U0001F5FF"  # symbols & pictographs
-        "\U0001F680-\U0001F6FF"  # transport & map symbols
-        "\U0001F1E0-\U0001F1FF"  # flags (iOS)
-        "\U00010000-\U0010ffff"
-        "]+",
-        flags=re.UNICODE,
-    )
-    clean_text = emoji_pattern.sub(r"", text)
+    emoji_pattern = re.compile("["
+    u"\U0001F600-\U0001F64F"  # emoticons
+    u"\U0001F300-\U0001F5FF"  # symbols & pictographs
+    u"\U0001F680-\U0001F6FF"  # transport & map symbols
+    u"\U0001F1E0-\U0001F1FF"  # flags (iOS)
+    u"\U00010000-\U0010ffff"
+    "]+", flags=re.UNICODE)
+    clean_text = emoji_pattern.sub(r'', text)
     clean_text = "testing"
     return clean_text
 
@@ -51,11 +48,9 @@ def task_to_dict(task: Task) -> dict:
     task.content = strip_rich_text(task.content)
     return asdict(task)
 
-
 def tasks_to_json(tasks: List[Task]) -> str:
     tasks_dict = [task_to_dict(task) for task in tasks]
     return json.dumps(tasks_dict, indent=4)
-
 
 def lambda_handler(event, context):
     todoist_api_key = os.environ["TODOIST_API_KEY"]
