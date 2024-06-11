@@ -1,15 +1,7 @@
 name: Deployment Package Zip
 
 on:
-    push:
-        branches:
-            - main
-            - fix-deploy-package
-        paths:
-            - 'src/lambda/**'
-            - 'requirements.txt'
-            - '.github/workflows/deployment_package_zip.yml'
-    pull_request:
+    workflow_call:
 
 jobs:
     build:

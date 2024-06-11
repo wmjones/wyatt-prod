@@ -11,6 +11,8 @@ env:
   CONFIG_DIRECTORY: "./"
 
 jobs:
+  call-reusable-workflow:
+    uses: ./.github/workflows/deployment_package_zip.yml  
   terraform:
     if: github.repository != 'hashicorp-education/learn-terraform-github-actions'
     name: "Terraform Plan"
@@ -25,9 +27,10 @@ jobs:
       - name: Download artifact
         uses: actions/download-artifact@v4
         with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
           name: deployment-package
-          path: ./
+
+      - name: Display structure of downloaded files
+        run: ls -R
 
       - name: Upload Configuration
         uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.0.0
