@@ -13,19 +13,17 @@ variable "NOTION_TOKEN" {
   default     = ""
 }
 
-# data "archive_file" "lambda" {
-#   type        = "zip"
-#   source_file = "lambda.js"
-#   output_path = "lambda_function_payload.zip"
-# }
+data "local_file" "lambda_zip" {
+  filename = "${path.module}/artifact/deployment_package.zip"
+}
 
 resource "aws_lambda_function" "todoist_lambda" {
-  filename         = "deployment_package.zip"
+  filename         = data.local_file.lambda_zip.filename
   function_name    = "todoist_lambda"
   role             = aws_iam_role.lambda_role.arn
   handler          = "getTodoist.lambda_handler" # Update the handler to the correct module and function name
   runtime          = "python3.12"
-  source_code_hash = filebase64sha256("deployment_package.zip")
+  source_code_hash = filebase64sha256(data.local_file.lambda_zip.filename)
   environment {
     variables = {
       TODOIST_API_KEY = var.TODOIST_API_TOKEN
@@ -35,12 +33,12 @@ resource "aws_lambda_function" "todoist_lambda" {
 }
 
 resource "aws_lambda_function" "chatgpt_lambda" {
-  filename         = "deployment_package.zip"
+  filename         = data.local_file.lambda_zip.filename
   function_name    = "ChatGPT_lambda"
   role             = aws_iam_role.lambda_role.arn
   handler          = "putChatGPT.lambda_handler" # Update the handler to the correct module and function name
   runtime          = "python3.12"
-  source_code_hash = filebase64sha256("deployment_package.zip")
+  source_code_hash = filebase64sha256(data.local_file.lambda_zip.filename)
   environment {
     variables = {
       OPENAI_API_KEY = var.OPENAI_API_KEY
@@ -50,12 +48,12 @@ resource "aws_lambda_function" "chatgpt_lambda" {
 }
 
 resource "aws_lambda_function" "notion_lambda" {
-  filename         = "deployment_package.zip"
+  filename         = data.local_file.lambda_zip.filename
   function_name    = "notion_lambda"
   role             = aws_iam_role.lambda_role.arn
   handler          = "putNotion.lambda_handler" # Update the handler to the correct module and function name
   runtime          = "python3.12"
-  source_code_hash = filebase64sha256("deployment_package.zip")
+  source_code_hash = filebase64sha256(data.local_file.lambda_zip.filename)
   environment {
     variables = {
       NOTION_TOKEN   = var.NOTION_TOKEN

@@ -5,6 +5,9 @@ on:
         branches:
             - main
             - fix-deploy-package
+        paths:
+            - 'src/lambda/**'
+            - 'requirements.txt'
 
 jobs:
     build:
