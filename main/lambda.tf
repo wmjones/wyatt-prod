@@ -46,7 +46,7 @@ resource "aws_lambda_function" "chatgpt_lambda" {
 
 resource "aws_lambda_function" "notion_lambda" {
   filename         = "deployment_package.zip"
-  function_name    = "ChatGPT_lambda"
+  function_name    = "notion_lambda"
   role             = aws_iam_role.lambda_role.arn
   handler          = "putNotion.lambda_handler" # Update the handler to the correct module and function name
   runtime          = "python3.8"
