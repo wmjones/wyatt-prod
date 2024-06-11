@@ -16,14 +16,28 @@ jobs:
               with:
                   python-version: 3.12
 
+            - name: Include getTodoist
+              run: cp src/lambda/getTodoist.py ./deploy
+    
+            - name: Include putTodoist
+              run: cp src/lambda/putTodoist.py ./deploy
+    
+            - name: Include putChatGPT
+              run: cp src/lambda/putChatGPT.py ./deploy
+    
+            - name: Include putNotion
+              run: cp src/lambda/putNotion.py ./deploy
+          
             - name: Install dependencies
               run: pip install -r requirements.txt -t ./deploy
 
             - name: Zip dependencies
               run: zip -r9 ./deploy/deployment_package.zip ./deploy
+              working-directory: ./deploy
 
             - name: Zip files
-              run: zip -r ./deploy/deployment_package.zip src/lambda/getTodoist.py src/lambda/putChatGPT.py src/lambda/putNotion.py src/lambda/getTodoist.py
+              run: zip -r ./deployment_package.zip ./getTodoist.py ./putChatGPT.py ./putNotion.py ./getTodoist.py
+              working-directory: ./deploy
 
             - name: Upload artifact
               uses: actions/upload-artifact@v4
