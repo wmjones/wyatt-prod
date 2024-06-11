@@ -59,7 +59,6 @@ def tasks_to_json(tasks: List[Task]) -> str:
 
 def lambda_handler(event, context):
     todoist_api_key = os.environ["TODOIST_API_KEY"]
-    print(f"todoist_api_key: {todoist_api_key}")
     s3_bucket_name = os.environ["S3_BUCKET_NAME"]
     api = TodoistAPI(todoist_api_key)
 

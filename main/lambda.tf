@@ -38,6 +38,7 @@ resource "aws_lambda_function" "chatgpt_lambda" {
   role             = aws_iam_role.lambda_role.arn
   handler          = "putChatGPT.lambda_handler" # Update the handler to the correct module and function name
   runtime          = "python3.12"
+  timeout          = 15
   source_code_hash = filebase64sha256(data.local_file.lambda_zip.filename)
   environment {
     variables = {
