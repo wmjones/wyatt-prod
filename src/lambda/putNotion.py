@@ -13,10 +13,13 @@ def lambda_handler(event, context):
     # task_description = body["task_description"]
 
     # Create a new task in the Notion Kanban board
-    new_page = notion.pages.create(
-        parent={"database_id": "c8a2c83ac85b4fe08b36bf631604f017"},
-        properties={"Name": {"type": "title", "title": [{"type": "text", "text": {"content": "Tomatoes"}}]}},
-    )
+    try:
+        new_page = notion.pages.create(
+            parent={"database_id": "c8a2c83ac85b4fe08b36bf631604f017"},
+            properties={"Name": {"type": "title", "title": [{"type": "text", "text": {"content": "Tomatoes"}}]}},
+        )
+    except Exception as error:
+        return {"statusCode": 500, "body": json.dumps({"error": str(error)})}
 
     return {"statusCode": 200, "body": json.dumps({"message": "Task created successfully!", "task_id": new_page["id"]})}
 

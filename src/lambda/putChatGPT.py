@@ -29,26 +29,30 @@ def lambda_handler(event, context):
 
     completions = []
 
-    for task in tasks:
-        print(f"\ntask: {task}")
-        chat_completion = client.chat.completions.create(
-            messages=[
-                {
-                    "role": "user",
-                    "content": f"{biftu_system_prompt}",
-                },
-                {
-                    "role": "user",
-                    "content": f"Create a detailed, actionable Kanban user story using this short prompt.\n{task}",
-                },
-            ],
-            model="gpt-4o",
-        )
+    try:
+        for task in tasks:
+            print(f"\ntask: {task}")
+            chat_completion = client.chat.completions.create(
+                messages=[
+                    {
+                        "role": "user",
+                        "content": f"{biftu_system_prompt}",
+                    },
+                    {
+                        "role": "user",
+                        "content": f"Create a detailed, actionable Kanban user story using this short prompt.\n{task}",
+                    },
+                ],
+                model="gpt-4o",
+            )
 
-        completions.append(
-            chat_completion.choices[0].message.content
-        )  # Append the content of the chat completion to the completions list
-        break
+            completions.append(
+                chat_completion.choices[0].message.content
+            )  # Append the content of the chat completion to the completions list
+            break
+    except Exception as error:
+        print(error)
+        return {"statusCode": 500, "body": json.dumps({"error": str(error)})}
 
     print(completions)
     return {"statusCode": 200, "body": json.dumps(completions)}  # Serialize completions list to JSON
