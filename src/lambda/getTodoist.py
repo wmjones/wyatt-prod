@@ -39,7 +39,7 @@ def strip_rich_text(text: str) -> str:
         "\U0001F680-\U0001F6FF"  # transport & map symbols
         "\U0001F1E0-\U0001F1FF"  # flags (iOS)
         "\U00010000-\U0010ffff"  # emoticons
-        "]+", 
+        "]+",
         flags=re.UNICODE,
     )
     clean_text = emoji_pattern.sub(r"", text)
@@ -59,6 +59,7 @@ def tasks_to_json(tasks: List[Task]) -> str:
 
 def lambda_handler(event, context):
     todoist_api_key = os.environ["TODOIST_API_KEY"]
+    print(f"todoist_api_key: {todoist_api_key}")
     s3_bucket_name = os.environ["S3_BUCKET_NAME"]
     api = TodoistAPI(todoist_api_key)
 
