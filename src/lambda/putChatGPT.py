@@ -16,9 +16,10 @@ def lambda_handler(event, context):
     tasks = [task["content"] for task in data]  # Extract the content field of each task
     print(f"tasks[0]: {tasks[0]}")
 
+    print(f"api_key: {os.environ['OPENAI_API_KEY']}")
     client = OpenAI(
         # This is the default and can be omitted
-        api_key=os.environ.get("OPENAI_API_KEY"),
+        api_key=os.environ["OPENAI_API_KEY"],
     )
     print(f"client: {client}")
 
