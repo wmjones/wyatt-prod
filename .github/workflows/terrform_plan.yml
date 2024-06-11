@@ -42,6 +42,16 @@ jobs:
               "key": "TODOIST_API_TOKEN",
               "value": "${{ secrets.TODOIST_API_TOKEN }}",
               "category": "terraform"
+            },
+            {
+              "key": "OPENAI_API_KEY",
+              "value": "${{ secrets.OPENAI_API_KEY }}",
+              "category": "terraform"
+            },
+            {
+              "key": "NOTION_API_TOKEN",
+              "value": "${{ secrets.NOTION_API_TOKEN }}",
+              "category": "terraform"
             }
 
       - name: Get Plan Output
