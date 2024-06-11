@@ -5,20 +5,22 @@ import boto3
 
 
 def lambda_handler(event, context):
-    # s3_bucket_name = os.environ["S3_BUCKET_NAME"]
-    s3_bucket_name = "step-function-bucket-35315550"
+    s3_bucket_name = os.environ["S3_BUCKET_NAME"]
     # task = json.loads(event["body"])
     # Read from S3 incomplete_tasks.json and get the content field of each task
     s3 = boto3.client("s3")
     response = s3.get_object(Bucket=s3_bucket_name, Key="data/incomplete_tasks.json")
     data = json.loads(response["Body"].read().decode("utf-8"))
+    print(f"data: {data}")
 
     tasks = [task["content"] for task in data]  # Extract the content field of each task
+    print(f"tasks[0]: {tasks[0]}")
 
     client = OpenAI(
         # This is the default and can be omitted
         api_key=os.environ.get("OPENAI_API_KEY"),
     )
+    print(f"client: {client}")
 
     with open("biftu.txt", "r") as file:
         biftu_system_prompt = file.read()
