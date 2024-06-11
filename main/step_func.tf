@@ -8,13 +8,11 @@ resource "aws_sfn_state_machine" "step_function" {
         GetIncompleteTasks : {
           Type : "Task",
           Resource : aws_lambda_function.todoist_lambda.arn,
-          End : false,
           Next : "PutChatGPT"
         },
         PutChatGPT : {
           Type : "Task",
           Resource : aws_lambda_function.chatgpt_lambda.arn,
-          End : false,
           Next : "PutNotion"
         },
         PutNotion : {
