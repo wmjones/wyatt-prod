@@ -1,11 +1,33 @@
 import json
 import os
 from todoist_api_python.api import TodoistAPI
-import boto3
 import re
 
 from dataclasses import dataclass, asdict
 from typing import List
+
+import boto3
+from botocore.exceptions import ClientError
+
+
+def get_secret(secret_name, region_name):
+    # Create a Secrets Manager client
+    session = boto3.session.Session()
+    client = session.client(
+        service_name='secretsmanager',
+        region_name=region_name
+    )
+
+    try:
+        get_secret_value_response = client.get_secret_value(
+            SecretId=secret_name
+        )
+    except ClientError as e:
+        # For a list of exceptions thrown, see
+        # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
+        raise e
+
+    return get_secret_value_response['SecretString']
 
 
 @dataclass
@@ -53,22 +75,28 @@ def task_to_dict(task: Task) -> dict:
 
 
 def tasks_to_json(tasks: List[Task]) -> str:
-    tasks_dict = [task_to_dict(task) for task in tasks]
+    tasks_dict = [task_to_dict(task) for task in tasks if task.project_id == '6VV7F2F6V4JjWJPr']
     return json.dumps(tasks_dict, indent=4)
 
 
 def lambda_handler(event, context):
-    todoist_api_key = os.environ["TODOIST_API_KEY"]
+    secret = get_secret("todoist_key", "us-east-2")
+    secret_dict = json.loads(secret)
+    todoist_api_key = secret_dict["TODOIST_API_KEY"]
     s3_bucket_name = os.environ["S3_BUCKET_NAME"]
     api = TodoistAPI(todoist_api_key)
 
     try:
         tasks = api.get_tasks()
         json_str = tasks_to_json(tasks)
-
+        print(json_str)
         s3 = boto3.client("s3")
-        s3.put_object(Bucket=s3_bucket_name, Key="data/incomplete_tasks.json", Body=json_str)
+        s3.put_object(Bucket=s3_bucket_name, Key="data/biftu_tasks.json", Body=json_str)
     except Exception as error:
         print(error)
 
-    return {"statusCode": 200, "body": json.dumps("Data saved to S3")}
+    return {"statusCode": 200, "body": json.dumps(json_str)}
+
+
+if __name__ == "__main__":
+    lambda_handler(None, None)
