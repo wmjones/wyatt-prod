@@ -48,7 +48,6 @@ def lambda_handler(event, context):
 
     with open("biftu.txt", "r") as file:
         biftu_system_prompt = file.read()
-    # print(f"biftu_system_prompt: {biftu_system_prompt}")
 
     completions = []
 

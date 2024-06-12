@@ -1,18 +1,3 @@
-variable "TODOIST_API_SECRET" {
-  description = "API key for Todoist"
-  default     = ""
-}
-
-variable "OPEN_AI_SECRET" {
-  description = "API key for ChatGPT"
-  default     = ""
-}
-
-variable "NOTION_API_SECRET" {
-  description = "API key for Notion"
-  default     = ""
-}
-
 data "local_file" "lambda_zip" {
   filename = "${path.module}/deployment_package.zip"
 }
@@ -26,7 +11,6 @@ resource "aws_lambda_function" "todoist_lambda" {
   source_code_hash = filebase64sha256(data.local_file.lambda_zip.filename)
   environment {
     variables = {
-      TODOIST_API_KEY = var.TODOIST_API_SECRET
       S3_BUCKET_NAME  = aws_s3_bucket.wyatt-datalake-35315550.bucket
     }
   }
@@ -56,7 +40,6 @@ resource "aws_lambda_function" "notion_lambda" {
   source_code_hash = filebase64sha256(data.local_file.lambda_zip.filename)
   environment {
     variables = {
-      NOTION_API_TOKEN   = var.NOTION_API_SECRET
       S3_BUCKET_NAME = aws_s3_bucket.wyatt-datalake-35315550.bucket
     }
   }
