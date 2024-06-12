@@ -42,7 +42,6 @@ resource "aws_lambda_function" "chatgpt_lambda" {
   source_code_hash = filebase64sha256(data.local_file.lambda_zip.filename)
   environment {
     variables = {
-      OPEN_AI_KEY = var.OPEN_AI_SECRET
       S3_BUCKET_NAME = aws_s3_bucket.wyatt-datalake-35315550.bucket
     }
   }
