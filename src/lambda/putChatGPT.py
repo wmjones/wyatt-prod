@@ -4,9 +4,31 @@ import os
 import boto3
 
 
+def get_secret(secret_name, region_name):
+    session = boto3.session.Session()
+    client = session.client(
+        service_name='secretsmanager',
+        region_name=region_name
+    )
+
+    try:
+        get_secret_value_response = client.get_secret_value(
+            SecretId=secret_name
+        )
+    except ClientError as e:
+        raise Exception("Couldn't retrieve the secret") from e
+    else:
+        if 'SecretString' in get_secret_value_response:
+            secret = get_secret_value_response['SecretString']
+        else:
+            secret = base64.b64decode(get_secret_value_response['SecretBinary'])
+        
+    return secret
+
+
 def lambda_handler(event, context):
     s3_bucket_name = os.environ["S3_BUCKET_NAME"]
-    open_ai_key = os.environ["OPEN_AI_KEY"]
+    open_ai_key = get_secret("OPEN_AI_KEY", "us-east-2")
     # task = json.loads(event["body"])
     # Read from S3 incomplete_tasks.json and get the content field of each task
     s3 = boto3.client("s3")
