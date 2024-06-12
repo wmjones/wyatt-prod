@@ -43,11 +43,12 @@ def lambda_handler(event, context):
                         "content": f"Create a detailed, actionable Kanban user story using this short prompt.\n{task}",
                     },
                 ],
-                model="gpt-4o",
+                model="gpt-3.5-turbo",
+                stream=True
             )
 
             completions.append(
-                chat_completion.choices[0].message.content
+                chat_completion.choices[0].message
             )  # Append the content of the chat completion to the completions list
             break
     except Exception as error:
