@@ -6,7 +6,7 @@ from dataclasses import asdict
 
 
 class SuperTask(Task):
-    def __init__(self, agent_output, **kwargs):
+    def __init__(self, agent_output=None, **kwargs):
         super().__init__(**kwargs)
         self.agent_output = agent_output
 
