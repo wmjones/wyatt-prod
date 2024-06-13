@@ -12,17 +12,17 @@ def lambda_handler(event, context):
     notion_token = secret_dict["NOTION_API_TOKEN"]
     notion = Client(auth=notion_token)
 
-    for task in event['body']:
-    # Create a new task in the Notion Kanban board
+    for task in event["body"]:
+        # Create a new task in the Notion Kanban board
         try:
             new_page = notion.pages.create(
                 parent={"database_id": "c8a2c83ac85b4fe08b36bf631604f017"},
-                properties={"title": {"title": [{"type": "text", "text": {"content": task['content']}}]}},
+                properties={"title": {"title": [{"type": "text", "text": {"content": task["content"]}}]}},
                 children=[
                     {
                         "object": "block",
                         "type": "paragraph",
-                        "paragraph": {"rich_text": [{"type": "text", "text": {"content": task['output']}}]},
+                        "paragraph": {"rich_text": [{"type": "text", "text": {"content": task["output"]}}]},
                     }
                 ],
             )

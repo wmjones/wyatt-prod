@@ -1,5 +1,4 @@
 import json
-import os
 from todoist_api_python.api import TodoistAPI
 import re
 
@@ -68,7 +67,6 @@ def lambda_handler(event, context):
     secret = get_secret("todoist_key", "us-east-2")
     secret_dict = json.loads(secret)
     todoist_api_key = secret_dict["TODOIST_API_KEY"]
-    s3_bucket_name = os.environ["S3_BUCKET_NAME"]
     api = TodoistAPI(todoist_api_key)
 
     try:
