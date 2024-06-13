@@ -20,12 +20,12 @@ def lambda_handler(event, context):
         try:
             notion.pages.create(
                 parent={"database_id": "c8a2c83ac85b4fe08b36bf631604f017"},
-                properties={"title": {"title": [{"type": "text", "text": {"content": task["content"]}}]}},
+                properties={"title": {"title": [{"type": "text", "text": {"content": task.content}}]}},
                 children=[
                     {
                         "object": "block",
                         "type": "paragraph",
-                        "paragraph": {"rich_text": [{"type": "text", "text": {"content": task["agent_output"]}}]},
+                        "paragraph": {"rich_text": [{"type": "text", "text": {"content": task.agent_output}}]},
                     }
                 ],
             )

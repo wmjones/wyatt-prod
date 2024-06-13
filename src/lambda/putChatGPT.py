@@ -1,7 +1,7 @@
 from openai import OpenAI
 import json
 from utils import get_secret
-from getTodoist import Task
+from getTodoist import Task, tasks_to_json
 from dataclasses import asdict
 
 
@@ -18,7 +18,7 @@ def lambda_handler(event, context):
     with open("biftu.txt", "r") as file:
         biftu_system_prompt = file.read()
 
-
+    list_task_dict = []
     for json_task in json.loads(event["body"]):
         try:
             print(f"\njson_task: {json_task}")
@@ -39,10 +39,11 @@ def lambda_handler(event, context):
             )
             task_dict = {"agent_output": chat_completion.choices[0].message.content}
             task_dict.update(asdict(task))
+            list_task_dict.append(task_dict)
         except Exception as error:
             print(error)
             return {"statusCode": 500, "body": json.dumps({"error": str(error)})}
-    return {"statusCode": 200, "body": json.dumps(task_dict)}  # Serialize completions list to JSON
+    return {"statusCode": 200, "body": tasks_to_json(list_task_dict)}  # Serialize completions list to JSON
 
 
 if __name__ == "__main__":
