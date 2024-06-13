@@ -18,8 +18,9 @@ def lambda_handler(event, context):
     with open("biftu.txt", "r") as file:
         biftu_system_prompt = file.read()
 
-    try:
-        for json_task in json.loads(event["body"]):
+
+    for json_task in json.loads(event["body"]):
+        try:
             print(f"\njson_task: {json_task}")
             task = Task(**json_task)
             print(f"\ntask: {task}")
@@ -38,16 +39,16 @@ def lambda_handler(event, context):
             )
             task_dict = {"agent_output": chat_completion.choices[0].message.content}
             task_dict.update(asdict(task))
-    except Exception as error:
-        print(error)
-        return {"statusCode": 500, "body": json.dumps({"error": str(error)})}
+        except Exception as error:
+            print(error)
+            return {"statusCode": 500, "body": json.dumps({"error": str(error)})}
     return {"statusCode": 200, "body": json.dumps(task_dict)}  # Serialize completions list to JSON
 
 
 if __name__ == "__main__":
     event = {
         "statusCode": 200,
-        "body": '[\n    {\n        "assignee_id": null,\n        "assigner_id": null,\n        "comment_count": 0,\n        "is_completed": false,\n        "content": "add new todoist pipeline for weight",\n        "created_at": "2024-06-12T11:10:34.825542Z",\n        "creator_id": "49425011",\n        "description": "",\n        "due": null,\n        "id": "8110672962",\n        "labels": [],\n        "order": 1,\n        "parent_id": null,\n        "priority": 1,\n        "project_id": "2334637095",\n        "section_id": null,\n        "url": "https://todoist.com/app/task/8110672962",\n        "duration": null,\n        "sync_id": null\n    }\n]',
+        "body": "[\n    {\n        \"assignee_id\": null,\n        \"assigner_id\": null,\n        \"comment_count\": 0,\n        \"is_completed\": false,\n        \"content\": \"add new todoist pipeline for weight\",\n        \"created_at\": \"2024-06-12T11:10:34.825542Z\",\n        \"creator_id\": \"49425011\",\n        \"description\": \"\",\n        \"due\": null,\n        \"id\": \"8110672962\",\n        \"labels\": [],\n        \"order\": 1,\n        \"parent_id\": null,\n        \"priority\": 1,\n        \"project_id\": \"2334637095\",\n        \"section_id\": null,\n        \"url\": \"https://todoist.com/app/task/8110672962\",\n        \"duration\": null,\n        \"sync_id\": null\n    }\n]"
     }
     out = lambda_handler(event, None)
     print(out)
