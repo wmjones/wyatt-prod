@@ -7,27 +7,7 @@ from dataclasses import dataclass, asdict
 from typing import List
 
 import boto3
-from botocore.exceptions import ClientError
-
-
-def get_secret(secret_name, region_name):
-    # Create a Secrets Manager client
-    session = boto3.session.Session()
-    client = session.client(
-        service_name='secretsmanager',
-        region_name=region_name
-    )
-
-    try:
-        get_secret_value_response = client.get_secret_value(
-            SecretId=secret_name
-        )
-    except ClientError as e:
-        # For a list of exceptions thrown, see
-        # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
-        raise e
-
-    return get_secret_value_response['SecretString']
+from utils import get_secret
 
 
 @dataclass
@@ -65,7 +45,6 @@ def strip_rich_text(text: str) -> str:
         flags=re.UNICODE,
     )
     clean_text = emoji_pattern.sub(r"", text)
-    clean_text = "testing"
     return clean_text
 
 
@@ -74,8 +53,15 @@ def task_to_dict(task: Task) -> dict:
     return asdict(task)
 
 
+# https://app.todoist.com/app/project/biftu-6VV7CJ3xMGHQXh5r
+
+
 def tasks_to_json(tasks: List[Task]) -> str:
-    tasks_dict = [task_to_dict(task) for task in tasks if task.project_id == '6VV7F2F6V4JjWJPr']
+    tasks_dict = []
+    for task in tasks:
+        if task.project_id == "2334637095":  # Biftu
+            task_dict = task_to_dict(task)
+            tasks_dict.append(task_dict)
     return json.dumps(tasks_dict, indent=4)
 
 

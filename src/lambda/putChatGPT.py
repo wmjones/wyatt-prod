@@ -1,58 +1,25 @@
 from openai import OpenAI
 import json
-import os
-import boto3
-from botocore.exceptions import ClientError
-
-
-def get_secret(secret_name, region_name):
-    # Create a Secrets Manager client
-    session = boto3.session.Session()
-    client = session.client(
-        service_name='secretsmanager',
-        region_name=region_name
-    )
-
-    try:
-        get_secret_value_response = client.get_secret_value(
-            SecretId=secret_name
-        )
-    except ClientError as e:
-        # For a list of exceptions thrown, see
-        # https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
-        raise e
-
-    secret = get_secret_value_response['SecretString']
-    return secret
+from utils import get_secret
+from getTodoist import Task
+from dataclasses import asdict
 
 
 def lambda_handler(event, context):
-    s3_bucket_name = os.environ["S3_BUCKET_NAME"]
+    print(f"event: {event}")
     secret = get_secret("open_ai_key", "us-east-2")
     secret_dict = json.loads(secret)
-    # task = json.loads(event["body"])
-    # Read from S3 incomplete_tasks.json and get the content field of each task
-    s3 = boto3.client("s3")
-    response = s3.get_object(Bucket=s3_bucket_name, Key="data/incomplete_tasks.json")
-    data = json.loads(response["Body"].read().decode("utf-8"))
-    print(f"data: {data}")
-
-    tasks = [task["content"] for task in data]  # Extract the content field of each task
-    print(f"tasks[0]: {tasks[0]}")
 
     client = OpenAI(
         # This is the default and can be omitted
-        api_key=secret_dict['OPEN_AI_KEY'],
+        api_key=secret_dict["OPEN_AI_KEY"],
     )
-    print(f"client: {client}")
 
-    with open("biftu.txt", "r") as file:
+    with open("src/system_prompts/biftu.txt", "r") as file:
         biftu_system_prompt = file.read()
 
-    completions = []
-
     try:
-        for task in tasks:
+        for task in event['body']:
             print(f"\ntask: {task}")
             chat_completion = client.chat.completions.create(
                 messages=[
@@ -62,23 +29,42 @@ def lambda_handler(event, context):
                     },
                     {
                         "role": "user",
-                        "content": f"Create a detailed, actionable Kanban user story using this short prompt.\n{task}",
+                        "content": f"Create a detailed, actionable Kanban user story using this short prompt.\n{task['content']}",
                     },
                 ],
-                model="gpt-3.5-turbo"
+                model="gpt-4o",
             )
-
-            completions.append(
-                chat_completion.choices[0].message.content
-            )  # Append the content of the chat completion to the completions list
-            break
+            task_dict = {"output": chat_completion.choices[0].message.content}
+            task_dict.update(asdict(Task(**task)))
     except Exception as error:
         print(error)
         return {"statusCode": 500, "body": json.dumps({"error": str(error)})}
-
-    print(completions)
-    return {"statusCode": 200, "body": json.dumps(completions)}  # Serialize completions list to JSON
+    return {"statusCode": 200, "body": json.dumps(task_dict)}  # Serialize completions list to JSON
 
 
 if __name__ == "__main__":
-    lambda_handler(None, None)
+    event = [
+        {
+            "assignee_id": None,
+            "assigner_id": None,
+            "comment_count": 0,
+            "is_completed": False,
+            "content": "add new todoist pipeline for weight",
+            "created_at": "2024-06-12T11:10:34.825542Z",
+            "creator_id": "49425011",
+            "description": "",
+            "due": None,
+            "id": "8110672962",
+            "labels": [],
+            "order": 1,
+            "parent_id": None,
+            "priority": 1,
+            "project_id": "2334637095",
+            "section_id": None,
+            "url": "https://todoist.com/app/task/8110672962",
+            "duration": None,
+            "sync_id": None,
+        }
+    ]
+    out = lambda_handler(event, None)
+    print(out)
