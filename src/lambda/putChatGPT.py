@@ -15,7 +15,7 @@ def lambda_handler(event, context):
         api_key=secret_dict["OPEN_AI_KEY"],
     )
 
-    with open("src/system_prompts/biftu.txt", "r") as file:
+    with open("biftu.txt", "r") as file:
         biftu_system_prompt = file.read()
 
     try:
