@@ -19,7 +19,9 @@ def lambda_handler(event, context):
         biftu_system_prompt = file.read()
 
     try:
-        for task in event['body']:
+        for json_task in json.loads(event["body"]):
+            print(f"\njson_task: {json_task}")
+            task = Task(**json_task)
             print(f"\ntask: {task}")
             chat_completion = client.chat.completions.create(
                 messages=[
@@ -29,13 +31,13 @@ def lambda_handler(event, context):
                     },
                     {
                         "role": "user",
-                        "content": f"Create a detailed, actionable Kanban user story using this short prompt.\n{task['content']}",
+                        "content": f"Create a detailed, actionable Kanban user story using this short prompt.\n{task.content}",
                     },
                 ],
                 model="gpt-4o",
             )
-            task_dict = {"output": chat_completion.choices[0].message.content}
-            task_dict.update(asdict(Task(**task)))
+            task_dict = {"agent_output": chat_completion.choices[0].message.content}
+            task_dict.update(asdict(task))
     except Exception as error:
         print(error)
         return {"statusCode": 500, "body": json.dumps({"error": str(error)})}
@@ -43,28 +45,9 @@ def lambda_handler(event, context):
 
 
 if __name__ == "__main__":
-    event = [
-        {
-            "assignee_id": None,
-            "assigner_id": None,
-            "comment_count": 0,
-            "is_completed": False,
-            "content": "add new todoist pipeline for weight",
-            "created_at": "2024-06-12T11:10:34.825542Z",
-            "creator_id": "49425011",
-            "description": "",
-            "due": None,
-            "id": "8110672962",
-            "labels": [],
-            "order": 1,
-            "parent_id": None,
-            "priority": 1,
-            "project_id": "2334637095",
-            "section_id": None,
-            "url": "https://todoist.com/app/task/8110672962",
-            "duration": None,
-            "sync_id": None,
-        }
-    ]
+    event = {
+        "statusCode": 200,
+        "body": '[\n    {\n        "assignee_id": null,\n        "assigner_id": null,\n        "comment_count": 0,\n        "is_completed": false,\n        "content": "add new todoist pipeline for weight",\n        "created_at": "2024-06-12T11:10:34.825542Z",\n        "creator_id": "49425011",\n        "description": "",\n        "due": null,\n        "id": "8110672962",\n        "labels": [],\n        "order": 1,\n        "parent_id": null,\n        "priority": 1,\n        "project_id": "2334637095",\n        "section_id": null,\n        "url": "https://todoist.com/app/task/8110672962",\n        "duration": null,\n        "sync_id": null\n    }\n]',
+    }
     out = lambda_handler(event, None)
     print(out)
