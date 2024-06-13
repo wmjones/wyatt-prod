@@ -60,7 +60,7 @@ def tasks_to_json(tasks: List[Task]) -> str:
         if task.project_id == "2334637095":  # Biftu
             task_dict = task_to_dict(task)
             tasks_dict.append(task_dict)
-    return json.dumps(tasks_dict, indent=4)
+    return json.dumps(tasks_dict)
 
 
 def lambda_handler(event, context):

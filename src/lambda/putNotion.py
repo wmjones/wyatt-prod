@@ -12,24 +12,28 @@ def lambda_handler(event, context):
     notion_token = secret_dict["NOTION_API_TOKEN"]
     notion = Client(auth=notion_token)
 
-    for task in event["body"]:
+    task_dict = {}
+    for json_task in json.loads(event["body"]):
+        print(f"\njson_task: {json_task}")
+        task = Task(**json_task)
         # Create a new task in the Notion Kanban board
         try:
-            new_page = notion.pages.create(
+            notion.pages.create(
                 parent={"database_id": "c8a2c83ac85b4fe08b36bf631604f017"},
                 properties={"title": {"title": [{"type": "text", "text": {"content": task["content"]}}]}},
                 children=[
                     {
                         "object": "block",
                         "type": "paragraph",
-                        "paragraph": {"rich_text": [{"type": "text", "text": {"content": task["output"]}}]},
+                        "paragraph": {"rich_text": [{"type": "text", "text": {"content": task["agent_output"]}}]},
                     }
                 ],
             )
+            task_dict.update(asdict(task))
         except Exception as error:
             return {"statusCode": 500, "body": json.dumps({"error": str(error)})}
 
-    return {"statusCode": 200, "body": json.dumps({"message": "Task created successfully!", "task_id": new_page["id"]})}
+    return {"statusCode": 200, "body": json.dumps(task_dict)}
 
 
 if __name__ == "__main__":
