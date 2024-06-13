@@ -6,7 +6,6 @@ import re
 from dataclasses import dataclass, asdict
 from typing import List
 
-import boto3
 from utils import get_secret
 
 
@@ -76,12 +75,10 @@ def lambda_handler(event, context):
         tasks = api.get_tasks()
         json_str = tasks_to_json(tasks)
         print(json_str)
-        s3 = boto3.client("s3")
-        s3.put_object(Bucket=s3_bucket_name, Key="data/biftu_tasks.json", Body=json_str)
     except Exception as error:
         print(error)
 
-    return {"statusCode": 200, "body": json.dumps(json_str)}
+    return {"statusCode": 200, "body": json_str}
 
 
 if __name__ == "__main__":
