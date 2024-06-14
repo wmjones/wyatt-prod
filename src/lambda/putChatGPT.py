@@ -1,6 +1,6 @@
 from openai import OpenAI
 import json
-from utils import get_secret
+from utils import get_secret, SuperTask, tasks_to_json
 
 
 def lambda_handler(event, context):

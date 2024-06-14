@@ -1,7 +1,6 @@
 import json
 from notion_client import Client
 from utils import get_secret, SuperTask, tasks_to_json
-from dataclasses import asdict
 
 
 def lambda_handler(event, context):
