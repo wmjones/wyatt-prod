@@ -1,5 +1,5 @@
 import requests
-from utils import get_secret
+from utils import get_secret, SuperTask
 
 
 def lambda_handler(event, context):
@@ -9,6 +9,11 @@ def lambda_handler(event, context):
     todoist_api_key = secret_dict["TODOIST_API_KEY"]
     headers = {"Authorization": f"Bearer {todoist_api_key}"}
 
-    response = requests.delete(f'https://api.todoist.com/rest/v1/tasks/{task["id"]}', headers=headers)
-
+    for json_task in json.loads(event["body"]):
+        try:
+            print(f"\njson_task: {json_task}")
+            task = SuperTask(**json_task)
+            response = requests.delete(f'https://api.todoist.com/rest/v1/tasks/{task["id"]}', headers=headers)
+        except Exception as error:
+            return {"statusCode": 500, "body": json.dumps({"error": str(error)})}
     return {"statusCode": response.status_code, "body": json.dumps({"message": "Task deleted"})}
