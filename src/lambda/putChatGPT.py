@@ -1,24 +1,6 @@
 from openai import OpenAI
 import json
 from utils import get_secret
-from typing import List
-from getTodoist import Task
-from dataclasses import asdict
-
-
-class SuperTask(Task):
-    def __init__(self, agent_output=None, **kwargs):
-        super().__init__(**kwargs)
-        self.agent_output = agent_output
-
-
-def tasks_to_json(tasks: List[SuperTask]) -> str:
-    tasks_dict = []
-    for task in tasks:
-        if task.project_id == "2334637095":  # Biftu
-            task_dict = asdict(task)
-            tasks_dict.append(task_dict)
-    return json.dumps(tasks_dict)
 
 
 def lambda_handler(event, context):

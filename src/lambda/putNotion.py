@@ -1,7 +1,6 @@
 import json
 from notion_client import Client
-from utils import get_secret
-from getTodoist import Task
+from utils import get_secret, SuperTask, tasks_to_json
 from dataclasses import asdict
 
 
@@ -12,10 +11,10 @@ def lambda_handler(event, context):
     notion_token = secret_dict["NOTION_API_TOKEN"]
     notion = Client(auth=notion_token)
 
-    task_dict = {}
+    list_task_dict = []
     for json_task in json.loads(event["body"]):
         print(f"\njson_task: {json_task}")
-        task = Task(**json_task)
+        task = SuperTask(**json_task)
         # Create a new task in the Notion Kanban board
         try:
             notion.pages.create(
@@ -29,11 +28,11 @@ def lambda_handler(event, context):
                     }
                 ],
             )
-            task_dict.update(asdict(task))
+            list_task_dict.append(task)
         except Exception as error:
             return {"statusCode": 500, "body": json.dumps({"error": str(error)})}
 
-    return {"statusCode": 200, "body": json.dumps(task_dict)}
+    return {"statusCode": 200, "body": tasks_to_json(list_task_dict)}
 
 
 if __name__ == "__main__":
