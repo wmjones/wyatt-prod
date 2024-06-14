@@ -5,30 +5,7 @@ import re
 from dataclasses import dataclass, asdict
 from typing import List
 
-from utils import get_secret
-
-
-@dataclass
-class Task:
-    assignee_id: str
-    assigner_id: str
-    comment_count: int
-    is_completed: bool
-    content: str
-    created_at: str
-    creator_id: str
-    description: str
-    due: dict
-    id: str
-    labels: list
-    order: int
-    parent_id: str
-    priority: int
-    project_id: str
-    section_id: str
-    url: str
-    duration: str
-    sync_id: str
+from utils import get_secret, Task
 
 
 def strip_rich_text(text: str) -> str:
