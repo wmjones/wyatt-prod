@@ -28,6 +28,24 @@ class Task:
     sync_id: str
 
 
+@dataclass
+class SuperTask(Task):
+    agent_output: str = ""
+
+    def __init__(self, agent_output="", **kwargs):
+        super().__init__(**kwargs)
+        self.agent_output = agent_output
+
+
+def tasks_to_json(tasks: List[SuperTask]) -> str:
+    tasks_dict = []
+    for task in tasks:
+        if task.project_id == "2334637095":  # Biftu
+            task_dict = asdict(task)
+            tasks_dict.append(task_dict)
+    return json.dumps(tasks_dict)
+
+
 def get_secret(secret_name, region_name):
     # Create a Secrets Manager client
     session = boto3.session.Session()
@@ -41,18 +59,3 @@ def get_secret(secret_name, region_name):
         raise e
 
     return get_secret_value_response["SecretString"]
-
-
-class SuperTask(Task):
-    def __init__(self, agent_output=None, **kwargs):
-        super().__init__(**kwargs)
-        self.agent_output = agent_output
-
-
-def tasks_to_json(tasks: List[SuperTask]) -> str:
-    tasks_dict = []
-    for task in tasks:
-        if task.project_id == "2334637095":  # Biftu
-            task_dict = asdict(task)
-            tasks_dict.append(task_dict)
-    return json.dumps(tasks_dict)
