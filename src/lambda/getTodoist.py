@@ -2,7 +2,7 @@ import json
 from todoist_api_python.api import TodoistAPI
 import re
 
-from dataclasses import dataclass, asdict
+from dataclasses import asdict
 from typing import List
 
 from utils import get_secret, Task
