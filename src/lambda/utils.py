@@ -1,7 +1,7 @@
 import boto3
 from botocore.exceptions import ClientError
 from typing import List
-from dataclasses import asdict
+from dataclasses import dataclass, asdict
 
 
 @dataclass
