@@ -16,7 +16,7 @@ def tasks_to_json(tasks: List[SuperTask]) -> str:
     tasks_dict = []
     for task in tasks:
         if task.project_id == "2334637095":  # Biftu
-            task_dict = task_to_dict(task)
+            task_dict = asdict(task)
             tasks_dict.append(task_dict)
     return json.dumps(tasks_dict)
 
