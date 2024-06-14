@@ -1,6 +1,7 @@
 from openai import OpenAI
 import json
 from utils import get_secret
+from typing import List
 from getTodoist import Task
 from dataclasses import asdict
 
