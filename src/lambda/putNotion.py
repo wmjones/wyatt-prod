@@ -18,13 +18,13 @@ def lambda_handler(event, context):
         try:
             children_blocks = []
             for line in task.agent_output.split("\n"):
-                children_blocks.append(
-                    {
-                        "object": "inline",
-                        "type": "text",
-                        "text": {"content": line},
-                    }
-                )
+                    children_blocks.append(
+                        {
+                            "object": "block",
+                            "type": "paragraph",
+                            "paragraph": {"rich_text": [{"type": "text", "text": {"content": line}}]},
+                        }
+                    )
 
             notion.pages.create(
                 parent={"database_id": "c8a2c83ac85b4fe08b36bf631604f017"},
