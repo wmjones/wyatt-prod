@@ -1,4 +1,4 @@
-import requests
+from todoist_api_python.api import TodoistAPI
 from utils import get_secret, SuperTask
 import json
 
