@@ -20,9 +20,9 @@ def lambda_handler(event, context):
             for line in task.agent_output.split("\n"):
                 children_blocks.append(
                     {
-                        "object": "block",
-                        "type": "paragraph",
-                        "paragraph": {"rich_text": [{"type": "text", "text": {"content": line}}]},
+                        "object": "inline",
+                        "type": "text",
+                        "text": {"content": line},
                     }
                 )
 

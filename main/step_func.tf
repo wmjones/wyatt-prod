@@ -18,6 +18,11 @@ resource "aws_sfn_state_machine" "step_function" {
       PutNotion : {
         Type : "Task",
         Resource : aws_lambda_function.notion_lambda.arn,
+        Next : "PutTodoist"
+      },
+      PutTodoist : {
+        Type : "Task",
+        Resource : aws_lambda_function.put_todoist_lambda.arn,
         End : true
       }
     }
