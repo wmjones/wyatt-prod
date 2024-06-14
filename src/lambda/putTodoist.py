@@ -14,7 +14,7 @@ def lambda_handler(event, context):
         try:
             print(f"\njson_task: {json_task}")
             task = SuperTask(**json_task)
-            response = requests.delete(f'https://api.todoist.com/rest/v1/tasks/{task["id"]}', headers=headers)
+            response = requests.delete(f'https://api.todoist.com/rest/v1/tasks/{task.id}', headers=headers)
         except Exception as error:
             return {"statusCode": 500, "body": json.dumps({"error": str(error)})}
     return {"statusCode": response.status_code, "body": json.dumps({"message": "Task deleted"})}
