@@ -81,6 +81,13 @@ resource "aws_iam_role" "sfn_role" {
         Principal = {
           Service = "states.amazonaws.com"
         }
+      },
+      {
+        Action = "sts:AssumeRole",
+        Effect = "Allow",
+        Principal = {
+          Service = "events.amazonaws.com"
+        }
       }
     ]
   })
