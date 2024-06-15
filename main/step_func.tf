@@ -1,6 +1,6 @@
 resource "aws_sfn_state_machine" "step_function" {
   name     = "TodoistStepFunction"
-  role_arn = aws_iam_role.lambda_role.arn
+  role_arn = aws_iam_role.sfn_role.arn # Corrected to use the intended IAM role for the state machine
   definition = jsonencode({
     Comment : "A description of my state machine",
     StartAt : "GetIncompleteTasks",
@@ -27,17 +27,4 @@ resource "aws_sfn_state_machine" "step_function" {
       }
     }
   })
-}
-
-resource "aws_cloudwatch_event_rule" "schedule" {
-  name        = "StepFunctionSchedule"
-  description = "Schedule to run the Step Function every 5 minutes"
-  schedule_expression = "rate(5 minutes)"
-}
-
-resource "aws_cloudwatch_event_target" "target" {
-  rule      = aws_cloudwatch_event_rule.schedule.name
-  target_id = aws_sfn_state_machine.step_function.name
-  arn       = aws_sfn_state_machine.step_function.arn
-  role_arn  = aws_iam_role.lambda_role.arn
 }

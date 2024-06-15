@@ -19,20 +19,8 @@ jobs:
             - name: Create target directory
               run: mkdir -p deploy
 
-            - name: Include utils
-              run: cp src/lambda/utils.py ./deploy
-
-            - name: Include getTodoist
-              run: cp src/lambda/getTodoist.py ./deploy
-
-            - name: Include putTodoist
-              run: cp src/lambda/putTodoist.py ./deploy
-
-            - name: Include putChatGPT
-              run: cp src/lambda/putChatGPT.py ./deploy
-
-            - name: Include putNotion
-              run: cp src/lambda/putNotion.py ./deploy
+            - name: Include lambda
+              run: cp src/lambda/* ./deploy
 
             - name: Include system_prompts
               run: cp src/system_prompts/* ./deploy
@@ -42,10 +30,6 @@ jobs:
 
             - name: Zip dependencies
               run: zip -r9 ./deployment_package.zip ./
-              working-directory: ./deploy
-
-            - name: Zip files
-              run: zip -r ./deployment_package.zip ./getTodoist.py ./putChatGPT.py ./putNotion.py ./getTodoist.py ./utils.py
               working-directory: ./deploy
 
             - name: Upload artifact

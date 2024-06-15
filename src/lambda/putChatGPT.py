@@ -13,13 +13,16 @@ def lambda_handler(event, context):
         api_key=secret_dict["OPEN_AI_KEY"],
     )
 
-    with open("biftu.txt", "r") as file:
-        biftu_system_prompt = file.read()
-
     list_task_dict = []
     for json_task in json.loads(event["body"]):
         try:
-            if task.project_id == "2334637095":  # Biftu
+            if task.project_id == "2334637095":  # Work
+                if task.section_id == "158311513":  # Biftu
+                    with open("biftu.txt", "r") as file:
+                        system_prompt = file.read()
+                elif task.section_id == "158311520":  # Tony
+                    with open("tony.txt", "r") as file:
+                        system_prompt = file.read()
                 print(f"\njson_task: {json_task}")
                 task = SuperTask(**json_task)
                 print(f"\ntask: {task}")
@@ -27,11 +30,11 @@ def lambda_handler(event, context):
                     messages=[
                         {
                             "role": "user",
-                            "content": f"{biftu_system_prompt}",
+                            "content": f"{system_prompt}",
                         },
                         {
                             "role": "user",
-                            "content": f"Create a detailed, actionable Kanban user story using this short prompt.\n{task.content}",
+                            "content": f"{task.content}",
                         },
                     ],
                     model="gpt-4o",
