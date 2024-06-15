@@ -28,14 +28,22 @@ def task_to_dict(task: Task) -> dict:
     return asdict(task)
 
 
-# https://app.todoist.com/app/project/biftu-6VV7CJ3xMGHQXh5r
-
-
 def tasks_to_json(tasks: List[Task]) -> str:
     tasks_dict = []
     for task in tasks:
-        print(f"\ntask.project_id: {task.project_id}, task.content: {task.content}")
-        if task.project_id == "2334637095":  # Biftu
+        print(
+            f"""
+              task.project_id: {task.project_id},
+              task.section_id: {task.section_id},
+              task.content: {task.content}"""
+        )
+        if task.project_id == "2334044360":  # Work
+            task_dict = task_to_dict(task)
+            tasks_dict.append(task_dict)
+        elif task.project_id == "2334044356":  # Home
+            task_dict = task_to_dict(task)
+            tasks_dict.append(task_dict)
+        elif task.project_id == "2334637119":  # Weight
             task_dict = task_to_dict(task)
             tasks_dict.append(task_dict)
     return json.dumps(tasks_dict)
