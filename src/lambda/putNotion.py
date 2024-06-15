@@ -9,28 +9,32 @@ def lambda_handler(event, context):
     secret_dict = json.loads(secret)
     notion_token = secret_dict["NOTION_API_TOKEN"]
     notion = Client(auth=notion_token)
-
     list_task_dict = []
     for json_task in json.loads(event["body"]):
         print(f"\njson_task: {json_task}")
         task = SuperTask(**json_task)
         # Create a new task in the Notion Kanban board
         try:
-            children_blocks = []
-            for line in task.agent_output.split("\n"):
-                    children_blocks.append(
-                        {
-                            "object": "block",
-                            "type": "paragraph",
-                            "paragraph": {"rich_text": [{"type": "text", "text": {"content": line}}]},
-                        }
-                    )
-
-            notion.pages.create(
-                parent={"database_id": "c8a2c83ac85b4fe08b36bf631604f017"},
-                properties={"title": {"title": [{"type": "text", "text": {"content": task.content}}]}},
-                children=children_blocks,
-            )
+            if task.project_id == "2334637095":  # Biftu
+                children_blocks = []
+                for line in task.agent_output.split("\n"):
+                        children_blocks.append(
+                            {
+                                "object": "block",
+                                "type": "paragraph",
+                                "paragraph": {"rich_text": [{"type": "text", "text": {"content": line}}]},
+                            }
+                        )
+                notion.pages.create(
+                    parent={"database_id": "c8a2c83ac85b4fe08b36bf631604f017"},
+                    properties={"title": {"title": [{"type": "text", "text": {"content": task.content}}]}},
+                    children=children_blocks,
+                )
+            elif task.project_id == "2334637119":  # Weight
+                notion.pages.create(
+                    parent={"database_id": "17f1c81bc0e04694a6d546173135b2ac"},
+                    properties={"title": {"title": [{"type": "text", "text": {"content": task.content}}]}},
+                )
             list_task_dict.append(task)
         except Exception as error:
             return {"statusCode": 500, "body": json.dumps({"error": str(error)})}

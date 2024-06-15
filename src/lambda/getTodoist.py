@@ -34,6 +34,7 @@ def task_to_dict(task: Task) -> dict:
 def tasks_to_json(tasks: List[Task]) -> str:
     tasks_dict = []
     for task in tasks:
+        print(f"\ntask.project_id: {task.project_id}, task.content: {task.content}")
         if task.project_id == "2334637095":  # Biftu
             task_dict = task_to_dict(task)
             tasks_dict.append(task_dict)

@@ -13,29 +13,30 @@ def lambda_handler(event, context):
         api_key=secret_dict["OPEN_AI_KEY"],
     )
 
-    with open("biftu.txt", "r") as file:
+    with open("src/system_prompts/biftu.txt", "r") as file:
         biftu_system_prompt = file.read()
 
     list_task_dict = []
     for json_task in json.loads(event["body"]):
         try:
-            print(f"\njson_task: {json_task}")
-            task = SuperTask(**json_task)
-            print(f"\ntask: {task}")
-            chat_completion = client.chat.completions.create(
-                messages=[
-                    {
-                        "role": "user",
-                        "content": f"{biftu_system_prompt}",
-                    },
-                    {
-                        "role": "user",
-                        "content": f"Create a detailed, actionable Kanban user story using this short prompt.\n{task.content}",
-                    },
-                ],
-                model="gpt-4o",
-            )
-            task.agent_output = chat_completion.choices[0].message.content
+            if task.project_id == "2334637095":  # Biftu
+                print(f"\njson_task: {json_task}")
+                task = SuperTask(**json_task)
+                print(f"\ntask: {task}")
+                chat_completion = client.chat.completions.create(
+                    messages=[
+                        {
+                            "role": "user",
+                            "content": f"{biftu_system_prompt}",
+                        },
+                        {
+                            "role": "user",
+                            "content": f"Create a detailed, actionable Kanban user story using this short prompt.\n{task.content}",
+                        },
+                    ],
+                    model="gpt-4o",
+                )
+                task.agent_output = chat_completion.choices[0].message.content
             list_task_dict.append(task)
         except Exception as error:
             print(error)
