@@ -148,7 +148,7 @@ resource "aws_iam_policy" "scheduler" {
         Action = [
           "iam:PassRole"
         ]
-        Resource = [aws.sfn_role.arn]
+        Resource = [aws_iam_role.sfn_role.arn]
       },
     ]
   })
