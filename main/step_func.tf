@@ -39,4 +39,5 @@ resource "aws_cloudwatch_event_target" "target" {
   rule      = aws_cloudwatch_event_rule.schedule.name
   target_id = aws_sfn_state_machine.step_function.name
   arn       = aws_sfn_state_machine.step_function.arn
+  role_arn  = aws_iam_role.lambda_role.arn
 }
