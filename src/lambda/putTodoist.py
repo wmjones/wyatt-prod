@@ -18,4 +18,4 @@ def lambda_handler(event, context):
             print(is_success)
         except Exception as error:
             return {"statusCode": 500, "body": json.dumps({"error": str(error)})}
-    return {"statusCode": response.status_code, "body": json.dumps({"message": "Task deleted"})}
+    return {"statusCode": 200, "body": json.dumps({"message": "Task deleted"})}

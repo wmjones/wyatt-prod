@@ -28,3 +28,15 @@ resource "aws_sfn_state_machine" "step_function" {
     }
   })
 }
+
+resource "aws_cloudwatch_event_rule" "schedule" {
+  name        = "StepFunctionSchedule"
+  description = "Schedule to run the Step Function every 5 minutes"
+  schedule_expression = "rate(5 minutes)"
+}
+
+resource "aws_cloudwatch_event_target" "target" {
+  rule      = aws_cloudwatch_event_rule.schedule.name
+  target_id = aws_sfn_state_machine.step_function.name
+  arn       = aws_sfn_state_machine.step_function.arn
+}
