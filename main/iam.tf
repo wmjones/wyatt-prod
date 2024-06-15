@@ -100,6 +100,11 @@ resource "aws_iam_role_policy" "sfn_policy" {
     Version = "2012-10-17",
     Statement = [
       {
+        Action = "states:StartExecution",
+        Effect = "Allow",
+        Resource = "*"
+      },
+      {
         Action = [
           "logs:CreateLogStream",
           "logs:PutLogEvents"
@@ -112,6 +117,39 @@ resource "aws_iam_role_policy" "sfn_policy" {
         Effect   = "Allow",
         Resource = "arn:aws:logs:*:*:*"
       }
+    ]
+  })
+}
+
+resource "aws_iam_role" "scheduler" {
+  name = "scheduler-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Service = ["scheduler.amazonaws.com"]
+        }
+        Action = "sts:AssumeRole"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_policy" "scheduler" {
+  name        = "scheduler-policy"
+  description = "Policy for the scheduler role"
+  policy      = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      { # allow scheduler to set the IAM roles of your task
+        Effect = "Allow",
+        Action = [
+          "iam:PassRole"
+        ]
+        Resource = [aws_iam_role.sfn_role.arn]
+      },
     ]
   })
 }
