@@ -17,14 +17,15 @@ resource "aws_iam_role" "lambda_role" {
         Principal = {
           AWS = aws_iam_role.sfn_role.arn
         }
-      },      
+      },
       {
         Action = "sts:AssumeRole",
         Effect = "Allow",
         Principal = {
           Service = "states.amazonaws.com",
         },
-    }],
+      },
+    ],
   })
 }
 
@@ -103,6 +104,16 @@ resource "aws_iam_role" "sfn_role" {
         Principal = {
           Service = "events.amazonaws.com"
         }
+      },
+      # make more restrictive
+      {
+        Effect =  "Allow",
+        Action = [
+          "lambda:*"
+        ],
+        Resource =  [
+          "*"
+        ]
       }
     ]
   })
