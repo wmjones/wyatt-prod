@@ -29,7 +29,7 @@ def lambda_handler(event, context):
                 notion.pages.create(
                     parent={"database_id": "c8a2c83ac85b4fe08b36bf631604f017"},
                     properties={
-                        "Title": {"title": [{"type": "text", "text": {"content": task.content}}]},
+                        "title": {"title": [{"type": "text", "text": {"content": task.content}}]},
                         "Deadline": {
                             "date": {
                                 "start": str(datetime.now().date()),
