@@ -104,16 +104,6 @@ resource "aws_iam_role" "sfn_role" {
         Principal = {
           Service = "events.amazonaws.com"
         }
-      },
-      # make more restrictive
-      {
-        Effect =  "Allow",
-        Action = [
-          "lambda:*"
-        ],
-        Resource =  [
-          "*"
-        ]
       }
     ]
   })
@@ -142,6 +132,16 @@ resource "aws_iam_role_policy" "sfn_policy" {
         Action   = "logs:CreateLogGroup",
         Effect   = "Allow",
         Resource = "arn:aws:logs:*:*:*"
+      },
+      # make more restrictive
+      {
+        Effect =  "Allow",
+        Action = [
+          "lambda:*"
+        ],
+        Resource =  [
+          "*"
+        ]
       }
     ]
   })
