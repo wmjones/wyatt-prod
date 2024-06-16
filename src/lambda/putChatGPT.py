@@ -40,7 +40,7 @@ def lambda_handler(event, context):
                     model="gpt-4o",
                 )
                 task.agent_output = chat_completion.choices[0].message.content
-            list_task_dict.append(task)
+                list_task_dict.append(task)
         except Exception as error:
             print(error)
             return {"statusCode": 500, "body": json.dumps({"error": str(error)})}
