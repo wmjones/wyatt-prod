@@ -1,0 +1,19 @@
+{
+    "projects": [
+        {
+            "project_id": 2334044356,
+            "name": "Home",
+            "passChatGPT": true
+        },
+        {
+            "project_id": 2334637119,
+            "name": "Weight",
+            "passChatGPT": true
+        },
+        {
+            "project_id": 2334044360,
+            "name": "Work",
+            "passChatGPT": false
+        }
+    ]
+}
