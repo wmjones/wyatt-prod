@@ -102,14 +102,6 @@ resource "aws_iam_role" "sfn_role" {
         Principal = {
           AWS = aws_iam_role.lambda_role.arn
         }
-      },
-      {
-        Action = "sts:AssumeRole",
-        Effect = "Allow",
-        Principal = {
-          Service = "events.amazonaws.com",
-          AWS = "events.amazonaws.com"
-        }
       }
     ]
   })
