@@ -31,10 +31,20 @@ class Task:
 @dataclass
 class SuperTask(Task):
     agent_output: str = ""
+    passChatGPT: bool = True
+    name: str = ""
 
-    def __init__(self, agent_output="", **kwargs):
+    def __init__(
+            self,
+            agent_output="",
+            passChatGPT=True,
+            name="",
+            **kwargs
+        ):
         super().__init__(**kwargs)
         self.agent_output = agent_output
+        self.passChatGPT = passChatGPT
+        self.name = ""
 
 
 def tasks_to_json(tasks: List[SuperTask]) -> str:

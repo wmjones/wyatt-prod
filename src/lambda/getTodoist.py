@@ -28,7 +28,7 @@ def task_to_dict(task: Task) -> dict:
     return asdict(task)
 
 
-def tasks_to_json(tasks: List[Task]) -> str:
+def tasks_to_json(tasks: List[Task], project_id_list: List) -> str:
     tasks_dict = []
     for task in tasks:
         print(
@@ -37,13 +37,7 @@ def tasks_to_json(tasks: List[Task]) -> str:
               task.section_id: {task.section_id},
               task.content: {task.content}"""
         )
-        if task.project_id == "2334044360":  # Work
-            task_dict = task_to_dict(task)
-            tasks_dict.append(task_dict)
-        elif task.project_id == "2334044356":  # Home
-            task_dict = task_to_dict(task)
-            tasks_dict.append(task_dict)
-        elif task.project_id == "2334637119":  # Weight
+        if int(task.project_id) in project_id_list:
             task_dict = task_to_dict(task)
             tasks_dict.append(task_dict)
     return json.dumps(tasks_dict)
@@ -54,11 +48,18 @@ def lambda_handler(event, context):
     secret_dict = json.loads(secret)
     todoist_api_key = secret_dict["TODOIST_API_KEY"]
     api = TodoistAPI(todoist_api_key)
+    # read in config.json
+    with open("config.json", "r") as file:
+        config = json.load(file)
+    n_project_ids = len(config["projects"])
+    project_id_list = [config['projects'][i]['project_id'] for i in range(n_project_ids)]
+    print(f"project_id_list: {project_id_list}")
 
     try:
         tasks = api.get_tasks()
-        json_str = tasks_to_json(tasks)
-        print(json_str)
+        print(f"tasks: {tasks}")
+        json_str = tasks_to_json(tasks, project_id_list)
+        print(f"json_str: {json_str}")
     except Exception as error:
         print(error)
 

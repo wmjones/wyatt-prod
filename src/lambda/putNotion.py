@@ -1,6 +1,7 @@
 import json
 from notion_client import Client
 from utils import get_secret, SuperTask, tasks_to_json
+from datetime import datetime, timedelta
 
 
 def lambda_handler(event, context):
@@ -15,7 +16,7 @@ def lambda_handler(event, context):
         task = SuperTask(**json_task)
         # Create a new task in the Notion Kanban board
         try:
-            if task.project_id == "2334044360":  # Work
+            if task.name == "Work":
                 children_blocks = []
                 for line in task.agent_output.split("\n"):
                     children_blocks.append(
@@ -27,18 +28,33 @@ def lambda_handler(event, context):
                     )
                 notion.pages.create(
                     parent={"database_id": "c8a2c83ac85b4fe08b36bf631604f017"},
-                    properties={"title": {"title": [{"type": "text", "text": {"content": task.content}}]}},
+                    properties={
+                        "Title": {"title": [{"type": "text", "text": {"content": task.content}}]},
+                        "Deadline": {
+                            "date": {
+                                "start": str(datetime.now().date()),
+                                "end": str((datetime.now() + timedelta(hours=17)).date()),
+                            }
+                        },
+                    },
                     children=children_blocks,
                 )
-            elif task.project_id == "2334044356":  # Home
+            elif task.name == "Home":
                 notion.pages.create(
                     parent={"database_id": "c8a2c83ac85b4fe08b36bf631604f017"},
                     properties={
                         "Title": {"title": [{"type": "text", "text": {"content": task.content}}]},
-                        "Team": {"select": {"name": "Home"}},
+                        "Team": {"select": {"name": task.team}},
+                        # Add a deadline date to the Deadline property where Start Date is current datetime and end date is 5pm EST today
+                        "Deadline": {
+                            "date": {
+                                "start": str(datetime.now().date()),
+                                "end": str((datetime.now() + timedelta(hours=17)).date()),
+                            }
+                        },
                     },
                 )
-            elif task.project_id == "2334637119":  # Weight
+            elif task.project_id == "Weight":
                 # Add to the Weight database where the Weight property gets the number in task.content
                 notion.pages.create(
                     parent={"database_id": "17f1c81bc0e04694a6d546173135b2ac"},
