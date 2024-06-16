@@ -16,6 +16,10 @@ def lambda_handler(event, context):
     list_task_dict = []
     for json_task in json.loads(event["body"]):
         try:
+            system_prompt = ""
+            task = SuperTask(**json_task)
+            print(f"\njson_task: {json_task}")
+            print(f"\ntask: {task}")            
             if task.project_id == "2334637095":  # Work
                 if task.section_id == "158311513":  # Biftu
                     with open("biftu.txt", "r") as file:
@@ -23,23 +27,23 @@ def lambda_handler(event, context):
                 elif task.section_id == "158311520":  # Tony
                     with open("tony.txt", "r") as file:
                         system_prompt = file.read()
-                print(f"\njson_task: {json_task}")
-                task = SuperTask(**json_task)
-                print(f"\ntask: {task}")
-                chat_completion = client.chat.completions.create(
-                    messages=[
-                        {
-                            "role": "user",
-                            "content": f"{system_prompt}",
-                        },
-                        {
-                            "role": "user",
-                            "content": f"{task.content}",
-                        },
-                    ],
-                    model="gpt-4o",
-                )
-                task.agent_output = chat_completion.choices[0].message.content
+                if system_prompt == "":
+                    pass
+                else:
+                    chat_completion = client.chat.completions.create(
+                        messages=[
+                            {
+                                "role": "user",
+                                "content": f"{system_prompt}",
+                            },
+                            {
+                                "role": "user",
+                                "content": f"{task.content}",
+                            },
+                        ],
+                        model="gpt-4o",
+                    )
+                    task.agent_output = chat_completion.choices[0].message.content
                 list_task_dict.append(task)
         except Exception as error:
             print(error)
