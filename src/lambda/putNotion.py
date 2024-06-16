@@ -30,6 +30,7 @@ def lambda_handler(event, context):
                     parent={"database_id": "c8a2c83ac85b4fe08b36bf631604f017"},
                     properties={
                         "title": {"title": [{"type": "text", "text": {"content": task.content}}]},
+                        "Team": {"select": {"name": task.name}},
                         "Deadline": {
                             "date": {
                                 "start": str(datetime.now().date()),
@@ -43,8 +44,8 @@ def lambda_handler(event, context):
                 notion.pages.create(
                     parent={"database_id": "c8a2c83ac85b4fe08b36bf631604f017"},
                     properties={
-                        "Title": {"title": [{"type": "text", "text": {"content": task.content}}]},
-                        "Team": {"select": {"name": task.team}},
+                        "title": {"title": [{"type": "text", "text": {"content": task.content}}]},
+                        "Team": {"select": {"name": task.name}},
                         # Add a deadline date to the Deadline property where Start Date is current datetime and end date is 5pm EST today
                         "Deadline": {
                             "date": {
