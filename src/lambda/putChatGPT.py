@@ -19,8 +19,12 @@ def lambda_handler(event, context):
             system_prompt = ""
             task = SuperTask(**json_task)
             print(f"\njson_task: {json_task}")
-            print(f"\ntask: {task}")            
-            if task.project_id == "2334637095":  # Work
+            print(f"\ntask: {task}")
+            if task.project_id == "2334044356":  # Home
+                list_task_dict.append(task)            
+            elif task.project_id == "2334637119":  # Weight
+                list_task_dict.append(task)
+            elif task.project_id == "2334637095":  # Work
                 if task.section_id == "158311513":  # Biftu
                     with open("biftu.txt", "r") as file:
                         system_prompt = file.read()
