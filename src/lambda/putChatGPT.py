@@ -7,7 +7,7 @@ def lambda_handler(event, context):
     print(f"event: {event}")
     secret = get_secret("open_ai_key", "us-east-2")
     secret_dict = json.loads(secret)
-    with open("src/lambda/config.json", "r") as file:
+    with open("config.json", "r") as file:
         config = json.load(file)
     n_project_ids = len(config["projects"])
     project_id_list = [
