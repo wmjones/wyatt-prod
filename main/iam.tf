@@ -114,7 +114,7 @@ resource "aws_iam_role" "sfn_role" {
         Resource =  [
           "*"
         ]
-      }        
+      }
     ]
   })
 }
