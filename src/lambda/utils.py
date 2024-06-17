@@ -44,7 +44,7 @@ class SuperTask(Task):
         super().__init__(**kwargs)
         self.agent_output = agent_output
         self.passChatGPT = passChatGPT
-        self.name = ""
+        self.name = name
 
 
 def tasks_to_json(tasks: List[SuperTask]) -> str:
