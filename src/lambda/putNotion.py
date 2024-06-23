@@ -1,6 +1,6 @@
 import json
 from notion_client import Client
-from utils import get_secret, SuperTask, tasks_to_json
+from utils import get_secret, SuperTask, tasks_to_json, markdown_to_notion_blocks
 from datetime import datetime, timedelta
 
 
@@ -17,16 +17,8 @@ def lambda_handler(event, context):
         # Create a new task in the Notion Kanban board
         try:
             if task.name == "Work":
-                children_blocks = []
+                children_blocks = markdown_to_notion_blocks(task.agent_output)
                 # TODO: figure out how to have this show up in Notion using makrdown formatting
-                for line in task.agent_output.split("\n"):
-                    children_blocks.append(
-                        {
-                            "object": "block",
-                            "type": "paragraph",
-                            "paragraph": {"rich_text": [{"type": "text", "text": {"content": line}}]},
-                        }
-                    )
                 notion.pages.create(
                     parent={"database_id": "c8a2c83ac85b4fe08b36bf631604f017"},
                     properties={
