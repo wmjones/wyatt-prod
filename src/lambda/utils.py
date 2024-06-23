@@ -56,6 +56,61 @@ def tasks_to_json(tasks: List[SuperTask]) -> str:
     return json.dumps(tasks_dict)
 
 
+def markdown_to_notion_blocks(markdown_content):
+    blocks = []
+    lines = markdown_content.split('\n')
+    
+    for line in lines:
+        if line.strip() == '':
+            continue
+        
+        # Check for headings
+        if line.startswith('#'):
+            level = len(line.split()[0])
+            content = line.lstrip('#').strip()
+            blocks.append({
+                "object": "block",
+                "type": f"heading_{level}",
+                f"heading_{level}": {
+                    "rich_text": [{"type": "text", "text": {"content": content}}]
+                }
+            })
+        
+        # Check for bullet lists
+        elif line.strip().startswith('- '):
+            content = line.strip()[2:]
+            blocks.append({
+                "object": "block",
+                "type": "bulleted_list_item",
+                "bulleted_list_item": {
+                    "rich_text": [{"type": "text", "text": {"content": content}}]
+                }
+            })
+        
+        # Check for numbered lists
+        elif re.match(r'^\d+\.', line.strip()):
+            content = re.sub(r'^\d+\.', '', line).strip()
+            blocks.append({
+                "object": "block",
+                "type": "numbered_list_item",
+                "numbered_list_item": {
+                    "rich_text": [{"type": "text", "text": {"content": content}}]
+                }
+            })
+        
+        # Everything else as a paragraph
+        else:
+            blocks.append({
+                "object": "block",
+                "type": "paragraph",
+                "paragraph": {
+                    "rich_text": [{"type": "text", "text": {"content": line}}]
+                }
+            })
+    
+    return blocks
+
+
 def get_secret(secret_name, region_name):
     # Create a Secrets Manager client
     session = boto3.session.Session()

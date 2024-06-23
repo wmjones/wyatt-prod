@@ -8,6 +8,7 @@ resource "aws_lambda_function" "todoist_lambda" {
   role             = aws_iam_role.lambda_role.arn
   handler          = "getTodoist.lambda_handler"
   runtime          = "python3.12"
+  timeout          = 10
   source_code_hash = filebase64sha256(data.local_file.lambda_zip.filename)
   environment {
     variables = {
