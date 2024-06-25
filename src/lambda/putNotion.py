@@ -17,7 +17,10 @@ def lambda_handler(event, context):
         # Create a new task in the Notion Kanban board
         try:
             if task.name == "Work":
-                children_blocks = markdown_to_notion_blocks(task.agent_output)
+                description_blocks = markdown_to_notion_blocks(task.description)
+                chat_blocks = markdown_to_notion_blocks(task.agent_output)
+                # combine description_blocks and chat_blocks as a single list
+                children_blocks = description_blocks + chat_blocks
                 # TODO: figure out how to have this show up in Notion using makrdown formatting
                 notion.pages.create(
                     parent={"database_id": "c8a2c83ac85b4fe08b36bf631604f017"},
@@ -35,6 +38,7 @@ def lambda_handler(event, context):
                     children=children_blocks,
                 )
             elif task.name == "Home":
+                children_blocks = markdown_to_notion_blocks(task.description)
                 notion.pages.create(
                     parent={"database_id": "c8a2c83ac85b4fe08b36bf631604f017"},
                     properties={
@@ -48,6 +52,7 @@ def lambda_handler(event, context):
                             }
                         },
                     },
+                    children=children_blocks,
                 )
             elif task.project_id == "Weight":
                 # Add to the Weight database where the Weight property gets the number in task.content
