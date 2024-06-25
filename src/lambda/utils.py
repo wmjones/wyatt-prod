@@ -154,3 +154,11 @@ def get_secret(secret_name, region_name):
         raise e
 
     return get_secret_value_response["SecretString"]
+
+
+if __name__ == "__main__":
+    # Read in the example.md file
+    with open("src/lambda/example.md", "r") as file:
+        markdown_content = file.read()
+    # test the markdown_to_notion_blocks function
+    print(markdown_to_notion_blocks(markdown_content))
