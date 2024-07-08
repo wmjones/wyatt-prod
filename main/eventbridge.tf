@@ -1,6 +1,6 @@
 resource "aws_scheduler_schedule" "step_function_schedule" {
   name                = "run-step-function-every-5-minutes"
-  schedule_expression = "rate(5 minutes)"
+  schedule_expression = "rate(15 minutes)"
   flexible_time_window {
     mode = "OFF"
   }
