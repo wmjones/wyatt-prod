@@ -2,7 +2,7 @@ terraform {
   cloud {
     organization = "wyatt-personal-aws"
     workspaces {
-      tags = ["wyatt-aws-personal"]
+      tags = ["wyatt-personal-aws"]
     }
   }
 }
