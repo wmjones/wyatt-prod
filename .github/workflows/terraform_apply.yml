@@ -11,7 +11,7 @@ env:
   TODOIST_API_SECRET: "${{ secrets.TODOIST_API_SECRET }}"
   NOTION_API_SECRET: "${{ secrets.NOTION_API_SECRET }}"
   TF_WORKSPACE: "${{ github.ref == 'refs/heads/main' && 'data-visualizer-prod' || 'data-visualizer-dev' }}"
-  CONFIG_DIRECTORY: "./"
+  CONFIG_DIRECTORY: "./main"
 
 jobs:
   deployment_package_zip:

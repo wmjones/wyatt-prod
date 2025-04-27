@@ -9,7 +9,7 @@ env:
   TF_WORKSPACE: "wyatt-personal-aws-dev"
   TODOIST_API_SECRET: "${{ secrets.TODOIST_API_SECRET }}"
   NOTION_API_SECRET: "${{ secrets.NOTION_API_SECRET }}"
-  CONFIG_DIRECTORY: "./"
+  CONFIG_DIRECTORY: "./main"
 
 jobs:
   deployment_package_zip:
@@ -30,6 +30,14 @@ jobs:
         with:
           name: deployment-package
           path: ./main/
+
+      - name: Debug - List Files
+        run: |
+          echo "Files in main directory:"
+          ls -la ./main/
+          echo "Terraform files found:"
+          find ./main/ -name "*.tf"
+        shell: bash
 
       - name: Upload Configuration
         uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.0.0
