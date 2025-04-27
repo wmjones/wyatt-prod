@@ -1,5 +1,14 @@
 resource "aws_s3_bucket" "wyatt-datalake-35315550" {
   bucket = "step-function-bucket-35315550"
+  
+  lifecycle {
+    # Prevent recreation - this bucket already exists
+    prevent_destroy = true
+    ignore_changes = [
+      bucket,
+      tags
+    ]
+  }
 }
 
 # S3 bucket for visualization data
@@ -25,8 +34,20 @@ resource "aws_s3_bucket_cors_configuration" "visualization_cors" {
   }
 }
 
-# Bucket policy to allow public read access to visualization data
+# Add Block Public Access settings first - important!
+resource "aws_s3_bucket_public_access_block" "visualization_data_bucket" {
+  bucket = aws_s3_bucket.visualization_data_bucket.id
+
+  block_public_acls       = false
+  block_public_policy     = false
+  ignore_public_acls      = false
+  restrict_public_buckets = false
+}
+
+# Add bucket policy AFTER configuring public access block
 resource "aws_s3_bucket_policy" "allow_access_from_webapp" {
+  depends_on = [aws_s3_bucket_public_access_block.visualization_data_bucket]
+  
   bucket = aws_s3_bucket.visualization_data_bucket.id
   policy = jsonencode({
     Version = "2012-10-17"
@@ -64,9 +85,4 @@ resource "aws_iam_role_policy" "visualization_lambda_policy" {
       }
     ]
   })
-}
-
-# Output the bucket name for reference
-output "visualization_data_bucket_name" {
-  value = aws_s3_bucket.visualization_data_bucket.bucket
 }

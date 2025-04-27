@@ -80,7 +80,7 @@ resource "aws_iam_role_policy" "lambda_policy" {
 }
 
 resource "aws_iam_role" "sfn_role" {
-  name = "sfn_role"
+  name = "sfn_execution_role_${terraform.workspace}"
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
     Statement = [
