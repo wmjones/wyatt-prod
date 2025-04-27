@@ -6,12 +6,11 @@ on:
         - main
 
 env:
-  TF_CLOUD_ORGANIZATION: "wyatt-prod"
+  TF_CLOUD_ORGANIZATION: "wyatt-personal-aws"
   TF_API_TOKEN: "${{ secrets.TF_API_TOKEN }}"
-  TODOIST_API_SECRET: "${{ secrets.TODOIST_API_SECRET }}"
-  NOTION_API_SECRET: "${{ secrets.NOTION_API_SECRET }}"
-  TF_WORKSPACE: "wyatt-prod"
-  CONFIG_DIRECTORY: "./"
+  # Variable for selecting workspace based on branch or other conditions
+  TF_WORKSPACE: "${{ github.ref == 'refs/heads/main' && 'data-visualizer-prod' || 'data-visualizer-dev' }}"
+  CONFIG_DIRECTORY: "./main"  # Updated from "./"
 
 jobs:
   deployment_package_zip:
@@ -45,6 +44,8 @@ jobs:
         with:
           workspace: ${{ env.TF_WORKSPACE }}
           configuration_version: ${{ steps.apply-upload.outputs.configuration_version_id }}
+          # Add var-file parameter based on workspace
+          var_file: ${{ env.TF_WORKSPACE == 'data-visualizer-prod' && 'prod.tfvars' || 'dev.tfvars' }}
 
       - name: Apply
         uses: hashicorp/tfc-workflows-github/actions/apply-run@v1.0.0
