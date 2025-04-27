@@ -6,7 +6,6 @@ on:
 env:
   TF_CLOUD_ORGANIZATION: "wyatt-personal-aws"
   TF_API_TOKEN: "${{ secrets.TF_API_TOKEN }}"
-  TF_WORKSPACE: "wyatt-personal-aws-dev"
   TODOIST_API_SECRET: "${{ secrets.TODOIST_API_SECRET }}"
   NOTION_API_SECRET: "${{ secrets.NOTION_API_SECRET }}"
   CONFIG_DIRECTORY: "./main"
