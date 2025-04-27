@@ -67,6 +67,15 @@ resource "aws_cloudfront_origin_access_control" "static_site" {
   signing_protocol                  = "sigv4"
 }
 
+# Find the Route 53 zone for the domain
+data "aws_route53_zone" "domain" {
+  count = var.create_dns_records ? 1 : 0
+  
+  name         = var.domain_name
+  private_zone = false
+}
+
+# Create the ACM certificate
 resource "aws_acm_certificate" "cert" {
   provider = aws.us_east_1  # ACM certificates for CloudFront must be in us-east-1
   
@@ -76,6 +85,68 @@ resource "aws_acm_certificate" "cert" {
   lifecycle {
     create_before_destroy = true
   }
+}
+
+# Create DNS validation records if enabled
+resource "aws_route53_record" "cert_validation" {
+  for_each = var.create_dns_records ? {
+    for dvo in aws_acm_certificate.cert.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      record = dvo.resource_record_value
+      type   = dvo.resource_record_type
+    }
+  } : {}
+
+  allow_overwrite = true
+  name            = each.value.name
+  records         = [each.value.record]
+  ttl             = 60
+  type            = each.value.type
+  zone_id         = data.aws_route53_zone.domain[0].zone_id
+}
+
+# Create ACM certificate validation resource if DNS records are enabled
+resource "aws_acm_certificate_validation" "cert" {
+  count = var.create_dns_records ? 1 : 0
+  
+  provider = aws.us_east_1
+  
+  certificate_arn         = aws_acm_certificate.cert.arn
+  validation_record_fqdns = [for record in aws_route53_record.cert_validation : record.fqdn]
+}
+
+# Create alias record for CloudFront distribution
+resource "aws_route53_record" "cloudfront_alias" {
+  count = var.create_dns_records ? 1 : 0
+  
+  zone_id = data.aws_route53_zone.domain[0].zone_id
+  name    = "app.${var.domain_name}"
+  type    = "A"
+
+  alias {
+    name                   = aws_cloudfront_distribution.static_site.domain_name
+    zone_id                = aws_cloudfront_distribution.static_site.hosted_zone_id
+    evaluate_target_health = false
+  }
+}
+
+# Add local-exec provisioner to output DNS validation instructions if not creating records
+resource "null_resource" "dns_validation_instructions" {
+  count = var.create_dns_records ? 0 : 1
+  
+  provisioner "local-exec" {
+    command = <<-EOF
+      echo "================================================================"
+      echo "IMPORTANT: Manual DNS validation required for HTTPS certificate!"
+      echo "Add the following DNS record to your domain to validate the ACM certificate:"
+      echo "Name: ${aws_acm_certificate.cert.domain_validation_options[0].resource_record_name}"
+      echo "Type: ${aws_acm_certificate.cert.domain_validation_options[0].resource_record_type}"
+      echo "Value: ${aws_acm_certificate.cert.domain_validation_options[0].resource_record_value}"
+      echo "================================================================"
+    EOF
+  }
+  
+  depends_on = [aws_acm_certificate.cert]
 }
 
 resource "aws_cloudfront_distribution" "static_site" {
@@ -90,7 +161,8 @@ resource "aws_cloudfront_distribution" "static_site" {
   default_root_object = "index.html"
   price_class         = "PriceClass_100"  # Use only North America and Europe edge locations
 
-  aliases = ["app.${var.domain_name}"]
+  # Use aliases conditionally based on certificate validation
+  aliases = var.use_default_cert ? [] : ["app.${var.domain_name}"]
 
   logging_config {
     include_cookies = false
@@ -144,9 +216,10 @@ resource "aws_cloudfront_distribution" "static_site" {
   }
 
   viewer_certificate {
-    acm_certificate_arn = aws_acm_certificate.cert.arn
-    ssl_support_method  = "sni-only"
-    minimum_protocol_version = "TLSv1.2_2021"
+    acm_certificate_arn      = var.use_default_cert ? null : (var.create_dns_records ? aws_acm_certificate_validation.cert[0].certificate_arn : aws_acm_certificate.cert.arn)
+    cloudfront_default_certificate = var.use_default_cert
+    ssl_support_method       = var.use_default_cert ? null : "sni-only"
+    minimum_protocol_version = var.use_default_cert ? null : "TLSv1.2_2021"
   }
   
   # This is important for SPA routing
