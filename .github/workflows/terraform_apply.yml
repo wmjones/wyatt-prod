@@ -4,13 +4,14 @@ on:
     push:
       branches:
         - main
+        - dev
 
 env:
   TF_CLOUD_ORGANIZATION: "wyatt-personal-aws"
   TF_API_TOKEN: "${{ secrets.TF_API_TOKEN }}"
   TODOIST_API_SECRET: "${{ secrets.TODOIST_API_SECRET }}"
   NOTION_API_SECRET: "${{ secrets.NOTION_API_SECRET }}"
-  TF_WORKSPACE: "${{ github.ref == 'refs/heads/main' && 'data-visualizer-prod' || 'data-visualizer-dev' }}"
+  TF_WORKSPACE: "${{ github.ref == 'refs/heads/main' && 'wyatt-private-aws-prod' || 'wyatt-private-aws-dev' }}"
   CONFIG_DIRECTORY: "./main"
 
 jobs:
