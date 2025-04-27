@@ -1,2 +1,2 @@
 aws_region = "us-east-2"
-cognito_domain_prefix = ""
+cognito_domain_prefix = "tmp"
