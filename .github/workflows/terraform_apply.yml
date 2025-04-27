@@ -44,8 +44,6 @@ jobs:
         with:
           workspace: ${{ env.TF_WORKSPACE }}
           configuration_version: ${{ steps.apply-upload.outputs.configuration_version_id }}
-          # Add var-file parameter based on workspace
-          var_file: ${{ env.TF_WORKSPACE == 'data-visualizer-prod' && 'prod.tfvars' || 'dev.tfvars' }}
 
       - name: Apply
         uses: hashicorp/tfc-workflows-github/actions/apply-run@v1.0.0
