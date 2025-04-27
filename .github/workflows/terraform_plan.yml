@@ -6,9 +6,8 @@ on:
 env:
   TF_CLOUD_ORGANIZATION: "wyatt-personal-aws"
   TF_API_TOKEN: "${{ secrets.TF_API_TOKEN }}"
-  # Default to dev workspace for PRs
-  TF_WORKSPACE: "data-visualizer-dev"
-  CONFIG_DIRECTORY: "./main"  # Updated from "./"
+  TF_WORKSPACE: "wyatt-personal-aws-dev"
+  CONFIG_DIRECTORY: "./main"
 
 jobs:
   deployment_package_zip:
