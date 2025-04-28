@@ -79,7 +79,7 @@ data "aws_route53_zone" "domain" {
 resource "aws_acm_certificate" "cert" {
   provider = aws.us_east_1  # ACM certificates for CloudFront must be in us-east-1
   
-  domain_name       = "app.${var.domain_name}"
+  domain_name       = "${var.app_prefix}.${var.domain_name}"
   validation_method = "DNS"
 
   lifecycle {
@@ -125,7 +125,7 @@ resource "aws_route53_record" "cloudfront_alias" {
   count = var.create_dns_records ? 1 : 0
   
   zone_id = data.aws_route53_zone.domain[0].zone_id
-  name    = "app.${var.domain_name}"
+  name    = "${var.app_prefix}.${var.domain_name}"
   type    = "A"
 
   alias {
@@ -147,11 +147,21 @@ resource "null_resource" "dns_validation_instructions" {
       echo "Name: ${local.domain_validation_options[0].resource_record_name}"
       echo "Type: ${local.domain_validation_options[0].resource_record_type}"
       echo "Value: ${local.domain_validation_options[0].resource_record_value}"
+      echo ""
+      echo "Once validated, set use_default_cert = false in your configuration"
       echo "================================================================"
     EOF
   }
   
   depends_on = [aws_acm_certificate.cert]
+}
+
+resource "aws_cloudfront_function" "url_rewrite" {
+  count = var.cloudfront_function_code != null ? 1 : 0
+  
+  name    = "${var.bucket_name}-url-rewrite"
+  runtime = "cloudfront-js-2.0"
+  code    = var.cloudfront_function_code
 }
 
 resource "aws_cloudfront_distribution" "static_site" {
@@ -161,13 +171,29 @@ resource "aws_cloudfront_distribution" "static_site" {
     origin_id                = "S3-${var.bucket_name}"
   }
 
+  # API Gateway origin (optional)
+  dynamic "origin" {
+    for_each = var.api_gateway_endpoint != null ? [1] : []
+    content {
+      domain_name = replace(var.api_gateway_endpoint, "/^https?:\\/\\//", "")
+      origin_id   = "ApiGateway"
+      
+      custom_origin_config {
+        http_port              = 80
+        https_port             = 443
+        origin_protocol_policy = "https-only"
+        origin_ssl_protocols   = ["TLSv1.2"]
+      }
+    }
+  }
+
   enabled             = true
   is_ipv6_enabled     = true
   default_root_object = "index.html"
   price_class         = "PriceClass_100"  # Use only North America and Europe edge locations
 
   # Use aliases conditionally based on certificate validation
-  aliases = var.use_default_cert ? [] : ["app.${var.domain_name}"]
+  aliases = var.use_default_cert ? [] : ["${var.app_prefix}.${var.domain_name}"]
 
   logging_config {
     include_cookies = false
@@ -180,17 +206,23 @@ resource "aws_cloudfront_distribution" "static_site" {
     cached_methods   = ["GET", "HEAD"]
     target_origin_id = "S3-${var.bucket_name}"
 
-    forwarded_values {
-      query_string = false
-      cookies {
-        forward = "none"
-      }
-    }
-
+    # Use new cache policy and origin request policy system instead of legacy forwarded_values
+    cache_policy_id          = "658327ea-f89d-4fab-a63d-7e88639e58f6" # CachingOptimized
+    origin_request_policy_id = "88a5eaf4-2fd4-4709-b370-b4c650ea3fcf" # CORS-S3Origin
+    
     viewer_protocol_policy = "redirect-to-https"
     min_ttl                = 0
     default_ttl            = 3600
     max_ttl                = 86400
+    
+    # Add CloudFront Function if provided
+    dynamic "function_association" {
+      for_each = var.cloudfront_function_code != null ? [1] : []
+      content {
+        event_type   = "viewer-request"
+        function_arn = aws_cloudfront_function.url_rewrite[0].arn
+      }
+    }
   }
   
   # Don't cache index.html
@@ -200,18 +232,30 @@ resource "aws_cloudfront_distribution" "static_site" {
     cached_methods   = ["GET", "HEAD"]
     target_origin_id = "S3-${var.bucket_name}"
 
-    forwarded_values {
-      query_string = false
-      cookies {
-        forward = "none"
-      }
-    }
-
-    min_ttl                = 0
-    default_ttl            = 0
-    max_ttl                = 0
+    # Use new cache policy and origin request policy system instead of legacy forwarded_values
+    cache_policy_id          = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad" # CachingDisabled
+    origin_request_policy_id = "88a5eaf4-2fd4-4709-b370-b4c650ea3fcf" # CORS-S3Origin
+    
     compress               = true
     viewer_protocol_policy = "redirect-to-https"
+  }
+  
+  # API Gateway cache behavior (optional)
+  dynamic "ordered_cache_behavior" {
+    for_each = var.enable_api_cache_behavior && var.api_gateway_endpoint != null ? [1] : []
+    content {
+      path_pattern     = var.api_path_pattern
+      allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
+      cached_methods   = ["GET", "HEAD"]
+      target_origin_id = "ApiGateway"
+      
+      # Use new cache policy and origin request policy system
+      cache_policy_id          = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad" # CachingDisabled
+      origin_request_policy_id = "b689b0a8-53d0-40ab-baf2-68738e2966ac" # AllViewerExceptHostHeader
+      
+      compress               = true
+      viewer_protocol_policy = "redirect-to-https"
+    }
   }
 
   restrictions {
@@ -227,19 +271,15 @@ resource "aws_cloudfront_distribution" "static_site" {
     minimum_protocol_version = var.use_default_cert ? null : "TLSv1.2_2021"
   }
   
-  # This is important for SPA routing
-  custom_error_response {
-    error_code            = 403
-    response_code         = 200
-    response_page_path    = "/index.html"
-    error_caching_min_ttl = 0
-  }
-
-  custom_error_response {
-    error_code            = 404
-    response_code         = 200
-    response_page_path    = "/index.html"
-    error_caching_min_ttl = 0
+  # Add SPA routing for single-page applications
+  dynamic "custom_error_response" {
+    for_each = var.single_page_application ? [1, 2] : []
+    content {
+      error_code            = custom_error_response.key == 1 ? 403 : 404
+      response_code         = 200
+      response_page_path    = "/index.html"
+      error_caching_min_ttl = 0
+    }
   }
 }
 
