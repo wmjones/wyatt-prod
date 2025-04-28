@@ -1,5 +1,7 @@
 import json
 
+# Import httpx for explicit proxy configuration
+import httpx
 from openai import OpenAI
 from utils import SuperTask, get_secret, tasks_to_json
 
@@ -16,7 +18,12 @@ def lambda_handler(event, context):
 
     project_id_list = [project["project_id"] for project in config["projects"]]
 
-    client = OpenAI(api_key=secret_dict["OPEN_AI_KEY"])
+    # Create custom httpx client with explicit proxy settings
+    # This avoids the 'proxies' parameter error by handling proxies at the httpx level
+    http_client = httpx.Client(proxies=None)  # Explicitly disable proxies
+
+    # Initialize OpenAI client with the custom http_client
+    client = OpenAI(api_key=secret_dict["OPEN_AI_KEY"], http_client=http_client)
 
     tasks = []
     for json_task in json.loads(event["body"]):
@@ -66,11 +73,3 @@ def lambda_handler(event, context):
         "statusCode": 200,
         "body": tasks_to_json(tasks),
     }
-
-
-if __name__ == "__main__":
-    event = {
-        "statusCode": 200,
-        "body": ('[{"assignee_id": null, "assigner_id": null, "comment_count": 0, ' '"is_completed": false, "content": "add new todoist pipeline for weight", ' '"created_at": "2024-06-12T11:10:34.825542Z", "creator_id": "49425011", ' '"description": "", "due": null, "id": "8110672962", "labels": [], ' '"order": 1, "parent_id": null, "priority": 1, "project_id": "2334044360", ' '"section_id": "158311513", "url": ' '"https://todoist.com/app/task/8110672962", "duration": null, ' '"sync_id": null}]'),
-    }
-    print(lambda_handler(event, None))
