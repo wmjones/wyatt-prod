@@ -19,12 +19,13 @@ locals {
 module "todoist_lambda" {
   source = "./modules/lambda_function"
 
-  function_name = "todoist_lambda"
-  description   = "Lambda function to get incomplete tasks from Todoist"
-  handler       = "getTodoist.lambda_handler"
-  runtime       = "python3.12"
-  timeout       = 10
-  zip_file      = local.lambda_zip_path
+  function_name    = "todoist_lambda"
+  description      = "Lambda function to get incomplete tasks from Todoist"
+  handler          = "getTodoist.lambda_handler"
+  runtime          = "python3.12"
+  timeout          = 10
+  zip_file         = local.lambda_zip_path
+  create_log_group = false
 
   environment_variables = local.common_env_vars
 
@@ -50,12 +51,13 @@ module "todoist_lambda" {
 module "chatgpt_lambda" {
   source = "./modules/lambda_function"
 
-  function_name = "ChatGPT_lambda"
-  description   = "Lambda function to process tasks with ChatGPT"
-  handler       = "putChatGPT.lambda_handler"
-  runtime       = "python3.12"
-  timeout       = 15
-  zip_file      = local.lambda_zip_path
+  function_name    = "ChatGPT_lambda"
+  description      = "Lambda function to process tasks with ChatGPT"
+  handler          = "putChatGPT.lambda_handler"
+  runtime          = "python3.12"
+  timeout          = 15
+  zip_file         = local.lambda_zip_path
+  create_log_group = false
 
   environment_variables = local.common_env_vars
 
@@ -81,12 +83,13 @@ module "chatgpt_lambda" {
 module "notion_lambda" {
   source = "./modules/lambda_function"
 
-  function_name = "notion_lambda"
-  description   = "Lambda function to create pages in Notion"
-  handler       = "putNotion.lambda_handler"
-  runtime       = "python3.12"
-  timeout       = 10
-  zip_file      = local.lambda_zip_path
+  function_name    = "notion_lambda"
+  description      = "Lambda function to create pages in Notion"
+  handler          = "putNotion.lambda_handler"
+  runtime          = "python3.12"
+  timeout          = 10
+  zip_file         = local.lambda_zip_path
+  create_log_group = false
 
   environment_variables = local.common_env_vars
 
@@ -112,12 +115,13 @@ module "notion_lambda" {
 module "put_todoist_lambda" {
   source = "./modules/lambda_function"
 
-  function_name = "put_todoist_lambda"
-  description   = "Lambda function to update tasks in Todoist"
-  handler       = "putTodoist.lambda_handler"
-  runtime       = "python3.12"
-  timeout       = 10
-  zip_file      = local.lambda_zip_path
+  function_name    = "put_todoist_lambda"
+  description      = "Lambda function to update tasks in Todoist"
+  handler          = "putTodoist.lambda_handler"
+  runtime          = "python3.12"
+  timeout          = 10
+  zip_file         = local.lambda_zip_path
+  create_log_group = false
 
   environment_variables = local.common_env_vars
 
@@ -144,12 +148,13 @@ module "put_todoist_lambda" {
 module "get_visualization_data" {
   source = "./modules/lambda_function"
 
-  function_name = "get_visualization_data"
-  description   = "Lambda function to retrieve visualization data from S3"
-  handler       = "getVisualizationData.lambda_handler"
-  runtime       = "python3.12"
-  timeout       = 10
-  zip_file      = local.lambda_zip_path
+  function_name    = "get_visualization_data"
+  description      = "Lambda function to retrieve visualization data from S3"
+  handler          = "getVisualizationData.lambda_handler"
+  runtime          = "python3.12"
+  timeout          = 10
+  zip_file         = local.lambda_zip_path
+  create_log_group = false
 
   environment_variables = merge(local.common_env_vars, {
     VISUALIZATION_BUCKET = module.visualization_data_bucket.s3_bucket_id
@@ -180,12 +185,13 @@ module "get_visualization_data" {
 module "put_visualization_data" {
   source = "./modules/lambda_function"
 
-  function_name = "put_visualization_data"
-  description   = "Lambda function to store visualization data in S3"
-  handler       = "putVisualizationData.lambda_handler"
-  runtime       = "python3.12"
-  timeout       = 10
-  zip_file      = local.lambda_zip_path
+  function_name    = "put_visualization_data"
+  description      = "Lambda function to store visualization data in S3"
+  handler          = "putVisualizationData.lambda_handler"
+  runtime          = "python3.12"
+  timeout          = 10
+  zip_file         = local.lambda_zip_path
+  create_log_group = false
 
   environment_variables = merge(local.common_env_vars, {
     VISUALIZATION_BUCKET = module.visualization_data_bucket.s3_bucket_id

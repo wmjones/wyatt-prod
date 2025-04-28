@@ -118,11 +118,11 @@ resource "aws_iam_role_policy" "sfn_policy" {
         Effect   = "Allow"
         Resource = "arn:${data.aws_partition.current.partition}:logs:*:*:*"
       },
-      # TODO: tighten the scope of these permissions
+      # More specific Lambda permissions
       {
         Effect   = "Allow"
-        Action   = ["lambda:*"]
-        Resource = ["*"]
+        Action   = ["lambda:InvokeFunction", "lambda:GetFunction"]
+        Resource = "arn:${data.aws_partition.current.partition}:lambda:*:*:function:*"
       }
     ]
   })
