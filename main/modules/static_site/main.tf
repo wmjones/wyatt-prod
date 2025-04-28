@@ -87,6 +87,11 @@ resource "aws_acm_certificate" "cert" {
   }
 }
 
+# Extract the first validation option to a local variable for easier use
+locals {
+  domain_validation_options = tolist(aws_acm_certificate.cert.domain_validation_options)
+}
+
 # Create DNS validation records if enabled
 resource "aws_route53_record" "cert_validation" {
   for_each = var.create_dns_records ? {
@@ -139,9 +144,9 @@ resource "null_resource" "dns_validation_instructions" {
       echo "================================================================"
       echo "IMPORTANT: Manual DNS validation required for HTTPS certificate!"
       echo "Add the following DNS record to your domain to validate the ACM certificate:"
-      echo "Name: ${aws_acm_certificate.cert.domain_validation_options[0].resource_record_name}"
-      echo "Type: ${aws_acm_certificate.cert.domain_validation_options[0].resource_record_type}"
-      echo "Value: ${aws_acm_certificate.cert.domain_validation_options[0].resource_record_value}"
+      echo "Name: ${local.domain_validation_options[0].resource_record_name}"
+      echo "Type: ${local.domain_validation_options[0].resource_record_type}"
+      echo "Value: ${local.domain_validation_options[0].resource_record_value}"
       echo "================================================================"
     EOF
   }
