@@ -1,5 +1,35 @@
 data "aws_partition" "current" {}
 
+# Dedicated EventBridge role for invoking Step Functions
+resource "aws_iam_role" "eventbridge_role" {
+  name = "eventbridge_role_${terraform.workspace}"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect    = "Allow"
+        Principal = { Service = "events.amazonaws.com" }
+        Action    = "sts:AssumeRole"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy" "eventbridge_policy" {
+  name = "eventbridge_policy"
+  role = aws_iam_role.eventbridge_role.id
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect   = "Allow"
+        Action   = "states:StartExecution"
+        Resource = module.todoist_workflow.state_machine_arn
+      }
+    ]
+  })
+}
+
 resource "aws_iam_role" "lambda_role" {
   name = "lambda_exec_role"
 
