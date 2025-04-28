@@ -1,14 +1,6 @@
 resource "aws_s3_bucket" "wyatt-datalake-35315550" {
   bucket = "step-function-bucket-35315550"
   
-  lifecycle {
-    # Prevent recreation - this bucket already exists
-    prevent_destroy = true
-    ignore_changes = [
-      bucket,
-      tags
-    ]
-  }
 }
 
 # S3 bucket for visualization data
