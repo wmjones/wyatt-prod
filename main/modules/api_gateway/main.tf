@@ -1,38 +1,22 @@
-module "api_gateway" {
-  source  = "terraform-aws-modules/apigateway-v2/aws"
-  version = "~> 2.0"
-
-  name          = var.api_name
-  description   = var.api_description
-  protocol_type = "HTTP"
-
-  cors_configuration = {
-    allow_headers     = ["content-type", "x-amz-date", "authorization", "x-api-key", "x-amz-security-token", "x-amz-user-agent"]
-    allow_methods     = ["OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE"]
-    allow_origins     = var.allowed_origins
-    allow_credentials = true
-  }
-
-  # Custom domain
-  domain_name                 = var.create_custom_domain ? var.domain_name : null
-  domain_name_certificate_arn = var.create_custom_domain ? var.certificate_arn : null
-
-  # Access logs
-  default_stage_access_log_destination_arn = var.create_logs ? aws_cloudwatch_log_group.api_gateway[0].arn : null
-  default_stage_access_log_format          = var.create_logs ? "$context.identity.sourceIp - - [$context.requestTime] \"$context.httpMethod $context.routeKey $context.protocol\" $context.status $context.responseLength $context.requestId $context.integrationErrorMessage" : null
-
-  # Routes and integrations
-  integrations = var.integrations
-
-  tags = var.tags
+variable "domain_name" {
+  description = "Fully‑qualified custom domain name for the API (e.g., api.example.com). Leave blank when create_custom_domain is false."
+  type        = string
+  default     = ""
 }
 
-# Create CloudWatch log group if logs are enabled
-resource "aws_cloudwatch_log_group" "api_gateway" {
-  count = var.create_logs ? 1 : 0
+variable "create_custom_domain" {
+  description = "Set to true to provision an API Gateway custom domain. Requires domain_name and certificate_arn."
+  type        = bool
+  default     = false
 
-  name              = "/aws/apigateway/${var.api_name}-${terraform.workspace}"
-  retention_in_days = 7
+  validation {
+    condition     = !var.create_custom_domain || (var.domain_name != "" && var.certificate_arn != "")
+    error_message = "When create_custom_domain is true, both domain_name and certificate_arn must be provided."
+  }
+}
 
-  tags = var.tags
+variable "certificate_arn" {
+  description = "ACM certificate ARN to use with the custom domain."
+  type        = string
+  default     = ""
 }
