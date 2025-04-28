@@ -10,7 +10,7 @@ output "state_machine_arn" {
 
 output "state_machine_name" {
   description = "The name of the Step Function"
-  value       = module.step_function.state_machine_name
+  value       = var.name
 }
 
 output "state_machine_role_arn" {

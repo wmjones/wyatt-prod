@@ -15,7 +15,7 @@ output "api_arn" {
 
 output "stage_id" {
   description = "The default stage ID"
-  value       = module.api_gateway.apigatewayv2_stage_id
+  value       = module.api_gateway.default_apigatewayv2_stage_id
 }
 
 output "custom_domain_url" {

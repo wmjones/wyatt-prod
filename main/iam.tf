@@ -53,22 +53,22 @@ resource "aws_iam_role_policy" "lambda_policy" {
       {
         Action   = "lambda:InvokeFunction",
         Effect   = "Allow",
-        Resource = "${aws_lambda_function.todoist_lambda.arn}"
+        Resource = "${module.todoist_lambda.function_arn}"
       },
       {
         Action   = "lambda:InvokeFunction",
         Effect   = "Allow",
-        Resource = "${aws_lambda_function.chatgpt_lambda.arn}"
+        Resource = "${module.chatgpt_lambda.function_arn}"
       },
       {
         Action   = "lambda:InvokeFunction",
         Effect   = "Allow",
-        Resource = "${aws_lambda_function.notion_lambda.arn}"
+        Resource = "${module.notion_lambda.function_arn}"
       },
       {
         Action   = "lambda:InvokeFunction",
         Effect   = "Allow",
-        Resource = "${aws_lambda_function.put_todoist_lambda.arn}"
+        Resource = "${module.put_todoist_lambda.function_arn}"
       },
       {
         Action   = "secretsmanager:GetSecretValue",
