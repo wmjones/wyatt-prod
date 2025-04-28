@@ -16,11 +16,14 @@ This module creates and configures an HTTP API Gateway that serves as the backen
 
 | Name | Description | Type | Required |
 |------|-------------|------|----------|
-| `name` | Name of the API Gateway | `string` | Yes |
-| `description` | Description of the API Gateway | `string` | No |
-| `cors_configuration` | CORS settings for the API | `map(any)` | No |
-| `lambda_integrations` | Map of Lambda functions to integrate with API routes | `map(any)` | Yes |
-| `authorizers` | Cognito authorizers configuration | `map(any)` | No |
+| `api_name` | Name of the API Gateway | `string` | Yes |
+| `api_description` | Description of the API Gateway | `string` | No |
+| `allowed_origins` | List of allowed origins for CORS | `list(string)` | No |
+| `integrations` | Map of API Gateway route integrations (key is route, value contains integration_uri or arn) | `map(any)` | Yes |
+| `create_custom_domain` | Whether to create a custom domain | `bool` | No |
+| `domain_name` | Custom domain name (required if create_custom_domain is true) | `string` | No |
+| `certificate_arn` | Certificate ARN (required if create_custom_domain is true) | `string` | No |
+| `create_logs` | Whether to create CloudWatch logs | `bool` | No |
 | `tags` | Resource tags | `map(string)` | No |
 
 ## Outputs
@@ -42,3 +45,40 @@ The API Gateway module is a critical component in the D3 Dashboard architecture:
 - **Security Boundary**: Provides a secure interface for accessing backend resources and data
 
 This module is used in conjunction with the Lambda Function module to create a complete serverless backend for the application.
+
+## Usage Example
+
+```hcl
+module "api_gateway" {
+  source = "./modules/api_gateway"
+
+  api_name        = "my-api"
+  api_description = "API for D3 Dashboard"
+
+  allowed_origins = ["https://dashboard.example.com"]
+
+  integrations = {
+    "GET /items" = {
+      integration_uri    = module.get_items_lambda.function_invoke_arn
+      integration_type   = "AWS_PROXY"
+      integration_method = "POST"
+    },
+    "POST /items" = {
+      integration_uri    = module.create_item_lambda.function_invoke_arn
+      integration_type   = "AWS_PROXY"
+      integration_method = "POST"
+    }
+  }
+
+  create_custom_domain = true
+  domain_name          = "api.example.com"
+  certificate_arn      = "arn:aws:acm:us-east-1:123456789012:certificate/abcdef-1234-5678-abcd-12345678"
+
+  tags = {
+    Environment = "production"
+    Project     = "D3Dashboard"
+  }
+}
+```
+
+Note that the `integrations` map requires the `integration_uri` attribute for each integration, which is typically the invoke ARN of a Lambda function.

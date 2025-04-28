@@ -58,7 +58,7 @@ resource "aws_apigatewayv2_integration" "this" {
 
   api_id                 = aws_apigatewayv2_api.this.id
   integration_type       = try(each.value.integration_type, "AWS_PROXY")
-  integration_uri        = each.value.arn
+  integration_uri        = lookup(each.value, "integration_uri", lookup(each.value, "arn", null))
   integration_method     = try(each.value.integration_method, "POST")
   payload_format_version = try(each.value.payload_format_version, "2.0")
 }
