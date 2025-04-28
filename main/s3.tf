@@ -82,13 +82,13 @@ data "aws_iam_policy_document" "visualization_data_policy" {
     ]
     
     resources = [
-      "${module.visualization_data_bucket.s3_bucket_arn}/\${cognito-identity.amazonaws.com:sub}/*"
+      "${module.visualization_data_bucket.s3_bucket_arn}/$${cognito-identity.amazonaws.com:sub}/*"
     ]
     
     condition {
       test     = "StringEquals"
       variable = "aws:PrincipalTag/sub"
-      values   = ["\${cognito-identity.amazonaws.com:sub}"]
+      values   = ["$${cognito-identity.amazonaws.com:sub}"]
     }
   }
 }
