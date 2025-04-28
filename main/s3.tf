@@ -35,19 +35,25 @@ module "visualization_data_bucket" {
   }
   
   # CORS configuration
-  cors_rule = {
-    allowed_methods = ["GET", "PUT", "POST", "DELETE", "HEAD"]
-    allowed_origins = ["https://${var.app_prefix}.${var.domain_name}", "http://localhost:3000"]
-    allowed_headers = ["*"]
-    expose_headers  = ["ETag"]
-    max_age_seconds = 3000
-  }
+  cors_rule = [
+    {
+      allowed_methods = ["GET", "PUT", "POST", "DELETE", "HEAD"]
+      allowed_origins = ["https://${var.app_prefix}.${var.domain_name}", "http://localhost:3000"]
+      allowed_headers = ["*"]
+      expose_headers  = ["ETag"]
+      max_age_seconds = 3000
+    }
+  ]
   
   # Optional lifecycle rules for managing storage costs
   lifecycle_rule = [
     {
       id      = "transition-to-ia"
       enabled = true
+      
+      filter {
+        prefix = ""
+      }
       
       transition = [
         {

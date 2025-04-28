@@ -23,7 +23,7 @@ resource "aws_cognito_user_pool" "main" {
   }
   
   # User pool deletion protection
-  deletion_protection = var.deletion_protection
+  deletion_protection = var.deletion_protection ? "ACTIVE" : "INACTIVE"
   
   # User attributes
   schema {

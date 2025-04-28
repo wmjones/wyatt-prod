@@ -7,6 +7,7 @@ module "api_gateway" {
   allowed_origins = ["https://${var.app_prefix}.${var.domain_name}", "http://localhost:3000"]
   
   create_logs = true
+  create_custom_domain = false
   
   # Integration with Lambda functions for API routes
   integrations = {
