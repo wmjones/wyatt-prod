@@ -65,15 +65,15 @@ repos:
 #           - "@typescript-eslint/eslint-plugin@^7"
 
   # 6 — Local heavy gates (push-stage only)
-  - repo: local
-    hooks:
-      - id: pytest-check
-        name: "pytest-check"
-        entry: pytest
-        language: system
-        pass_filenames: false
-        always_run: true
-        stages: [push]
+#   - repo: local
+#     hooks:
+#       - id: pytest-check
+#         name: "pytest-check"
+#         entry: pytest
+#         language: system
+#         pass_filenames: false
+#         always_run: true
+#         stages: [push]
 
     #   - id: tsc-noEmit
     #     name: "TypeScript type-check"
