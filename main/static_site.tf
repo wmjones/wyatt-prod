@@ -16,6 +16,10 @@ module "static_site" {
 
   bucket_name = "${lower(var.project_name)}-app-${terraform.workspace}-${random_id.bucket_suffix.hex}"
   domain_name = var.domain_name
+  
+  # Control certificate validation behavior
+  create_dns_records = false  # Set to true if you want to automate DNS validation via Route53
+  use_default_cert   = true   # Set to false once you've validated your certificate manually
 
   tags = {
     Component = "Frontend"

@@ -13,3 +13,15 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "create_dns_records" {
+  description = "Whether to create DNS records for certificate validation and CloudFront alias"
+  type        = bool
+  default     = false
+}
+
+variable "use_default_cert" {
+  description = "Use CloudFront default certificate instead of ACM certificate"
+  type        = bool
+  default     = false
+}
