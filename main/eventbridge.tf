@@ -16,7 +16,7 @@ module "eventbridge_scheduler" {
       {
         name     = "trigger-todoist-workflow"
         arn      = module.todoist_workflow.state_machine_arn
-        role_arn = aws_iam_role.sfn_role.arn
+        role_arn = aws_iam_role.eventbridge_role.arn
         input_transformer = {
           input_paths = {
             time = "$.time"
