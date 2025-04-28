@@ -63,7 +63,7 @@ The Todoist integration workflow includes:
 This project leverages several key modules from the terraform-aws-modules collection:
 
 - **VPC**: Network configuration
-- **Lambda**: Serverless compute functions 
+- **Lambda**: Serverless compute functions
 - **DynamoDB**: NoSQL database tables
 - **S3**: Object storage buckets
 - **CloudFront**: Content delivery network

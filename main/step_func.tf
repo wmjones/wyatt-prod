@@ -1,10 +1,10 @@
 module "todoist_workflow" {
   source = "./modules/step_function"
-  
+
   name     = "${var.project_name}-todoist-workflow-${terraform.workspace}"
   type     = "STANDARD"
   role_arn = aws_iam_role.sfn_role.arn
-  
+
   definition = jsonencode({
     Comment : "Todoist task enrichment workflow with ChatGPT and Notion integration",
     StartAt : "GetIncompleteTasks",
@@ -63,7 +63,7 @@ module "todoist_workflow" {
       }
     }
   })
-  
+
   tags = {
     Component = "Productivity System"
     Name      = "Todoist Workflow"

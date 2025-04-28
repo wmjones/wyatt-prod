@@ -1,6 +1,6 @@
 resource "aws_s3_bucket" "frontend" {
   bucket = var.bucket_name
-  
+
   tags = {
     Name = "Frontend Website Bucket"
   }
@@ -39,7 +39,7 @@ resource "aws_s3_bucket_public_access_block" "frontend" {
 
 resource "aws_s3_bucket" "logs" {
   bucket = "${var.bucket_name}-logs"
-  
+
   tags = {
     Name = "CloudFront Logs Bucket"
   }
@@ -55,7 +55,7 @@ resource "aws_s3_bucket_ownership_controls" "logs" {
 
 resource "aws_s3_bucket_acl" "logs" {
   depends_on = [aws_s3_bucket_ownership_controls.logs]
-  
+
   bucket = aws_s3_bucket.logs.id
   acl    = "private"
 }
@@ -70,15 +70,15 @@ resource "aws_cloudfront_origin_access_control" "frontend" {
 # Find the Route 53 zone for the domain
 data "aws_route53_zone" "domain" {
   count = var.create_dns_records ? 1 : 0
-  
+
   name         = var.domain_name
   private_zone = false
 }
 
 # Create the ACM certificate
 resource "aws_acm_certificate" "cert" {
-  provider = aws.us_east_1  # ACM certificates for CloudFront must be in us-east-1
-  
+  provider = aws.us_east_1 # ACM certificates for CloudFront must be in us-east-1
+
   domain_name       = "${var.app_prefix}.${var.domain_name}"
   validation_method = "DNS"
 
@@ -113,9 +113,9 @@ resource "aws_route53_record" "cert_validation" {
 # Create ACM certificate validation resource if DNS records are enabled
 resource "aws_acm_certificate_validation" "cert" {
   count = var.create_dns_records ? 1 : 0
-  
+
   provider = aws.us_east_1
-  
+
   certificate_arn         = aws_acm_certificate.cert.arn
   validation_record_fqdns = [for record in aws_route53_record.cert_validation : record.fqdn]
 }
@@ -123,7 +123,7 @@ resource "aws_acm_certificate_validation" "cert" {
 # Create alias record for CloudFront distribution
 resource "aws_route53_record" "cloudfront_alias" {
   count = var.create_dns_records ? 1 : 0
-  
+
   zone_id = data.aws_route53_zone.domain[0].zone_id
   name    = "${var.app_prefix}.${var.domain_name}"
   type    = "A"
@@ -138,7 +138,7 @@ resource "aws_route53_record" "cloudfront_alias" {
 # Add local-exec provisioner to output DNS validation instructions if not creating records
 resource "null_resource" "dns_validation_instructions" {
   count = var.create_dns_records ? 0 : 1
-  
+
   provisioner "local-exec" {
     command = <<-EOF
       echo "================================================================"
@@ -152,13 +152,13 @@ resource "null_resource" "dns_validation_instructions" {
       echo "================================================================"
     EOF
   }
-  
+
   depends_on = [aws_acm_certificate.cert]
 }
 
 resource "aws_cloudfront_function" "url_rewrite" {
   count = var.cloudfront_function_code != null ? 1 : 0
-  
+
   name    = "${var.bucket_name}-url-rewrite"
   runtime = "cloudfront-js-2.0"
   code    = var.cloudfront_function_code
@@ -177,7 +177,7 @@ resource "aws_cloudfront_distribution" "frontend" {
     content {
       domain_name = replace(var.api_gateway_endpoint, "/^https?:\\/\\//", "")
       origin_id   = "ApiGateway"
-      
+
       custom_origin_config {
         http_port              = 80
         https_port             = 443
@@ -190,7 +190,7 @@ resource "aws_cloudfront_distribution" "frontend" {
   enabled             = true
   is_ipv6_enabled     = true
   default_root_object = "index.html"
-  price_class         = "PriceClass_100"  # Use only North America and Europe edge locations
+  price_class         = "PriceClass_100" # Use only North America and Europe edge locations
 
   # Use aliases conditionally based on certificate validation
   aliases = var.use_default_cert ? [] : ["${var.app_prefix}.${var.domain_name}"]
@@ -209,12 +209,12 @@ resource "aws_cloudfront_distribution" "frontend" {
     # Use new cache policy and origin request policy system instead of legacy forwarded_values
     cache_policy_id          = "658327ea-f89d-4fab-a63d-7e88639e58f6" # CachingOptimized
     origin_request_policy_id = "88a5eaf4-2fd4-4709-b370-b4c650ea3fcf" # CORS-S3Origin
-    
+
     viewer_protocol_policy = "redirect-to-https"
     min_ttl                = 0
     default_ttl            = 3600
     max_ttl                = 86400
-    
+
     # Add CloudFront Function if provided
     dynamic "function_association" {
       for_each = var.cloudfront_function_code != null ? [1] : []
@@ -224,7 +224,7 @@ resource "aws_cloudfront_distribution" "frontend" {
       }
     }
   }
-  
+
   # Don't cache index.html
   ordered_cache_behavior {
     path_pattern     = "index.html"
@@ -235,11 +235,11 @@ resource "aws_cloudfront_distribution" "frontend" {
     # Use new cache policy and origin request policy system instead of legacy forwarded_values
     cache_policy_id          = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad" # CachingDisabled
     origin_request_policy_id = "88a5eaf4-2fd4-4709-b370-b4c650ea3fcf" # CORS-S3Origin
-    
+
     compress               = true
     viewer_protocol_policy = "redirect-to-https"
   }
-  
+
   # API Gateway cache behavior (optional)
   dynamic "ordered_cache_behavior" {
     for_each = var.enable_api_cache_behavior && var.api_gateway_endpoint != null ? [1] : []
@@ -248,11 +248,11 @@ resource "aws_cloudfront_distribution" "frontend" {
       allowed_methods  = ["DELETE", "GET", "HEAD", "OPTIONS", "PATCH", "POST", "PUT"]
       cached_methods   = ["GET", "HEAD"]
       target_origin_id = "ApiGateway"
-      
+
       # Use new cache policy and origin request policy system
       cache_policy_id          = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad" # CachingDisabled
       origin_request_policy_id = "b689b0a8-53d0-40ab-baf2-68738e2966ac" # AllViewerExceptHostHeader
-      
+
       compress               = true
       viewer_protocol_policy = "redirect-to-https"
     }
@@ -265,12 +265,12 @@ resource "aws_cloudfront_distribution" "frontend" {
   }
 
   viewer_certificate {
-    acm_certificate_arn      = var.use_default_cert ? null : (var.create_dns_records ? aws_acm_certificate_validation.cert[0].certificate_arn : aws_acm_certificate.cert.arn)
+    acm_certificate_arn            = var.use_default_cert ? null : (var.create_dns_records ? aws_acm_certificate_validation.cert[0].certificate_arn : aws_acm_certificate.cert.arn)
     cloudfront_default_certificate = var.use_default_cert
-    ssl_support_method       = var.use_default_cert ? null : "sni-only"
-    minimum_protocol_version = var.use_default_cert ? null : "TLSv1.2_2021"
+    ssl_support_method             = var.use_default_cert ? null : "sni-only"
+    minimum_protocol_version       = var.use_default_cert ? null : "TLSv1.2_2021"
   }
-  
+
   # Add SPA routing for single-page applications
   dynamic "custom_error_response" {
     for_each = var.single_page_application ? [1, 2] : []
@@ -285,7 +285,7 @@ resource "aws_cloudfront_distribution" "frontend" {
 
 resource "aws_s3_bucket_policy" "frontend" {
   bucket = aws_s3_bucket.frontend.id
-  
+
   # This policy will be applied AFTER the public access block is configured
   depends_on = [aws_s3_bucket_public_access_block.frontend]
 
@@ -293,12 +293,12 @@ resource "aws_s3_bucket_policy" "frontend" {
     Version = "2012-10-17"
     Statement = [
       {
-        Effect    = "Allow"
+        Effect = "Allow"
         Principal = {
           Service = "cloudfront.amazonaws.com"
         }
-        Action    = "s3:GetObject"
-        Resource  = "${aws_s3_bucket.frontend.arn}/*"
+        Action   = "s3:GetObject"
+        Resource = "${aws_s3_bucket.frontend.arn}/*"
         Condition = {
           StringEquals = {
             "AWS:SourceArn" = aws_cloudfront_distribution.frontend.arn
@@ -310,9 +310,9 @@ resource "aws_s3_bucket_policy" "frontend" {
 }
 
 resource "aws_s3_object" "sample_html" {
-  bucket = aws_s3_bucket.frontend.id
-  key    = "index.html"
-  content = <<-EOF
+  bucket       = aws_s3_bucket.frontend.id
+  key          = "index.html"
+  content      = <<-EOF
     <!DOCTYPE html>
     <html>
     <head>
@@ -353,9 +353,9 @@ resource "aws_s3_object" "sample_html" {
 }
 
 resource "aws_s3_object" "error_html" {
-  bucket = aws_s3_bucket.frontend.id
-  key    = "error.html"
-  content = <<-EOF
+  bucket       = aws_s3_bucket.frontend.id
+  key          = "error.html"
+  content      = <<-EOF
     <!DOCTYPE html>
     <html>
     <head>

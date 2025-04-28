@@ -11,14 +11,14 @@ variable "domain_prefix" {
 variable "clients" {
   description = "List of app clients for the Cognito User Pool"
   type = list(object({
-    name                         = string
-    generate_secret              = bool
-    callback_urls                = list(string)
-    logout_urls                  = list(string)
-    allowed_oauth_flows          = list(string)
-    allowed_oauth_scopes         = list(string)
+    name                                 = string
+    generate_secret                      = bool
+    callback_urls                        = list(string)
+    logout_urls                          = list(string)
+    allowed_oauth_flows                  = list(string)
+    allowed_oauth_scopes                 = list(string)
     allowed_oauth_flows_user_pool_client = bool
-    supported_identity_providers = list(string)
+    supported_identity_providers         = list(string)
   }))
   default = []
 }

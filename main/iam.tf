@@ -116,8 +116,8 @@ resource "aws_iam_role_policy" "sfn_policy" {
     Version = "2012-10-17",
     Statement = [
       {
-        Action = "states:StartExecution",
-        Effect = "Allow",
+        Action   = "states:StartExecution",
+        Effect   = "Allow",
         Resource = "*"
       },
       {
@@ -135,11 +135,11 @@ resource "aws_iam_role_policy" "sfn_policy" {
       },
       # make more restrictive
       {
-        Effect =  "Allow",
+        Effect = "Allow",
         Action = [
           "lambda:*"
         ],
-        Resource =  [
+        Resource = [
           "*"
         ]
       }

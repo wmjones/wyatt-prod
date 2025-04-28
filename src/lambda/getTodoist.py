@@ -52,7 +52,7 @@ def lambda_handler(event, context):
     with open("config.json", "r") as file:
         config = json.load(file)
     n_project_ids = len(config["projects"])
-    project_id_list = [config['projects'][i]['project_id'] for i in range(n_project_ids)]
+    project_id_list = [config["projects"][i]["project_id"] for i in range(n_project_ids)]
     print(f"project_id_list: {project_id_list}")
 
     try:

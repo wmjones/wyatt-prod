@@ -35,13 +35,7 @@ class SuperTask(Task):
     passChatGPT: bool = True
     name: str = ""
 
-    def __init__(
-            self,
-            agent_output="",
-            passChatGPT=True,
-            name="",
-            **kwargs
-        ):
+    def __init__(self, agent_output="", passChatGPT=True, name="", **kwargs):
         super().__init__(**kwargs)
         self.agent_output = agent_output
         self.passChatGPT = passChatGPT
@@ -59,85 +53,77 @@ def tasks_to_json(tasks: List[SuperTask]) -> str:
 
 def parse_inline_formatting(text):
     parts = []
-    bold_pattern = r'\*\*(.*?)\*\*'
-    
+    bold_pattern = r"\*\*(.*?)\*\*"
+
     last_end = 0
     for match in re.finditer(bold_pattern, text):
         if match.start() > last_end:
-            parts.append({"type": "text", "text": {"content": text[last_end:match.start()]}})
-        
-        parts.append({
-            "type": "text",
-            "text": {"content": match.group(1)},
-            "annotations": {"bold": True}
-        })
-        
+            parts.append({"type": "text", "text": {"content": text[last_end : match.start()]}})
+
+        parts.append({"type": "text", "text": {"content": match.group(1)}, "annotations": {"bold": True}})
+
         last_end = match.end()
-    
+
     if last_end < len(text):
         parts.append({"type": "text", "text": {"content": text[last_end:]}})
-    
+
     return parts
 
 
 def markdown_to_notion_blocks(markdown_content):
     blocks = []
-    lines = markdown_content.split('\n')
-    
+    lines = markdown_content.split("\n")
+
     list_number = 0
     for line in lines:
-        if line.strip() == '':
+        if line.strip() == "":
             list_number = 0  # Reset list numbering on empty lines
             continue
-        
+
         # Check for headings
-        if line.startswith('#'):
+        if line.startswith("#"):
             level = len(line.split()[0])
-            content = line.lstrip('#').strip()
-            blocks.append({
-                "object": "block",
-                "type": f"heading_{level}",
-                f"heading_{level}": {
-                    "rich_text": parse_inline_formatting(content)
+            content = line.lstrip("#").strip()
+            blocks.append(
+                {
+                    "object": "block",
+                    "type": f"heading_{level}",
+                    f"heading_{level}": {"rich_text": parse_inline_formatting(content)},
                 }
-            })
+            )
             list_number = 0  # Reset list numbering after headings
-        
+
         # Check for bullet lists
-        elif line.strip().startswith('- '):
+        elif line.strip().startswith("- "):
             content = line.strip()[2:]
-            blocks.append({
-                "object": "block",
-                "type": "bulleted_list_item",
-                "bulleted_list_item": {
-                    "rich_text": parse_inline_formatting(content)
+            blocks.append(
+                {
+                    "object": "block",
+                    "type": "bulleted_list_item",
+                    "bulleted_list_item": {"rich_text": parse_inline_formatting(content)},
                 }
-            })
+            )
             list_number = 0  # Reset list numbering for bullet lists
-        
+
         # Check for numbered lists
-        elif re.match(r'^\d+\.', line.strip()):
+        elif re.match(r"^\d+\.", line.strip()):
             list_number += 1
-            content = re.sub(r'^\d+\.', '', line).strip()
-            blocks.append({
-                "object": "block",
-                "type": "numbered_list_item",
-                "numbered_list_item": {
-                    "rich_text": parse_inline_formatting(content)
+            content = re.sub(r"^\d+\.", "", line).strip()
+            blocks.append(
+                {
+                    "object": "block",
+                    "type": "numbered_list_item",
+                    "numbered_list_item": {"rich_text": parse_inline_formatting(content)},
                 }
-            })
-        
+            )
+
         # Everything else as a paragraph
         else:
-            blocks.append({
-                "object": "block",
-                "type": "paragraph",
-                "paragraph": {
-                    "rich_text": parse_inline_formatting(line)
-                }
-            })
+            blocks.append(
+                {"object": "block", "type": "paragraph", "paragraph": {"rich_text": parse_inline_formatting(line)}}
+            )
             list_number = 0  # Reset list numbering for paragraphs
-    
+
     return blocks
 
 

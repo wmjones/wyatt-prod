@@ -5,9 +5,9 @@ module "step_function" {
   name     = var.name
   type     = var.type
   role_arn = var.role_arn
-  
+
   definition = var.definition
-  
+
   logging_configuration = {
     include_execution_data = true
     level                  = "ERROR"

@@ -1,14 +1,14 @@
 module "api_gateway" {
   source = "./modules/api_gateway"
-  
+
   api_name        = "dashboard-api"
   api_description = "API for D3 Dashboard visualization data"
-  
+
   allowed_origins = ["https://${var.app_prefix}.${var.domain_name}", "http://localhost:3000"]
-  
-  create_logs = true
+
+  create_logs          = true
   create_custom_domain = false
-  
+
   # Integration with Lambda functions for API routes
   integrations = {
     "GET /api/visualizations" = {
@@ -16,32 +16,32 @@ module "api_gateway" {
       payload_format_version = "2.0"
       timeout_milliseconds   = 10000
     },
-    
+
     "GET /api/visualizations/{id}" = {
       lambda_arn             = module.get_visualization_data.function_arn
       payload_format_version = "2.0"
       timeout_milliseconds   = 10000
     },
-    
+
     "POST /api/visualizations" = {
       lambda_arn             = module.put_visualization_data.function_arn
       payload_format_version = "2.0"
       timeout_milliseconds   = 10000
     },
-    
+
     "PUT /api/visualizations/{id}" = {
       lambda_arn             = module.put_visualization_data.function_arn
       payload_format_version = "2.0"
       timeout_milliseconds   = 10000
     },
-    
+
     "DELETE /api/visualizations/{id}" = {
       lambda_arn             = module.put_visualization_data.function_arn
       payload_format_version = "2.0"
       timeout_milliseconds   = 10000
     }
   }
-  
+
   tags = {
     Component = "D3 Dashboard"
     Name      = "Visualization API"

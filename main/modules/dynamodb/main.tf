@@ -6,7 +6,7 @@ module "dynamodb_table" {
   hash_key     = var.hash_key
   range_key    = var.range_key
   billing_mode = var.billing_mode
-  
+
   read_capacity  = var.billing_mode == "PROVISIONED" ? var.read_capacity : null
   write_capacity = var.billing_mode == "PROVISIONED" ? var.write_capacity : null
 
@@ -26,14 +26,14 @@ module "dynamodb_table" {
 
   # Auto-scaling settings (if PROVISIONED)
   autoscaling_enabled = var.billing_mode == "PROVISIONED" && var.autoscaling_enabled
-  
+
   autoscaling_read = var.billing_mode == "PROVISIONED" && var.autoscaling_enabled ? {
     scale_in_cooldown  = 30
     scale_out_cooldown = 30
     target_value       = 70
     max_capacity       = var.autoscaling_read_max_capacity
   } : {}
-  
+
   autoscaling_write = var.billing_mode == "PROVISIONED" && var.autoscaling_enabled ? {
     scale_in_cooldown  = 30
     scale_out_cooldown = 30

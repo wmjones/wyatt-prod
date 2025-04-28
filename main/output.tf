@@ -72,9 +72,9 @@ output "visualization_lambdas" {
 output "productivity_lambdas" {
   description = "ARNs of the Lambda functions for the productivity workflow"
   value = {
-    todoist  = module.todoist_lambda.function_arn
-    chatgpt  = module.chatgpt_lambda.function_arn
-    notion   = module.notion_lambda.function_arn
+    todoist     = module.todoist_lambda.function_arn
+    chatgpt     = module.chatgpt_lambda.function_arn
+    notion      = module.notion_lambda.function_arn
     put_todoist = module.put_todoist_lambda.function_arn
   }
 }

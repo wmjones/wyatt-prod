@@ -7,9 +7,9 @@ module "api_gateway" {
   protocol_type = "HTTP"
 
   cors_configuration = {
-    allow_headers = ["content-type", "x-amz-date", "authorization", "x-api-key", "x-amz-security-token", "x-amz-user-agent"]
-    allow_methods = ["OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE"]
-    allow_origins = var.allowed_origins
+    allow_headers     = ["content-type", "x-amz-date", "authorization", "x-api-key", "x-amz-security-token", "x-amz-user-agent"]
+    allow_methods     = ["OPTIONS", "GET", "POST", "PUT", "PATCH", "DELETE"]
+    allow_origins     = var.allowed_origins
     allow_credentials = true
   }
 
@@ -30,9 +30,9 @@ module "api_gateway" {
 # Create CloudWatch log group if logs are enabled
 resource "aws_cloudwatch_log_group" "api_gateway" {
   count = var.create_logs ? 1 : 0
-  
+
   name              = "/aws/apigateway/${var.api_name}-${terraform.workspace}"
   retention_in_days = 7
-  
+
   tags = var.tags
 }
