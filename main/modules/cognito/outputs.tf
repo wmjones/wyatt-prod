@@ -1,26 +1,26 @@
 output "user_pool_id" {
   description = "ID of the Cognito User Pool"
-  value       = module.cognito_user_pool.id
+  value       = aws_cognito_user_pool.main.id
 }
 
 output "user_pool_arn" {
   description = "ARN of the Cognito User Pool"
-  value       = module.cognito_user_pool.arn
+  value       = aws_cognito_user_pool.main.arn
 }
 
 output "user_pool_endpoint" {
   description = "Endpoint of the Cognito User Pool"
-  value       = module.cognito_user_pool.endpoint
+  value       = aws_cognito_user_pool.main.endpoint
 }
 
 output "client_ids" {
   description = "Map of client IDs"
-  value       = module.cognito_user_pool.client_ids
+  value       = { for k, v in aws_cognito_user_pool_client.clients : k => v.id }
 }
 
 output "client_secrets" {
   description = "Map of client secrets"
-  value       = module.cognito_user_pool.client_secrets
+  value       = { for k, v in aws_cognito_user_pool_client.clients : k => v.client_secret if v.generate_secret }
   sensitive   = true
 }
 

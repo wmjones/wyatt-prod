@@ -152,7 +152,7 @@ module "get_visualization_data" {
   zip_file      = local.lambda_zip_path
   
   environment_variables = merge(local.common_env_vars, {
-    VISUALIZATION_BUCKET = aws_s3_bucket.visualization_data_bucket.bucket
+    VISUALIZATION_BUCKET = module.visualization_data_bucket.s3_bucket_id
   })
   
   policy_statements = {
@@ -165,8 +165,8 @@ module "get_visualization_data" {
       effect    = "Allow"
       actions   = ["s3:GetObject", "s3:ListBucket"]
       resources = [
-        aws_s3_bucket.visualization_data_bucket.arn,
-        "${aws_s3_bucket.visualization_data_bucket.arn}/*"
+        module.visualization_data_bucket.s3_bucket_arn,
+        "${module.visualization_data_bucket.s3_bucket_arn}/*"
       ]
     }
   }
@@ -188,7 +188,7 @@ module "put_visualization_data" {
   zip_file      = local.lambda_zip_path
   
   environment_variables = merge(local.common_env_vars, {
-    VISUALIZATION_BUCKET = aws_s3_bucket.visualization_data_bucket.bucket
+    VISUALIZATION_BUCKET = module.visualization_data_bucket.s3_bucket_id
   })
   
   policy_statements = {
@@ -201,8 +201,8 @@ module "put_visualization_data" {
       effect    = "Allow"
       actions   = ["s3:PutObject", "s3:GetObject", "s3:ListBucket", "s3:DeleteObject"]
       resources = [
-        aws_s3_bucket.visualization_data_bucket.arn,
-        "${aws_s3_bucket.visualization_data_bucket.arn}/*"
+        module.visualization_data_bucket.s3_bucket_arn,
+        "${module.visualization_data_bucket.s3_bucket_arn}/*"
       ]
     }
   }
