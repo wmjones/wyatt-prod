@@ -15,9 +15,7 @@ module "step_function" {
 
   service_integrations = {
     lambda = {
-      lambda = [
-        "lambda:InvokeFunction",
-      ]
+      lambda = ["arn:aws:lambda:*:*:function:*"]
     }
   }
 
