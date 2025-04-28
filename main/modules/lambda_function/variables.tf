@@ -58,3 +58,15 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "create_log_group" {
+  description = "Whether to create a new CloudWatch Logs log group (set to false if log group already exists)"
+  type        = bool
+  default     = false
+}
+
+variable "log_retention_days" {
+  description = "Retention period in days for CloudWatch Logs log group (if created)"
+  type        = number
+  default     = 14
+}

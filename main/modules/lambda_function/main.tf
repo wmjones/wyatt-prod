@@ -20,3 +20,13 @@ module "lambda_function" {
 
   tags = var.tags
 }
+
+# Handle CloudWatch log groups using AWS provider directly
+resource "aws_cloudwatch_log_group" "lambda" {
+  # Only create if create_log_group is true
+  count = var.create_log_group ? 1 : 0
+
+  name              = "/aws/lambda/${var.function_name}"
+  retention_in_days = var.log_retention_days
+  tags              = var.tags
+}

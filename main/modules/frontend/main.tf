@@ -161,7 +161,8 @@ resource "null_resource" "dns_validation_instructions" {
 resource "aws_cloudfront_function" "url_rewrite" {
   count = var.cloudfront_function_code != null ? 1 : 0
 
-  name    = "${var.bucket_name}-url-rewrite"
+  # Use a shorter name to avoid CloudFront's 64-character limit
+  name    = "url-rewrite-${substr(sha256(var.bucket_name), 0, 8)}"
   runtime = "cloudfront-js-2.0"
   code    = var.cloudfront_function_code
 }

@@ -12,31 +12,36 @@ module "api_gateway" {
   # Integration with Lambda functions for API routes
   integrations = {
     "GET /api/visualizations" = {
-      lambda_arn             = module.get_visualization_data.function_arn
+      integration_uri        = module.get_visualization_data.function_invoke_arn
+      integration_type       = "AWS_PROXY"
       payload_format_version = "2.0"
       timeout_milliseconds   = 10000
     },
 
     "GET /api/visualizations/{id}" = {
-      lambda_arn             = module.get_visualization_data.function_arn
+      integration_uri        = module.get_visualization_data.function_invoke_arn
+      integration_type       = "AWS_PROXY"
       payload_format_version = "2.0"
       timeout_milliseconds   = 10000
     },
 
     "POST /api/visualizations" = {
-      lambda_arn             = module.put_visualization_data.function_arn
+      integration_uri        = module.put_visualization_data.function_invoke_arn
+      integration_type       = "AWS_PROXY"
       payload_format_version = "2.0"
       timeout_milliseconds   = 10000
     },
 
     "PUT /api/visualizations/{id}" = {
-      lambda_arn             = module.put_visualization_data.function_arn
+      integration_uri        = module.put_visualization_data.function_invoke_arn
+      integration_type       = "AWS_PROXY"
       payload_format_version = "2.0"
       timeout_milliseconds   = 10000
     },
 
     "DELETE /api/visualizations/{id}" = {
-      lambda_arn             = module.put_visualization_data.function_arn
+      integration_uri        = module.put_visualization_data.function_invoke_arn
+      integration_type       = "AWS_PROXY"
       payload_format_version = "2.0"
       timeout_milliseconds   = 10000
     }

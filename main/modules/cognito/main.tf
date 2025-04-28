@@ -15,7 +15,12 @@ resource "aws_cognito_user_pool" "main" {
   }
 
   # MFA configuration
-  mfa_configuration = "OPTIONAL"
+  mfa_configuration = "OFF"
+
+  # Uncomment this if you want to use MFA (requires mfa_configuration = "OPTIONAL" or "REQUIRED")
+  # software_token_mfa_configuration {
+  #   enabled = true
+  # }
 
   # Email provider configuration
   email_configuration {
