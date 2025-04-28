@@ -4,8 +4,9 @@ variable "bucket_name" {
 }
 
 variable "domain_name" {
-  description = "Base domain name for the application (without app prefix)"
+  description = "Optional base domain name for the application (without app prefix). Leave blank to use the auto‑generated CloudFront domain."
   type        = string
+  default     = ""
 }
 
 variable "app_prefix" {
@@ -18,18 +19,19 @@ variable "tags" {
   description = "Additional tags to apply to resources"
   type        = map(string)
   default     = {}
+  nullable    = false
 }
 
 variable "create_dns_records" {
-  description = "Whether to create DNS records for certificate validation and CloudFront alias"
+  description = "Whether to create DNS records for certificate validation and the CloudFront alias (ignored when use_default_cert is true)"
   type        = bool
   default     = false
 }
 
 variable "use_default_cert" {
-  description = "Use CloudFront default certificate instead of ACM certificate"
+  description = "When true, use CloudFront's default certificate and skip ACM + DNS."
   type        = bool
-  default     = false
+  default     = true
 }
 
 variable "single_page_application" {

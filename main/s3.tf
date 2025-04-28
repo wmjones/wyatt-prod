@@ -1,6 +1,28 @@
 resource "aws_s3_bucket" "wyatt-datalake-35315550" {
   bucket = "step-function-bucket-35315550"
 
+  # Block public access
+}
+
+# Block public access settings for the bucket
+resource "aws_s3_bucket_public_access_block" "wyatt_datalake_35315550" {
+  bucket = aws_s3_bucket.wyatt-datalake-35315550.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+# Default server‑side encryption
+resource "aws_s3_bucket_server_side_encryption_configuration" "wyatt_datalake_35315550" {
+  bucket = aws_s3_bucket.wyatt-datalake-35315550.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      sse_algorithm = "AES256"
+    }
+  }
 }
 
 # Generate random suffix for bucket name to ensure uniqueness
@@ -71,6 +93,7 @@ module "visualization_data_bucket" {
 }
 
 # Policy document for access by authenticated users
+# Used to manage bucket access policies for visualization data
 data "aws_iam_policy_document" "visualization_data_policy" {
   # Allow authenticated users to access their own objects
   statement {

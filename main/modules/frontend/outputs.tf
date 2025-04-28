@@ -25,5 +25,5 @@ output "website_url" {
 
 output "acm_certificate_validation_options" {
   description = "DNS validation options for the ACM certificate"
-  value       = aws_acm_certificate.cert.domain_validation_options
+  value       = length(aws_acm_certificate.cert) > 0 ? aws_acm_certificate.cert[0].domain_validation_options : []
 }

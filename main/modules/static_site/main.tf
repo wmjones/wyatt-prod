@@ -1,3 +1,8 @@
+provider "aws" {
+  alias  = "us_east_2"
+  region = "us-east-2"
+}
+
 resource "aws_s3_bucket" "static_site" {
   bucket = var.bucket_name
 
@@ -77,7 +82,7 @@ data "aws_route53_zone" "domain" {
 
 # Create the ACM certificate
 resource "aws_acm_certificate" "cert" {
-  provider = aws.us_east_1 # ACM certificates for CloudFront must be in us-east-1
+  provider = aws.us_east_2 # Using the us_east_2 alias which is actually us-east-2
 
   domain_name       = "${var.app_prefix}.${var.domain_name}"
   validation_method = "DNS"
@@ -114,7 +119,7 @@ resource "aws_route53_record" "cert_validation" {
 resource "aws_acm_certificate_validation" "cert" {
   count = var.create_dns_records ? 1 : 0
 
-  provider = aws.us_east_1
+  provider = aws.us_east_2 # Using the us_east_2 alias which is actually us-east-2
 
   certificate_arn         = aws_acm_certificate.cert.arn
   validation_record_fqdns = [for record in aws_route53_record.cert_validation : record.fqdn]

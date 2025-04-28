@@ -18,6 +18,7 @@ variable "tags" {
   description = "Additional tags to apply to resources"
   type        = map(string)
   default     = {}
+  nullable    = false
 }
 
 variable "create_dns_records" {

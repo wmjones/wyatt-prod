@@ -1,9 +1,10 @@
-import boto3
-from botocore.exceptions import ClientError
-from typing import List
-from dataclasses import dataclass, asdict
 import json
 import re
+from dataclasses import asdict, dataclass
+from typing import List
+
+import boto3
+from botocore.exceptions import ClientError
 
 
 @dataclass
@@ -119,9 +120,7 @@ def markdown_to_notion_blocks(markdown_content):
 
         # Everything else as a paragraph
         else:
-            blocks.append(
-                {"object": "block", "type": "paragraph", "paragraph": {"rich_text": parse_inline_formatting(line)}}
-            )
+            blocks.append({"object": "block", "type": "paragraph", "paragraph": {"rich_text": parse_inline_formatting(line)}})
             list_number = 0  # Reset list numbering for paragraphs
 
     return blocks
@@ -144,7 +143,7 @@ def get_secret(secret_name, region_name):
 
 if __name__ == "__main__":
     # Read in the example.md file
-    with open("src/lambda/example.md", "r") as file:
+    with open("src/lambda/example.md") as file:
         markdown_content = file.read()
     # test the markdown_to_notion_blocks function
     print(markdown_to_notion_blocks(markdown_content))

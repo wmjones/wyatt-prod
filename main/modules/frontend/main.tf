@@ -69,7 +69,7 @@ resource "aws_cloudfront_origin_access_control" "frontend" {
 
 # Find the Route 53 zone for the domain
 data "aws_route53_zone" "domain" {
-  count = var.create_dns_records ? 1 : 0
+  count = (var.create_dns_records && !var.use_default_cert) ? 1 : 0
 
   name         = var.domain_name
   private_zone = false
@@ -77,7 +77,9 @@ data "aws_route53_zone" "domain" {
 
 # Create the ACM certificate
 resource "aws_acm_certificate" "cert" {
-  provider = aws.us_east_1 # ACM certificates for CloudFront must be in us-east-1
+  count = var.use_default_cert ? 0 : 1
+
+  provider = aws.us_east_2
 
   domain_name       = "${var.app_prefix}.${var.domain_name}"
   validation_method = "DNS"
@@ -89,13 +91,13 @@ resource "aws_acm_certificate" "cert" {
 
 # Extract the first validation option to a local variable for easier use
 locals {
-  domain_validation_options = tolist(aws_acm_certificate.cert.domain_validation_options)
+  domain_validation_options = length(aws_acm_certificate.cert) > 0 ? aws_acm_certificate.cert[0].domain_validation_options : []
 }
 
 # Create DNS validation records if enabled
 resource "aws_route53_record" "cert_validation" {
-  for_each = var.create_dns_records ? {
-    for dvo in aws_acm_certificate.cert.domain_validation_options : dvo.domain_name => {
+  for_each = (var.create_dns_records && !var.use_default_cert) ? {
+    for dvo in aws_acm_certificate.cert[0].domain_validation_options : dvo.domain_name => {
       name   = dvo.resource_record_name
       record = dvo.resource_record_value
       type   = dvo.resource_record_type
@@ -112,17 +114,17 @@ resource "aws_route53_record" "cert_validation" {
 
 # Create ACM certificate validation resource if DNS records are enabled
 resource "aws_acm_certificate_validation" "cert" {
-  count = var.create_dns_records ? 1 : 0
+  count = (var.create_dns_records && !var.use_default_cert) ? 1 : 0
 
-  provider = aws.us_east_1
+  provider = aws.us_east_2 # Using the us_east_2 alias which is actually us-east-2
 
-  certificate_arn         = aws_acm_certificate.cert.arn
+  certificate_arn         = aws_acm_certificate.cert[0].arn
   validation_record_fqdns = [for record in aws_route53_record.cert_validation : record.fqdn]
 }
 
 # Create alias record for CloudFront distribution
 resource "aws_route53_record" "cloudfront_alias" {
-  count = var.create_dns_records ? 1 : 0
+  count = (var.create_dns_records && !var.use_default_cert) ? 1 : 0
 
   zone_id = data.aws_route53_zone.domain[0].zone_id
   name    = "${var.app_prefix}.${var.domain_name}"
@@ -137,7 +139,7 @@ resource "aws_route53_record" "cloudfront_alias" {
 
 # Add local-exec provisioner to output DNS validation instructions if not creating records
 resource "null_resource" "dns_validation_instructions" {
-  count = var.create_dns_records ? 0 : 1
+  count = (!var.create_dns_records && !var.use_default_cert) ? 1 : 0
 
   provisioner "local-exec" {
     command = <<-EOF
@@ -265,7 +267,7 @@ resource "aws_cloudfront_distribution" "frontend" {
   }
 
   viewer_certificate {
-    acm_certificate_arn            = var.use_default_cert ? null : (var.create_dns_records ? aws_acm_certificate_validation.cert[0].certificate_arn : aws_acm_certificate.cert.arn)
+    acm_certificate_arn            = var.use_default_cert ? null : (var.create_dns_records ? aws_acm_certificate_validation.cert[0].certificate_arn : aws_acm_certificate.cert[0].arn)
     cloudfront_default_certificate = var.use_default_cert
     ssl_support_method             = var.use_default_cert ? null : "sni-only"
     minimum_protocol_version       = var.use_default_cert ? null : "TLSv1.2_2021"

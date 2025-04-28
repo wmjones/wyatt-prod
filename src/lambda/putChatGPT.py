@@ -1,7 +1,7 @@
-from openai import OpenAI
 import json
 
-from utils import get_secret, SuperTask, tasks_to_json
+from openai import OpenAI
+from utils import SuperTask, get_secret, tasks_to_json
 
 
 def lambda_handler(event, context):
@@ -11,7 +11,7 @@ def lambda_handler(event, context):
     secret = get_secret("open_ai_key", "us-east-2")
     secret_dict = json.loads(secret)
 
-    with open("config.json", "r") as file:
+    with open("config.json") as file:
         config = json.load(file)
 
     project_id_list = [project["project_id"] for project in config["projects"]]
@@ -37,10 +37,10 @@ def lambda_handler(event, context):
             task.name = project_cfg["name"]
 
             if task.section_id == "158311513":  # Biftu
-                with open("biftu.txt", "r") as file:
+                with open("biftu.txt") as file:
                     system_prompt = file.read()
             elif task.section_id == "158311520":  # Tony
-                with open("tony.txt", "r") as file:
+                with open("tony.txt") as file:
                     system_prompt = file.read()
 
             if system_prompt:
@@ -71,15 +71,6 @@ def lambda_handler(event, context):
 if __name__ == "__main__":
     event = {
         "statusCode": 200,
-        "body": (
-            '[{"assignee_id": null, "assigner_id": null, "comment_count": 0, '
-            '"is_completed": false, "content": "add new todoist pipeline for weight", '
-            '"created_at": "2024-06-12T11:10:34.825542Z", "creator_id": "49425011", '
-            '"description": "", "due": null, "id": "8110672962", "labels": [], '
-            '"order": 1, "parent_id": null, "priority": 1, "project_id": "2334044360", '
-            '"section_id": "158311513", "url": '
-            '"https://todoist.com/app/task/8110672962", "duration": null, '
-            '"sync_id": null}]'
-        ),
+        "body": ('[{"assignee_id": null, "assigner_id": null, "comment_count": 0, ' '"is_completed": false, "content": "add new todoist pipeline for weight", ' '"created_at": "2024-06-12T11:10:34.825542Z", "creator_id": "49425011", ' '"description": "", "due": null, "id": "8110672962", "labels": [], ' '"order": 1, "parent_id": null, "priority": 1, "project_id": "2334044360", ' '"section_id": "158311513", "url": ' '"https://todoist.com/app/task/8110672962", "duration": null, ' '"sync_id": null}]'),
     }
     print(lambda_handler(event, None))

@@ -1,15 +1,4 @@
-provider "aws" {
-  alias  = "us_east_1"
-  region = "us-east-1"
-
-  default_tags {
-    tags = {
-      Project     = var.project_name
-      Environment = terraform.workspace
-      ManagedBy   = "Terraform"
-    }
-  }
-}
+# Frontend configuration - uses the us-east-1 provider defined in provider.tf
 
 # Create a CloudFront function for URL rewrites if needed
 locals {
@@ -55,6 +44,7 @@ module "frontend" {
   }
 
   providers = {
-    aws.us_east_1 = aws.us_east_1
+    aws           = aws           # default provider
+    aws.us_east_2 = aws.us_east_2 # pass the alias through
   }
 }
