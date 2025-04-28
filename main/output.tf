@@ -1,29 +1,80 @@
 # S3 Bucket Outputs
 output "s3_bucket_name" {
-  value = aws_s3_bucket.wyatt-datalake-35315550.bucket
+  description = "Name of the S3 bucket for the Todoist data lake"
+  value       = aws_s3_bucket.wyatt-datalake-35315550.bucket
 }
 
+# Step Function Outputs
 output "step_function_arn" {
-  value = aws_sfn_state_machine.step_function.arn
+  description = "ARN of the Todoist workflow Step Function"
+  value       = module.todoist_workflow.state_machine_arn
 }
 
-# Static Site Outputs
+# Frontend Outputs
 output "website_bucket_name" {
-  description = "Name of the S3 bucket hosting the static website"
-  value       = module.static_site.bucket_name
+  description = "Name of the S3 bucket hosting the frontend website"
+  value       = module.frontend.bucket_name
 }
 
 output "cloudfront_distribution_id" {
   description = "ID of the CloudFront distribution"
-  value       = module.static_site.cloudfront_distribution_id
+  value       = module.frontend.cloudfront_distribution_id
 }
 
 output "website_url" {
-  description = "URL of the static website"
-  value       = module.static_site.website_url
+  description = "URL of the frontend website"
+  value       = module.frontend.website_url
 }
 
-# Add for visualization data bucket
+# Visualization Data Bucket
 output "visualization_data_bucket_name" {
-  value = aws_s3_bucket.visualization_data_bucket.bucket
+  description = "Name of the S3 bucket for visualization data"
+  value       = module.visualization_data_bucket.s3_bucket_id
+}
+
+# API Gateway Outputs
+output "api_endpoint" {
+  description = "The API Gateway endpoint URL"
+  value       = module.api_gateway.api_endpoint
+}
+
+# Cognito Outputs
+output "cognito_user_pool_id" {
+  description = "ID of the Cognito User Pool"
+  value       = module.cognito.user_pool_id
+}
+
+output "cognito_client_ids" {
+  description = "IDs of the Cognito User Pool clients"
+  value       = module.cognito.client_ids
+}
+
+output "cognito_domain" {
+  description = "Domain name for the Cognito hosted UI"
+  value       = module.cognito.domain
+}
+
+# DynamoDB Outputs
+output "dynamodb_table_name" {
+  description = "Name of the DynamoDB table for visualizations"
+  value       = module.visualization_table.table_id
+}
+
+# Lambda Function Outputs
+output "visualization_lambdas" {
+  description = "ARNs of the Lambda functions for visualization data"
+  value = {
+    get = module.get_visualization_data.function_arn
+    put = module.put_visualization_data.function_arn
+  }
+}
+
+output "productivity_lambdas" {
+  description = "ARNs of the Lambda functions for the productivity workflow"
+  value = {
+    todoist  = module.todoist_lambda.function_arn
+    chatgpt  = module.chatgpt_lambda.function_arn
+    notion   = module.notion_lambda.function_arn
+    put_todoist = module.put_todoist_lambda.function_arn
+  }
 }

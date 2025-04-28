@@ -3,78 +3,92 @@ resource "aws_s3_bucket" "wyatt-datalake-35315550" {
   
 }
 
-# S3 bucket for visualization data
-resource "aws_s3_bucket" "visualization_data_bucket" {
-  bucket = "wyatt-visualization-data-${random_id.bucket_suffix.hex}"
-}
-
 # Generate random suffix for bucket name to ensure uniqueness
 resource "random_id" "bucket_suffix" {
   byte_length = 4
 }
 
-# Enable CORS for the bucket to allow web access
-resource "aws_s3_bucket_cors_configuration" "visualization_cors" {
-  bucket = aws_s3_bucket.visualization_data_bucket.id
+module "visualization_data_bucket" {
+  source  = "terraform-aws-modules/s3-bucket/aws"
+  version = "~> 3.0"
 
-  cors_rule {
+  bucket = "wyatt-visualization-data-${random_id.bucket_suffix.hex}"
+  
+  # Block public access when using Cognito + API Gateway
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+  
+  # Enable versioning for data protection
+  versioning = {
+    enabled = true
+  }
+  
+  # Server-side encryption
+  server_side_encryption_configuration = {
+    rule = {
+      apply_server_side_encryption_by_default = {
+        sse_algorithm = "AES256"
+      }
+    }
+  }
+  
+  # CORS configuration
+  cors_rule = {
+    allowed_methods = ["GET", "PUT", "POST", "DELETE", "HEAD"]
+    allowed_origins = ["https://${var.app_prefix}.${var.domain_name}", "http://localhost:3000"]
     allowed_headers = ["*"]
-    allowed_methods = ["GET", "PUT", "POST", "HEAD"]
-    allowed_origins = ["*"]  # In production, restrict to your domain
     expose_headers  = ["ETag"]
     max_age_seconds = 3000
   }
-}
-
-# Add Block Public Access settings first - important!
-resource "aws_s3_bucket_public_access_block" "visualization_data_bucket" {
-  bucket = aws_s3_bucket.visualization_data_bucket.id
-
-  block_public_acls       = false
-  block_public_policy     = false
-  ignore_public_acls      = false
-  restrict_public_buckets = false
-}
-
-# Add bucket policy AFTER configuring public access block
-resource "aws_s3_bucket_policy" "allow_access_from_webapp" {
-  depends_on = [aws_s3_bucket_public_access_block.visualization_data_bucket]
   
-  bucket = aws_s3_bucket.visualization_data_bucket.id
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Sid       = "PublicReadGetObject"
-        Effect    = "Allow"
-        Principal = "*"
-        Action    = "s3:GetObject"
-        Resource  = "${aws_s3_bucket.visualization_data_bucket.arn}/*"
-      }
-    ]
-  })
+  # Optional lifecycle rules for managing storage costs
+  lifecycle_rule = [
+    {
+      id      = "transition-to-ia"
+      enabled = true
+      
+      transition = [
+        {
+          days          = 30
+          storage_class = "STANDARD_IA"
+        }
+      ]
+    }
+  ]
+  
+  tags = {
+    Component = "D3 Dashboard"
+    Name      = "Visualization Data"
+  }
 }
 
-# Add permissions to existing lambda_role to access visualization data
-resource "aws_iam_role_policy" "visualization_lambda_policy" {
-  name   = "visualization_lambda_policy"
-  role   = aws_iam_role.lambda_role.id
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Action = [
-          "s3:GetObject",
-          "s3:PutObject",
-          "s3:ListBucket",
-          "s3:DeleteObject"
-        ]
-        Effect   = "Allow"
-        Resource = [
-          "${aws_s3_bucket.visualization_data_bucket.arn}",
-          "${aws_s3_bucket.visualization_data_bucket.arn}/*"
-        ]
-      }
+# Policy document for access by authenticated users
+data "aws_iam_policy_document" "visualization_data_policy" {
+  # Allow authenticated users to access their own objects
+  statement {
+    effect = "Allow"
+    
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+    
+    actions = [
+      "s3:GetObject",
+      "s3:PutObject",
+      "s3:DeleteObject"
     ]
-  })
+    
+    resources = [
+      "${module.visualization_data_bucket.s3_bucket_arn}/\${cognito-identity.amazonaws.com:sub}/*"
+    ]
+    
+    condition {
+      test     = "StringEquals"
+      variable = "aws:PrincipalTag/sub"
+      values   = ["\${cognito-identity.amazonaws.com:sub}"]
+    }
+  }
 }
