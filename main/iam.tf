@@ -1,3 +1,5 @@
+data "aws_partition" "current" {}
+
 resource "aws_iam_role" "lambda_role" {
   name = "lambda_exec_role"
 
@@ -114,7 +116,7 @@ resource "aws_iam_role_policy" "sfn_policy" {
       {
         Action   = "logs:CreateLogGroup"
         Effect   = "Allow"
-        Resource = "arn:aws:logs:*:*:*"
+        Resource = "arn:${data.aws_partition.current.partition}:logs:*:*:*"
       },
       # TODO: tighten the scope of these permissions
       {

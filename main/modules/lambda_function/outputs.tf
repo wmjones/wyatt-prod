@@ -8,8 +8,14 @@ output "function_name" {
   value       = module.lambda_function.lambda_function_name
 }
 
-output "invoke_arn" {
+output "function_invoke_arn" {
   description = "The invoke ARN of the Lambda function"
+  value       = module.lambda_function.lambda_function_invoke_arn
+}
+
+# Keep backward compatibility
+output "invoke_arn" {
+  description = "The invoke ARN of the Lambda function (deprecated, use function_invoke_arn instead)"
   value       = module.lambda_function.lambda_function_invoke_arn
 }
 
