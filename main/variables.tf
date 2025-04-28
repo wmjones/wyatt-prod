@@ -14,6 +14,12 @@ variable "domain_name" {
   type        = string
 }
 
+variable "app_prefix" {
+  description = "Prefix for the application subdomain (default: app)"
+  type        = string
+  default     = "app"
+}
+
 variable "cognito_domain_prefix" {
   description = "Prefix for Cognito hosted UI domain"
   type        = string

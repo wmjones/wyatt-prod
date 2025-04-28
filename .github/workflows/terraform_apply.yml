@@ -12,7 +12,7 @@ env:
   TODOIST_API_SECRET: "${{ secrets.TODOIST_API_SECRET }}"
   NOTION_API_SECRET: "${{ secrets.NOTION_API_SECRET }}"
   TF_WORKSPACE: >-
-    ${{ 
+    ${{
       github.ref == 'refs/heads/main' && 'wyatt-personal-aws-prod' ||
       'wyatt-personal-aws-dev'
     }}

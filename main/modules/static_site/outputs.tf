@@ -19,8 +19,8 @@ output "cloudfront_domain_name" {
 }
 
 output "website_url" {
-  description = "URL of the static website"
-  value       = "https://app.${var.domain_name}"
+  description = "URL of the website"
+  value       = "https://${var.app_prefix}.${var.domain_name}"
 }
 
 output "acm_certificate_validation_options" {
