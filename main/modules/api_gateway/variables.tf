@@ -16,19 +16,19 @@ variable "allowed_origins" {
 }
 
 variable "create_custom_domain" {
-  description = "Whether to create a custom domain for the API Gateway"
+  description = "Set to true to provision an API Gateway custom domain. Requires domain_name and certificate_arn."
   type        = bool
   default     = false
 }
 
 variable "domain_name" {
-  description = "Domain name for the API Gateway"
+  description = "Fully‑qualified custom domain name for the API (e.g., api.example.com). Leave blank when create_custom_domain is false."
   type        = string
   default     = ""
 }
 
 variable "certificate_arn" {
-  description = "ARN of the ACM certificate for the custom domain"
+  description = "ACM certificate ARN to use with the custom domain."
   type        = string
   default     = ""
 }

@@ -32,6 +32,14 @@ The entire system is built on serverless components:
 - **Automatic Scaling**: Resources scale automatically with demand
 - **High Availability**: Built-in redundancy across availability zones
 
+## Project Documentation
+
+Each module in the project has its own README.md that details:
+- Components and purpose of the module
+- Variables accepted by the module
+- Outputs provided by the module
+- How the module integrates with the overall project
+
 ## D3 Dashboard Components
 
 The visualization dashboard consists of:
@@ -58,6 +66,18 @@ The Todoist integration workflow includes:
 - **S3**: Data storage for task information
 - **External APIs**: Integration with Todoist, ChatGPT, and Notion
 
+## Module Structure
+
+The project is organized into reusable Terraform modules:
+
+1. **api_gateway**: Creates and configures HTTP API Gateway endpoints
+2. **cognito**: Manages user authentication and authorization
+3. **dynamodb**: Configures NoSQL database tables for data storage
+4. **frontend**: Sets up S3 and CloudFront for hosting the SPA
+5. **lambda_function**: Deploys serverless functions with appropriate permissions
+6. **static_site**: Provides simpler static website hosting for documentation
+7. **step_function**: Orchestrates multi-step workflows for the productivity system
+
 ## Key Terraform Modules Used
 
 This project leverages several key modules from the terraform-aws-modules collection:
@@ -79,9 +99,18 @@ This project leverages several key modules from the terraform-aws-modules collec
 
 - AWS Account
 - Terraform (v1.6.0+)
-   - deployed using API calls for terraform cloud
+  - deployed using API calls for terraform cloud
 - Domain name for the application
 - API keys for Todoist, OpenAI, and Notion (for productivity system)
+
+### Deployment Process
+
+1. Clone the repository
+2. Configure AWS credentials
+3. Update `terraform.auto.tfvars` with your configuration values
+4. Run `terraform init` to initialize the working directory
+5. Run `terraform plan` to preview changes
+6. Run `terraform apply` to deploy the infrastructure
 
 ## License
 
