@@ -112,6 +112,6 @@ This project leverages several key modules from the terraform-aws-modules collec
 5. Run `terraform plan` to preview changes
 6. Run `terraform apply` to deploy the infrastructure
 
-## License
+## Reusable commands
 
-This project is licensed under the MIT License - see the LICENSE file for details.
+- pre-commit run --all-files > precommit.log 2>&1

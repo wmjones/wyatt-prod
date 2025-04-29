@@ -1,6 +1,13 @@
-locals {
-  # Validate that when create_custom_domain is true, both domain_name and certificate_arn are provided
-  validate_custom_domain = var.create_custom_domain && (var.domain_name == "" || var.certificate_arn == "") ? tobool("When create_custom_domain is true, both domain_name and certificate_arn must be provided.") : true
+# Replace the validation logic with an assert block
+resource "terraform_data" "validate_custom_domain" {
+  count = var.create_custom_domain ? 1 : 0
+
+  lifecycle {
+    precondition {
+      condition     = var.domain_name != "" && var.certificate_arn != ""
+      error_message = "When create_custom_domain is true, both domain_name and certificate_arn must be provided."
+    }
+  }
 }
 
 resource "aws_apigatewayv2_api" "this" {
