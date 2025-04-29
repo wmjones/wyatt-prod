@@ -118,6 +118,8 @@ module "visualization_data_bucket" {
 
 # Policy document for access by authenticated users
 # Used to manage bucket access policies for visualization data
+data "aws_caller_identity" "current" {}
+
 data "aws_iam_policy_document" "visualization_data_policy" {
   # Allow authenticated users to access their own objects
   statement {
@@ -125,7 +127,7 @@ data "aws_iam_policy_document" "visualization_data_policy" {
 
     principals {
       type        = "AWS"
-      identifiers = ["*"]
+      identifiers = ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
     }
 
     actions = [

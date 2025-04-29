@@ -1,6 +1,6 @@
 # Create a WAF Web ACL for CloudFront distributions
 resource "aws_wafv2_web_acl" "cloudfront_waf" {
-  provider = aws.us_east_2
+  provider = aws.us_east_1
 
   name        = "${var.project_name}-cloudfront-waf-${terraform.workspace}"
   description = "WAF for CloudFront distribution"
