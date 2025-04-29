@@ -1,7 +1,5 @@
 import json
 
-# Import httpx for explicit proxy configuration
-import httpx
 from openai import OpenAI
 from utils import SuperTask, get_secret, tasks_to_json
 
@@ -18,12 +16,8 @@ def lambda_handler(event, context):
 
     project_id_list = [project["project_id"] for project in config["projects"]]
 
-    # Create custom httpx client with explicit proxy settings
-    # This avoids the 'proxies' parameter error by handling proxies at the httpx level
-    http_client = httpx.Client(proxies=None)  # Explicitly disable proxies
-
     # Initialize OpenAI client with the custom http_client
-    client = OpenAI(api_key=secret_dict["OPEN_AI_KEY"], http_client=http_client)
+    client = OpenAI(api_key=secret_dict["OPEN_AI_KEY"])
 
     tasks = []
     for json_task in json.loads(event["body"]):
