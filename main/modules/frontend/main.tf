@@ -23,7 +23,8 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "frontend" {
 
   rule {
     apply_server_side_encryption_by_default {
-      sse_algorithm = "AES256"
+      kms_master_key_id = var.kms_key_arn
+      sse_algorithm     = var.kms_key_arn != null ? "aws:kms" : "AES256"
     }
   }
 }
@@ -58,6 +59,28 @@ resource "aws_s3_bucket_acl" "logs" {
 
   bucket = aws_s3_bucket.logs.id
   acl    = "private"
+}
+
+# Add public access block for logs bucket
+resource "aws_s3_bucket_public_access_block" "logs" {
+  bucket = aws_s3_bucket.logs.id
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
+}
+
+# Add encryption for logs bucket
+resource "aws_s3_bucket_server_side_encryption_configuration" "logs" {
+  bucket = aws_s3_bucket.logs.id
+
+  rule {
+    apply_server_side_encryption_by_default {
+      kms_master_key_id = var.kms_key_arn
+      sse_algorithm     = var.kms_key_arn != null ? "aws:kms" : "AES256"
+    }
+  }
 }
 
 resource "aws_cloudfront_origin_access_control" "frontend" {
@@ -173,6 +196,9 @@ resource "aws_cloudfront_distribution" "frontend" {
     origin_access_control_id = aws_cloudfront_origin_access_control.frontend.id
     origin_id                = "S3-${var.bucket_name}"
   }
+
+  # Associate with WAF Web ACL if provided
+  web_acl_id = var.web_acl_id
 
   # API Gateway origin (optional)
   dynamic "origin" {

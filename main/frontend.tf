@@ -39,6 +39,12 @@ module "frontend" {
   # Add CloudFront function for URL rewrites
   cloudfront_function_code = local.cloudfront_function_code
 
+  # Add WAF protection
+  web_acl_id = aws_wafv2_web_acl.cloudfront_waf.arn
+
+  # Use KMS key for encryption
+  kms_key_arn = aws_kms_key.s3_key.arn
+
   tags = {
     Component = "Frontend"
   }

@@ -63,3 +63,15 @@ variable "cloudfront_function_code" {
   type        = string
   default     = null
 }
+
+variable "web_acl_id" {
+  description = "ARN of the WAF Web ACL to associate with the CloudFront distribution"
+  type        = string
+  default     = null
+}
+
+variable "kms_key_arn" {
+  description = "ARN of KMS key to use for S3 bucket encryption (if null, AES256 will be used)"
+  type        = string
+  default     = null
+}
