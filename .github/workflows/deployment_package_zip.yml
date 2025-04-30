@@ -17,10 +17,15 @@ jobs:
                   python-version: 3.12
 
             - name: Create target directory
-              run: mkdir -p deploy
+              run: mkdir -p deploy/visualization
 
-            - name: Include lambda
-              run: cp src/lambda/* ./deploy
+            - name: Include lambda files
+              run: |
+                # Copy regular Lambda files from src/lambda root
+                cp src/lambda/*.py ./deploy/
+
+                # Copy visualization Lambda files to visualization subdirectory
+                cp src/lambda/visualization/*.py ./deploy/visualization/
 
             - name: Include system_prompts
               run: cp src/system_prompts/* ./deploy
