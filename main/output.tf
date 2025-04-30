@@ -38,18 +38,6 @@ output "api_endpoint" {
   value       = module.api_gateway.api_endpoint
 }
 
-# WebSocket API Output
-output "websocket_api_endpoint" {
-  description = "The WebSocket API Gateway endpoint URL"
-  value       = aws_apigatewayv2_stage.websocket.invoke_url
-}
-
-# AWS Region Output
-output "aws_region" {
-  description = "AWS Region where resources are deployed"
-  value       = data.aws_region.current.name
-}
-
 # Cognito Outputs
 output "cognito_user_pool_id" {
   description = "ID of the Cognito User Pool"
@@ -59,17 +47,6 @@ output "cognito_user_pool_id" {
 output "cognito_client_id" {
   description = "ID of the Cognito User Pool web client"
   value       = module.cognito.client_ids["${var.project_name}-web-client"]
-}
-
-# Visualization Lambda Outputs
-output "visualization_lambdas" {
-  description = "ARNs of the Lambda functions for visualization data"
-  value = {
-    get           = module.get_visualization_lambda.function_arn
-    update        = module.update_visualization_lambda.function_arn
-    ws_connect    = module.ws_connect_lambda.function_arn
-    ws_disconnect = module.ws_disconnect_lambda.function_arn
-  }
 }
 
 # Existing Productivity Lambda Outputs
