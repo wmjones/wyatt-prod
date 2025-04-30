@@ -3,8 +3,8 @@
 # Create zip archives for Lambda functions
 data "archive_file" "lambda_visualization_code" {
   type        = "zip"
-  source_dir  = "${path.root}/../src/lambda"
-  output_path = "${path.root}/.terraform/lambda_visualization.zip"
+  source_dir  = "${path.module}/../src/lambda"
+  output_path = "${path.module}/.terraform/lambda_visualization.zip"
 }
 
 locals {
