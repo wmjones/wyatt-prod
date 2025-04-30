@@ -70,3 +70,39 @@ variable "log_retention_days" {
   type        = number
   default     = 14
 }
+
+variable "vpc_subnet_ids" {
+  description = "List of subnet IDs to deploy Lambda in VPC (must provide vpc_security_group_ids if specified)"
+  type        = list(string)
+  default     = null
+}
+
+variable "vpc_security_group_ids" {
+  description = "List of security group IDs to attach to running Lambda in VPC"
+  type        = list(string)
+  default     = null
+}
+
+variable "publish" {
+  description = "Whether to publish Lambda function as a new version"
+  type        = bool
+  default     = false
+}
+
+variable "layers" {
+  description = "List of Lambda Layer ARNs to attach to the function"
+  type        = list(string)
+  default     = []
+}
+
+variable "tracing_mode" {
+  description = "X-Ray tracing mode (PassThrough or Active)"
+  type        = string
+  default     = null
+}
+
+variable "dead_letter_target_arn" {
+  description = "ARN of SQS queue or SNS topic for the dead letter target"
+  type        = string
+  default     = null
+}
