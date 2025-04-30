@@ -44,31 +44,12 @@ output "cognito_user_pool_id" {
   value       = module.cognito.user_pool_id
 }
 
-output "cognito_client_ids" {
-  description = "IDs of the Cognito User Pool clients"
-  value       = module.cognito.client_ids
+output "cognito_client_id" {
+  description = "ID of the Cognito User Pool web client"
+  value       = module.cognito.client_ids["${var.project_name}-web-client"]
 }
 
-output "cognito_domain" {
-  description = "Domain name for the Cognito hosted UI"
-  value       = module.cognito.domain
-}
-
-# DynamoDB Outputs
-output "dynamodb_table_name" {
-  description = "Name of the DynamoDB table for visualizations"
-  value       = module.visualization_table.table_id
-}
-
-# Lambda Function Outputs
-output "visualization_lambdas" {
-  description = "ARNs of the Lambda functions for visualization data"
-  value = {
-    get = module.get_visualization_data.function_arn
-    put = module.put_visualization_data.function_arn
-  }
-}
-
+# Existing Productivity Lambda Outputs
 output "productivity_lambdas" {
   description = "ARNs of the Lambda functions for the productivity workflow"
   value = {
