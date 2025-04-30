@@ -3,15 +3,21 @@
 # Create zip archives for Lambda functions
 data "archive_file" "lambda_visualization_code" {
   type        = "zip"
-  source_dir  = "${path.module}/../src/lambda"
-  output_path = "${path.module}/.terraform/lambda_visualization.zip"
+  source_dir  = "${path.root}/../src/lambda"
+  output_path = "${path.root}/.terraform/lambda_visualization.zip"
+}
+
+locals {
+  # Shorten the names to avoid IAM role name length limitations (64 chars max)
+  function_prefix = "viz"
+  env_suffix      = terraform.workspace == "prod" ? "prod" : "dev"
 }
 
 # Get visualization data Lambda
 module "get_visualization_lambda" {
   source = "./modules/lambda_function"
 
-  function_name = "${var.project_name}-get-visualization-${terraform.workspace}"
+  function_name = "${local.function_prefix}-get-${local.env_suffix}"
   description   = "Lambda function to get normal distribution parameters"
   handler       = "visualization/getVisualizationData.lambda_handler"
   runtime       = "python3.12"
@@ -47,7 +53,7 @@ module "get_visualization_lambda" {
 module "update_visualization_lambda" {
   source = "./modules/lambda_function"
 
-  function_name = "${var.project_name}-update-visualization-${terraform.workspace}"
+  function_name = "${local.function_prefix}-update-${local.env_suffix}"
   description   = "Lambda function to update normal distribution parameters"
   handler       = "visualization/updateVisualizationParams.lambda_handler"
   runtime       = "python3.12"
@@ -93,7 +99,7 @@ module "update_visualization_lambda" {
 module "ws_connect_lambda" {
   source = "./modules/lambda_function"
 
-  function_name = "${var.project_name}-ws-connect-${terraform.workspace}"
+  function_name = "${local.function_prefix}-ws-connect-${local.env_suffix}"
   description   = "Lambda function to handle WebSocket connections"
   handler       = "visualization/wsConnect.lambda_handler"
   runtime       = "python3.12"
@@ -129,7 +135,7 @@ module "ws_connect_lambda" {
 module "ws_disconnect_lambda" {
   source = "./modules/lambda_function"
 
-  function_name = "${var.project_name}-ws-disconnect-${terraform.workspace}"
+  function_name = "${local.function_prefix}-ws-disconnect-${local.env_suffix}"
   description   = "Lambda function to handle WebSocket disconnections"
   handler       = "visualization/wsDisconnect.lambda_handler"
   runtime       = "python3.12"
