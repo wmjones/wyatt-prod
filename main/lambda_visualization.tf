@@ -1,16 +1,12 @@
 # Lambda functions for the Normal Distribution Visualization Dashboard
 
-# Create zip archives for Lambda functions
-data "archive_file" "lambda_visualization_code" {
-  type        = "zip"
-  source_dir  = "../src/lambda"
-  output_path = "${path.module}/.terraform/lambda_visualization.zip"
-}
-
 locals {
   # Shorten the names to avoid IAM role name length limitations (64 chars max)
   function_prefix = "viz"
   env_suffix      = terraform.workspace == "prod" ? "prod" : "dev"
+
+  # Use the same deployment package as other lambda functions
+  lambda_viz_zip_path = local.lambda_zip_path
 }
 
 # Get visualization data Lambda
@@ -22,7 +18,7 @@ module "get_visualization_lambda" {
   handler       = "visualization/getVisualizationData.lambda_handler"
   runtime       = "python3.12"
   timeout       = 10
-  zip_file      = data.archive_file.lambda_visualization_code.output_path
+  zip_file      = local.lambda_viz_zip_path
 
   environment_variables = {
     PARAMETER_TABLE = module.parameter_table.table_id
@@ -58,7 +54,7 @@ module "update_visualization_lambda" {
   handler       = "visualization/updateVisualizationParams.lambda_handler"
   runtime       = "python3.12"
   timeout       = 10
-  zip_file      = data.archive_file.lambda_visualization_code.output_path
+  zip_file      = local.lambda_viz_zip_path
 
   environment_variables = {
     PARAMETER_TABLE        = module.parameter_table.table_id
@@ -104,7 +100,7 @@ module "ws_connect_lambda" {
   handler       = "visualization/wsConnect.lambda_handler"
   runtime       = "python3.12"
   timeout       = 10
-  zip_file      = data.archive_file.lambda_visualization_code.output_path
+  zip_file      = local.lambda_viz_zip_path
 
   environment_variables = {
     CONNECTION_TABLE = module.connection_table.table_id
@@ -140,7 +136,7 @@ module "ws_disconnect_lambda" {
   handler       = "visualization/wsDisconnect.lambda_handler"
   runtime       = "python3.12"
   timeout       = 10
-  zip_file      = data.archive_file.lambda_visualization_code.output_path
+  zip_file      = local.lambda_viz_zip_path
 
   environment_variables = {
     CONNECTION_TABLE = module.connection_table.table_id
