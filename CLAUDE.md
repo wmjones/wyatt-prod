@@ -115,4 +115,7 @@ This project leverages several key modules from the terraform-aws-modules collec
 ## Reusable commands
 
 - pre-commit run --all-files > precommit.log 2>&1
-- Read CLAUDE.md, phase2.md, phase2_1.md, ai_docs/* then run git ls-files to understand this codebase
+- READ CLAUDE.md, phase2.md, phase2_1.md, ai_docs/*
+- Run git ls-files to understand this codebase
+- Can you please initialize taskmaster-ai into my project?
+- https://github.com/eyaltoledano/claude-task-master/blob/main/docs/tutorial.md
