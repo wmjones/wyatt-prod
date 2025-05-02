@@ -18,24 +18,29 @@ interface AmplifyConfig {
   };
 }
 
-// Initialize Amplify with configuration
-export const configureAmplify = (config: AmplifyConfig = {}) => {
-  // Default configuration - will be overridden by the provided config
-  const defaultConfig = {
+// Get configuration from environment variables (set during build)
+const getEnvConfig = (): AmplifyConfig => {
+  return {
     Cognito: {
-      userPoolId: 'us-east-1_xxxxxxxx', // Replace with actual Cognito User Pool ID in production
-      userPoolClientId: 'xxxxxxxxxxxxxxxxxxxxxxxxxx', // Replace with actual App Client ID in production
-      region: 'us-east-1',
+      userPoolId: process.env.REACT_APP_USER_POOL_ID || 'us-east-1_xxxxxxxx',
+      userPoolClientId: process.env.REACT_APP_USER_POOL_CLIENT_ID || 'xxxxxxxxxxxxxxxxxxxxxxxxxx',
+      region: process.env.REACT_APP_REGION || 'us-east-1',
     },
     API: {
       REST: {
         api: {
-          endpoint: 'https://api.example.com', // Replace with actual API Gateway endpoint
-          region: 'us-east-1',
+          endpoint: process.env.REACT_APP_API_ENDPOINT || 'https://api.example.com',
+          region: process.env.REACT_APP_REGION || 'us-east-1',
         },
       },
     },
   };
+};
+
+// Initialize Amplify with configuration
+export const configureAmplify = (config: AmplifyConfig = {}) => {
+  // Default configuration from environment variables
+  const defaultConfig = getEnvConfig();
 
   // Merge the default config with the provided config
   const mergedConfig = {
@@ -53,6 +58,15 @@ export const configureAmplify = (config: AmplifyConfig = {}) => {
 
   // Configure Amplify with the merged config
   Amplify.configure(mergedConfig);
+
+  // Log configuration in development mode
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Amplify configured with:', JSON.stringify({
+      userPoolId: mergedConfig.Cognito?.userPoolId,
+      region: mergedConfig.Cognito?.region,
+      apiEndpoint: mergedConfig.API?.REST?.api?.endpoint,
+    }, null, 2));
+  }
 };
 
 // Export type for AuthState

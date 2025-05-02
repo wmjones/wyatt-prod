@@ -18,14 +18,17 @@ if ! command -v aws &> /dev/null; then
     exit 1
 fi
 
-# Get the S3 bucket name and CloudFront distribution ID
-echo "Getting S3 bucket name and CloudFront distribution ID..."
+# Get AWS resource information from SSM parameters
+echo "Getting AWS resource information..."
 BUCKET_NAME=$(aws ssm get-parameter --name "/wyatt-personal-aws-$ENVIRONMENT/frontend_bucket_name" --query "Parameter.Value" --output text)
 CF_ID=$(aws ssm get-parameter --name "/wyatt-personal-aws-$ENVIRONMENT/cloudfront_id" --query "Parameter.Value" --output text --region $AWS_REGION 2>/dev/null || echo "")
+USER_POOL_ID=$(aws ssm get-parameter --name "/wyatt-personal-aws-$ENVIRONMENT/cognito_user_pool_id" --query "Parameter.Value" --output text 2>/dev/null || echo "us-east-2_xxxxxxxx")
+CLIENT_ID=$(aws ssm get-parameter --name "/wyatt-personal-aws-$ENVIRONMENT/cognito_client_id" --query "Parameter.Value" --output text 2>/dev/null || echo "xxxxxxxxxxxxxxxxxxxxxxxxxx")
+API_ENDPOINT=$(aws ssm get-parameter --name "/wyatt-personal-aws-$ENVIRONMENT/api_endpoint" --query "Parameter.Value" --output text 2>/dev/null || echo "https://api.example.com")
 
 # Check if bucket name was retrieved successfully
 if [ -z "$BUCKET_NAME" ] || [ "$BUCKET_NAME" == "None" ]; then
-    echo "Failed to get S3 bucket name. Please run the SSM parameters setup workflow first."
+    echo "Failed to get S3 bucket name. Please run the SSM parameters setup workflow or store-terraform-outputs.sh script first."
     exit 1
 fi
 
@@ -34,6 +37,9 @@ echo "Setting environment variables for $ENVIRONMENT environment..."
 ENV_FILE="$REACT_APP_DIR/.env.production.local"
 echo "REACT_APP_STAGE=$ENVIRONMENT" > $ENV_FILE
 echo "REACT_APP_REGION=$AWS_REGION" >> $ENV_FILE
+echo "REACT_APP_USER_POOL_ID=$USER_POOL_ID" >> $ENV_FILE
+echo "REACT_APP_USER_POOL_CLIENT_ID=$CLIENT_ID" >> $ENV_FILE
+echo "REACT_APP_API_ENDPOINT=$API_ENDPOINT" >> $ENV_FILE
 
 # Increase memory for Node.js
 export NODE_OPTIONS=--max_old_space_size=4096
