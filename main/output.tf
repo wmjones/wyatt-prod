@@ -46,7 +46,7 @@ output "cognito_user_pool_id" {
 
 output "cognito_client_id" {
   description = "ID of the Cognito User Pool web client"
-  value       = module.cognito.client_ids["${var.project_name}-web-client"]
+  value       = module.cognito.client_ids["${var.project_name}-web-client-${var.environment}"]
 }
 
 # Existing Productivity Lambda Outputs
