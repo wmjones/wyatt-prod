@@ -18,6 +18,11 @@ output "cloudfront_domain_name" {
   value       = aws_cloudfront_distribution.frontend.domain_name
 }
 
+output "cloudfront_distribution_arn" {
+  description = "ARN of the CloudFront distribution"
+  value       = aws_cloudfront_distribution.frontend.arn
+}
+
 output "website_url" {
   description = "URL of the website"
   value       = "https://${var.app_prefix}.${var.domain_name}"
