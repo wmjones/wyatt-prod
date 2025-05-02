@@ -19,7 +19,7 @@ This workflow deploys the static site to S3 and invalidates the CloudFront cache
 
 The workflow:
 1. Checks out the code
-2. Configures AWS credentials using OIDC
+2. Configures AWS credentials using access keys
 3. Retrieves the S3 bucket name and CloudFront distribution ID from SSM parameters
 4. Syncs the static site files to the S3 bucket
 5. Invalidates the CloudFront cache
@@ -38,11 +38,12 @@ The workflow:
 
 Add these secrets to your GitHub repository:
 
-- `AWS_ROLE_TO_ASSUME`: ARN of an IAM role with permissions to deploy to S3, invalidate CloudFront, and manage SSM parameters
+- `AWS_ACCESS_KEY_ID`: AWS access key for deployment
+- `AWS_SECRET_ACCESS_KEY`: AWS secret key for deployment
 
 ## IAM Permissions Required
 
-The IAM role used for GitHub Actions should have these permissions:
+The IAM user used for GitHub Actions should have these permissions:
 
 ```json
 {
@@ -85,8 +86,8 @@ The IAM role used for GitHub Actions should have these permissions:
 
 ## Getting Started
 
-1. Create the OIDC provider and IAM role in AWS (can be done through Terraform)
-2. Add the required secrets to your GitHub repository
+1. Create an IAM user with the required permissions
+2. Add the AWS access key and secret key as secrets to your GitHub repository
 3. Run the `ssm_params.yml` workflow manually to set up SSM parameters
 4. Push changes to `src/frontend/static-site` or manually trigger the frontend deployment workflow
 
