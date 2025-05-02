@@ -1,11 +1,30 @@
 import { Amplify } from 'aws-amplify';
 import { fetchAuthSession, getCurrentUser as getAmplifyCurrentUser } from 'aws-amplify/auth';
-import { ResourcesConfig } from 'aws-amplify/core';
-import { type AuthConfig } from 'aws-amplify/auth';
-import { type APIConfig } from 'aws-amplify/api';
+
+// Define types for Amplify configuration
+interface AmplifyConfig {
+  Auth?: {
+    Cognito?: {
+      userPoolId?: string;
+      userPoolClientId?: string;
+      region?: string;
+      loginWith?: {
+        email?: boolean;
+      };
+    };
+  };
+  API?: {
+    REST?: {
+      [key: string]: {
+        endpoint?: string;
+        region?: string;
+      };
+    };
+  };
+}
 
 // Get configuration from environment variables (set during build)
-const getEnvConfig = (): ResourcesConfig => {
+const getEnvConfig = (): AmplifyConfig => {
   return {
     Auth: {
       Cognito: {
@@ -29,12 +48,12 @@ const getEnvConfig = (): ResourcesConfig => {
 };
 
 // Initialize Amplify with configuration
-export const configureAmplify = (providedConfig: Partial<ResourcesConfig> = {}) => {
+export const configureAmplify = (providedConfig: Partial<AmplifyConfig> = {}) => {
   // Default configuration from environment variables
   const defaultConfig = getEnvConfig();
 
   // Merge the default config with the provided config
-  const mergedConfig: ResourcesConfig = {
+  const mergedConfig: AmplifyConfig = {
     ...defaultConfig,
     ...providedConfig,
     Auth: {
