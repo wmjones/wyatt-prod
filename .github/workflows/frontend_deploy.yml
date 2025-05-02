@@ -1,0 +1,62 @@
+name: Deploy Frontend Static Site
+
+on:
+  push:
+    branches:
+      - dev
+      - main
+    paths:
+      - 'src/frontend/static-site/**'
+  workflow_dispatch:  # Allow manual triggering
+
+permissions:
+  id-token: write  # Required for requesting the JWT
+  contents: read   # Required for actions/checkout
+
+env:
+  AWS_REGION: 'us-east-2'  # Update to match your S3 bucket region
+  ENVIRONMENT: >-
+    ${{
+      github.ref == 'refs/heads/main' && 'prod' ||
+      'dev'
+    }}
+
+jobs:
+  deploy:
+    name: Deploy to S3
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Get S3 bucket name
+        id: get-bucket
+        run: |
+          # Use AWS CLI to get the output value from CloudFormation/SSM parameter
+          BUCKET_NAME=$(aws ssm get-parameter --name "/wyatt-personal-aws-${{ env.ENVIRONMENT }}/frontend_bucket_name" --query "Parameter.Value" --output text)
+          echo "s3_bucket=${BUCKET_NAME}" >> $GITHUB_OUTPUT
+
+          # Get CloudFront distribution ID
+          CF_ID=$(aws ssm get-parameter --name "/wyatt-personal-aws-${{ env.ENVIRONMENT }}/cloudfront_id" --query "Parameter.Value" --output text || echo '')
+          if [ -n "$CF_ID" ]; then
+            echo "cloudfront_id=${CF_ID}" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Deploy static content to S3
+        run: |
+          echo "Deploying to bucket: ${{ steps.get-bucket.outputs.s3_bucket }}"
+          aws s3 sync src/frontend/static-site/ s3://${{ steps.get-bucket.outputs.s3_bucket }}/ --delete
+
+      - name: Invalidate CloudFront cache
+        if: steps.get-bucket.outputs.cloudfront_id != ''
+        run: |
+          echo "Invalidating CloudFront distribution: ${{ steps.get-bucket.outputs.cloudfront_id }}"
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ steps.get-bucket.outputs.cloudfront_id }} \
+            --paths "/*"
