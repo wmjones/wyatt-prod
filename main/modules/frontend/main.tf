@@ -201,6 +201,9 @@ resource "aws_cloudfront_distribution" "frontend" {
     domain_name              = aws_s3_bucket.frontend.bucket_regional_domain_name
     origin_access_control_id = aws_cloudfront_origin_access_control.frontend.id
     origin_id                = "S3-${var.bucket_name}"
+    
+    # Adding origin path if needed
+    # origin_path = ""  # Uncomment and set if your content is in a subfolder
   }
 
   # Associate with WAF Web ACL if provided
@@ -306,7 +309,7 @@ resource "aws_cloudfront_distribution" "frontend" {
     minimum_protocol_version       = var.use_default_cert ? null : "TLSv1.2_2021"
   }
 
-  # Add SPA routing for single-page applications
+  # Add SPA routing for single-page applications and handle errors
   dynamic "custom_error_response" {
     for_each = var.single_page_application ? [1, 2] : []
     content {
@@ -316,20 +319,29 @@ resource "aws_cloudfront_distribution" "frontend" {
       error_caching_min_ttl = 0
     }
   }
+  
+  # Always add explicit error responses for access denied errors
+  custom_error_response {
+    error_code            = 403
+    response_code         = 200
+    response_page_path    = "/index.html"
+    error_caching_min_ttl = 10
+  }
 }
 
 resource "aws_s3_bucket_policy" "frontend" {
   bucket = aws_s3_bucket.frontend.id
 
   # This policy will be applied AFTER the public access block is configured
-  depends_on = [aws_s3_bucket_public_access_block.frontend]
+  depends_on = [aws_s3_bucket_public_access_block.frontend, aws_cloudfront_distribution.frontend]
 
   policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
       {
-        # Allow CloudFront access via Origin Access Control (OAC)
-        Effect = "Allow"
+        # CloudFront OAC access with proper service principal
+        Sid       = "AllowCloudFrontServicePrincipalReadOnly"
+        Effect    = "Allow"
         Principal = {
           Service = "cloudfront.amazonaws.com"
         }
@@ -342,11 +354,12 @@ resource "aws_s3_bucket_policy" "frontend" {
         }
       },
       {
-        # Alternative statement to support both CloudFront OAC and direct access
-        Effect = "Allow" 
+        # Public access for S3 website endpoint
+        Sid       = "PublicReadGetObject"
+        Effect    = "Allow"
         Principal = "*"
-        Action   = "s3:GetObject"
-        Resource = "${aws_s3_bucket.frontend.arn}/*"
+        Action    = "s3:GetObject" 
+        Resource  = "${aws_s3_bucket.frontend.arn}/*"
       }
     ]
   })
