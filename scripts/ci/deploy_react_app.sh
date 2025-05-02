@@ -1,14 +1,16 @@
 #!/bin/bash
 set -e
 
-# This script manually deploys the static site to S3 and invalidates CloudFront
+# This script builds and deploys the React app to S3 and invalidates CloudFront
 # It's useful for local testing or if you need to manually deploy without GitHub Actions
 
 # Configuration variables
 ENVIRONMENT=${1:-dev}  # Default to dev if not specified
 AWS_REGION="us-east-2"  # Update this with your AWS region
+REACT_APP_DIR="/workspaces/wyatt-personal-aws/src/frontend/react-app"
+BUILD_DIR="$REACT_APP_DIR/build"
 
-echo "Deploying static site to $ENVIRONMENT environment..."
+echo "Building and deploying React app to $ENVIRONMENT environment..."
 
 # Check if AWS CLI is installed
 if ! command -v aws &> /dev/null; then
@@ -27,8 +29,39 @@ if [ -z "$BUCKET_NAME" ] || [ "$BUCKET_NAME" == "None" ]; then
     exit 1
 fi
 
+# Build the React app
+echo "Building React app..."
+cd $REACT_APP_DIR
+npm install
+npm run build
+
+# Check if build was successful
+if [ ! -d "$BUILD_DIR" ]; then
+    echo "Failed to build React app. Check for errors above."
+    exit 1
+fi
+
+echo "React app built successfully!"
+
+# Deploy to S3 bucket
 echo "Deploying to S3 bucket: $BUCKET_NAME"
-aws s3 sync src/frontend/static-site/ s3://$BUCKET_NAME/ --delete --region $AWS_REGION
+
+# Upload static assets with long-term caching
+echo "Uploading static assets with long-term caching..."
+aws s3 sync $BUILD_DIR s3://$BUCKET_NAME/ \
+    --delete \
+    --cache-control "max-age=31536000,public" \
+    --exclude "*.html" \
+    --exclude "*.json" \
+    --region $AWS_REGION
+
+# Upload HTML and JSON files with no caching
+echo "Uploading HTML and JSON files with no caching..."
+aws s3 sync $BUILD_DIR s3://$BUCKET_NAME/ \
+    --cache-control "max-age=0,no-cache,no-store,must-revalidate" \
+    --include "*.html" \
+    --include "*.json" \
+    --region $AWS_REGION
 
 # If CloudFront distribution ID is available, invalidate the cache
 if [ -n "$CF_ID" ] && [ "$CF_ID" != "None" ]; then
@@ -45,10 +78,5 @@ if [ -n "$CF_ID" ] && [ "$CF_ID" != "None" ]; then
     CF_DOMAIN=$(aws cloudfront get-distribution --id $CF_ID --query "Distribution.DomainName" --output text --region $AWS_REGION)
     echo "Website URL: https://$CF_DOMAIN"
 else
-    S3_WEBSITE_URL=$(aws s3 website s3://$BUCKET_NAME --region $AWS_REGION 2>/dev/null || echo "")
-    if [ -n "$S3_WEBSITE_URL" ]; then
-        echo "Website URL: $S3_WEBSITE_URL"
-    else
-        echo "Website URL: http://$BUCKET_NAME.s3-website.$AWS_REGION.amazonaws.com"
-    fi
+    echo "Website URL: http://$BUCKET_NAME.s3-website.$AWS_REGION.amazonaws.com"
 fi

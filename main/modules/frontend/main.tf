@@ -310,16 +310,13 @@ resource "aws_cloudfront_distribution" "frontend" {
     minimum_protocol_version       = var.use_default_cert ? null : "TLSv1.2_2021"
   }
 
-  # Add SPA routing for single-page applications and handle errors
-  dynamic "custom_error_response" {
-    # Only configure 404 in dynamic block if single_page_application is true
-    for_each = var.single_page_application ? [1] : []
-    content {
-      error_code            = 404
-      response_code         = 200
-      response_page_path    = "/index.html"
-      error_caching_min_ttl = 0
-    }
+  # Add SPA routing for React application
+  # Always send 404s to index.html for SPA routing with React Router
+  custom_error_response {
+    error_code            = 404
+    response_code         = 200
+    response_page_path    = "/index.html"
+    error_caching_min_ttl = 0
   }
 
   # Always handle 403 access denied errors
@@ -360,7 +357,10 @@ resource "aws_s3_bucket_policy" "frontend" {
   })
 }
 
-resource "aws_s3_object" "sample_html" {
+# Conditional deployment: either use placeholders or deploy React build
+# Use placeholder HTML when no React build directory is provided
+resource "aws_s3_object" "placeholder_index_html" {
+  count        = var.react_app_build_dir == null ? 1 : 0
   bucket       = aws_s3_bucket.frontend.id
   key          = "index.html"
   content      = <<-EOF
@@ -403,7 +403,8 @@ resource "aws_s3_object" "sample_html" {
   depends_on = [aws_s3_bucket_policy.frontend]
 }
 
-resource "aws_s3_object" "error_html" {
+resource "aws_s3_object" "placeholder_error_html" {
+  count        = var.react_app_build_dir == null ? 1 : 0
   bucket       = aws_s3_bucket.frontend.id
   key          = "error.html"
   content      = <<-EOF
@@ -442,6 +443,41 @@ resource "aws_s3_object" "error_html" {
     </html>
   EOF
   content_type = "text/html"
+
+  depends_on = [aws_s3_bucket_policy.frontend]
+}
+
+# Upload React build files if react_app_build_dir is provided
+# Use null_resource and local-exec to upload React build files
+resource "null_resource" "react_app_deployment" {
+  count = var.react_app_build_dir != null ? 1 : 0
+
+  # Only run this resource when the build directory has changed
+  triggers = {
+    build_dir = var.react_app_build_dir
+  }
+
+  provisioner "local-exec" {
+    command = <<-EOT
+      echo "Deploying React app from ${var.react_app_build_dir} to ${aws_s3_bucket.frontend.bucket}..."
+      aws s3 sync ${var.react_app_build_dir} s3://${aws_s3_bucket.frontend.bucket} \
+        --delete \
+        --acl private \
+        --cache-control "max-age=31536000,public" \
+        --exclude "*.html" \
+        --exclude "*.json"
+
+      # Deploy HTML and JSON files with different cache settings
+      aws s3 sync ${var.react_app_build_dir} s3://${aws_s3_bucket.frontend.bucket} \
+        --delete \
+        --acl private \
+        --cache-control "max-age=0,no-cache,no-store,must-revalidate" \
+        --include "*.html" \
+        --include "*.json"
+
+      echo "React app deployment complete!"
+    EOT
+  }
 
   depends_on = [aws_s3_bucket_policy.frontend]
 }

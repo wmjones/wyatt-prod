@@ -85,3 +85,9 @@ variable "kms_key_arn" {
   type        = string
   default     = null
 }
+
+variable "react_app_build_dir" {
+  description = "Path to the React app build directory containing static assets to deploy"
+  type        = string
+  default     = null
+}

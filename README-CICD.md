@@ -5,24 +5,27 @@ This document describes the CI/CD pipeline set up for deploying the frontend app
 ## Overview
 
 The pipeline automates the following tasks:
-- Deploying the static site to S3
+- Building the React app
+- Deploying the built files to S3
 - Invalidating the CloudFront cache after deployment
-- (Future) Building and deploying the React SPA
 
 ## Workflows
 
-### 1. Frontend Static Site Deployment
+### 1. Frontend React App Deployment
 
 **File**: `.github/workflows/frontend_deploy.yml`
 
-This workflow deploys the static site to S3 and invalidates the CloudFront cache. It runs automatically when changes are pushed to the `src/frontend/static-site` directory on the `dev` or `main` branches. It can also be triggered manually.
+This workflow builds and deploys the React application to S3 and invalidates the CloudFront cache. It runs automatically when changes are pushed to the `src/frontend/react-app` directory on the `dev` or `main` branches. It can also be triggered manually.
 
 The workflow:
 1. Checks out the code
-2. Configures AWS credentials using access keys
-3. Retrieves the S3 bucket name and CloudFront distribution ID from SSM parameters
-4. Syncs the static site files to the S3 bucket
-5. Invalidates the CloudFront cache
+2. Sets up Node.js
+3. Installs dependencies
+4. Builds the React application
+5. Configures AWS credentials using access keys
+6. Retrieves the S3 bucket name and CloudFront distribution ID from SSM parameters
+7. Syncs the built files to the S3 bucket with appropriate cache headers
+8. Invalidates the CloudFront cache
 
 ### 2. SSM Parameter Configuration
 
@@ -89,13 +92,13 @@ The IAM user used for GitHub Actions should have these permissions:
 1. Create an IAM user with the required permissions
 2. Add the AWS access key and secret key as secrets to your GitHub repository
 3. Run the `ssm_params.yml` workflow manually to set up SSM parameters
-4. Push changes to `src/frontend/static-site` or manually trigger the frontend deployment workflow
+4. Push changes to `src/frontend/react-app` or manually trigger the frontend deployment workflow
 
 ## Future Enhancements
 
 The pipeline will be extended to include:
 
-1. Building and deploying the React SPA with TypeScript
-2. Running tests before deployment
-3. Environment-specific configuration
-4. Staged deployments with approval steps
+1. Running tests before deployment
+2. Environment-specific configuration
+3. Staged deployments with approval steps
+4. Performance monitoring after deployment

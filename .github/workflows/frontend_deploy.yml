@@ -1,4 +1,4 @@
-name: Deploy Frontend Static Site
+name: Deploy Frontend React App
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - dev
       - main
     paths:
-      - 'src/frontend/static-site/**'
+      - 'src/frontend/react-app/**'
   workflow_dispatch:  # Allow manual triggering
 
 permissions:
@@ -14,6 +14,7 @@ permissions:
 
 env:
   AWS_REGION: 'us-east-2'  # Update to match your S3 bucket region
+  NODE_VERSION: '18'
   ENVIRONMENT: >-
     ${{
       github.ref == 'refs/heads/main' && 'prod' ||
@@ -22,11 +23,26 @@ env:
 
 jobs:
   deploy:
-    name: Deploy to S3
+    name: Build and Deploy React App
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: 'src/frontend/react-app/package-lock.json'
+
+      - name: Install dependencies
+        working-directory: src/frontend/react-app
+        run: npm ci
+
+      - name: Build React app
+        working-directory: src/frontend/react-app
+        run: npm run build
 
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4
@@ -48,10 +64,22 @@ jobs:
             echo "cloudfront_id=${CF_ID}" >> $GITHUB_OUTPUT
           fi
 
-      - name: Deploy static content to S3
+      - name: Deploy static assets to S3 with cache headers
         run: |
-          echo "Deploying to bucket: ${{ steps.get-bucket.outputs.s3_bucket }}"
-          aws s3 sync src/frontend/static-site/ s3://${{ steps.get-bucket.outputs.s3_bucket }}/ --delete
+          echo "Deploying static assets to bucket: ${{ steps.get-bucket.outputs.s3_bucket }}"
+          aws s3 sync src/frontend/react-app/build/ s3://${{ steps.get-bucket.outputs.s3_bucket }}/ \
+            --delete \
+            --cache-control "max-age=31536000,public" \
+            --exclude "*.html" \
+            --exclude "*.json"
+
+      - name: Deploy HTML and JSON files with no-cache headers
+        run: |
+          echo "Deploying HTML and JSON files to bucket: ${{ steps.get-bucket.outputs.s3_bucket }}"
+          aws s3 sync src/frontend/react-app/build/ s3://${{ steps.get-bucket.outputs.s3_bucket }}/ \
+            --cache-control "max-age=0,no-cache,no-store,must-revalidate" \
+            --include "*.html" \
+            --include "*.json"
 
       - name: Invalidate CloudFront cache
         if: steps.get-bucket.outputs.cloudfront_id != ''
