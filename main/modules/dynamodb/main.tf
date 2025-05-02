@@ -18,6 +18,10 @@ module "dynamodb_table" {
   # Enable server-side encryption
   server_side_encryption_enabled = true
 
+  # TTL configuration
+  ttl_enabled        = var.ttl_enabled
+  ttl_attribute_name = var.ttl_attribute
+
   # Global secondary indexes
   global_secondary_indexes = var.global_secondary_indexes
 

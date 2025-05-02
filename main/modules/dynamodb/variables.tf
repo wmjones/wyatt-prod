@@ -104,3 +104,15 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "ttl_enabled" {
+  description = "Whether to enable TTL for the table"
+  type        = bool
+  default     = false
+}
+
+variable "ttl_attribute" {
+  description = "The name of the attribute used for TTL"
+  type        = string
+  default     = null
+}
