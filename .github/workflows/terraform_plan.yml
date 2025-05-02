@@ -14,6 +14,12 @@ env:
       'wyatt-personal-aws-dev'
     }}
   CONFIG_DIRECTORY: "./main"
+  # New environment variable to track tfvars file path
+  TFVARS_FILE: >-
+    ${{
+      github.ref == 'refs/heads/main' && './main/environments/prod.tfvars' ||
+      './main/environments/dev.tfvars'
+    }}
 
 jobs:
   deployment_package_zip:
@@ -43,6 +49,36 @@ jobs:
           find ./main/ -name "*.tf"
         shell: bash
 
+      # New step to load variables from tfvars file into environment
+      - name: Load TF Variables
+        id: load_vars
+        run: |
+          # Read the tfvars file and convert to environment variables
+          if [ -f "${{ env.TFVARS_FILE }}" ]; then
+            echo "Loading variables from ${{ env.TFVARS_FILE }}"
+            while IFS='=' read -r key value || [ -n "$key" ]; do
+              # Skip comments and empty lines
+              [[ $key =~ ^[[:space:]]*# ]] && continue
+              [[ -z "$key" ]] && continue
+
+              # Clean up the key and value
+              key=$(echo $key | xargs)
+              value=$(echo $value | xargs)
+
+              # Remove any quotes from the value
+              value="${value%\"}"
+              value="${value#\"}"
+
+              # Export as TF_VAR_ environment variable
+              echo "TF_VAR_$key=$value" >> $GITHUB_ENV
+              echo "Set TF_VAR_$key"
+            done < "${{ env.TFVARS_FILE }}"
+            echo "Variables loaded successfully"
+          else
+            echo "Warning: ${{ env.TFVARS_FILE }} not found"
+          fi
+        shell: bash
+
       - name: Upload Configuration
         uses: hashicorp/tfc-workflows-github/actions/upload-configuration@v1.0.0
         id: plan-upload
@@ -58,6 +94,7 @@ jobs:
           workspace: ${{ env.TF_WORKSPACE }}
           configuration_version: ${{ steps.plan-upload.outputs.configuration_version_id }}
           plan_only: true
+        # Environment variables are automatically passed to Terraform Cloud
 
       - name: Get Plan Output
         uses: hashicorp/tfc-workflows-github/actions/plan-output@v1.0.0
