@@ -1,59 +1,50 @@
 import { Amplify } from 'aws-amplify';
 import { fetchAuthSession, getCurrentUser as getAmplifyCurrentUser } from 'aws-amplify/auth';
-
-// Define types for Amplify configuration
-interface AmplifyConfig {
-  Cognito?: {
-    userPoolId?: string;
-    userPoolClientId?: string;
-    region?: string;
-  };
-  API?: {
-    REST?: {
-      [key: string]: {
-        endpoint?: string;
-        region?: string;
-      };
-    };
-  };
-}
+import { ResourcesConfig } from 'aws-amplify/core';
+import { type AuthConfig } from 'aws-amplify/auth';
+import { type APIConfig } from 'aws-amplify/api';
 
 // Get configuration from environment variables (set during build)
-const getEnvConfig = (): AmplifyConfig => {
+const getEnvConfig = (): ResourcesConfig => {
   return {
-    Cognito: {
-      userPoolId: process.env.REACT_APP_USER_POOL_ID || 'us-east-1_xxxxxxxx',
-      userPoolClientId: process.env.REACT_APP_USER_POOL_CLIENT_ID || 'xxxxxxxxxxxxxxxxxxxxxxxxxx',
-      region: process.env.REACT_APP_REGION || 'us-east-1',
+    Auth: {
+      Cognito: {
+        userPoolId: process.env.REACT_APP_USER_POOL_ID || 'us-east-1_xxxxxxxx',
+        userPoolClientId: process.env.REACT_APP_USER_POOL_CLIENT_ID || 'xxxxxxxxxxxxxxxxxxxxxxxxxx',
+        region: process.env.REACT_APP_REGION || 'us-east-1',
+        loginWith: {
+          email: true
+        }
+      }
     },
     API: {
       REST: {
         api: {
           endpoint: process.env.REACT_APP_API_ENDPOINT || 'https://api.example.com',
-          region: process.env.REACT_APP_REGION || 'us-east-1',
-        },
-      },
-    },
+          region: process.env.REACT_APP_REGION || 'us-east-1'
+        }
+      }
+    }
   };
 };
 
 // Initialize Amplify with configuration
-export const configureAmplify = (config: AmplifyConfig = {}) => {
+export const configureAmplify = (providedConfig: Partial<ResourcesConfig> = {}) => {
   // Default configuration from environment variables
   const defaultConfig = getEnvConfig();
 
   // Merge the default config with the provided config
-  const mergedConfig = {
+  const mergedConfig: ResourcesConfig = {
     ...defaultConfig,
-    ...config,
-    Cognito: {
-      ...defaultConfig.Cognito,
-      ...(config.Cognito || {}),
+    ...providedConfig,
+    Auth: {
+      ...defaultConfig.Auth,
+      ...(providedConfig.Auth || {})
     },
     API: {
       ...defaultConfig.API,
-      ...(config.API || {}),
-    },
+      ...(providedConfig.API || {})
+    }
   };
 
   // Configure Amplify with the merged config
@@ -62,8 +53,8 @@ export const configureAmplify = (config: AmplifyConfig = {}) => {
   // Log configuration in development mode
   if (process.env.NODE_ENV === 'development') {
     console.log('Amplify configured with:', JSON.stringify({
-      userPoolId: mergedConfig.Cognito?.userPoolId,
-      region: mergedConfig.Cognito?.region,
+      userPoolId: mergedConfig.Auth?.Cognito?.userPoolId,
+      region: mergedConfig.Auth?.Cognito?.region,
       apiEndpoint: mergedConfig.API?.REST?.api?.endpoint,
     }, null, 2));
   }
