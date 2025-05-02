@@ -2,7 +2,7 @@ data "aws_partition" "current" {}
 
 # Dedicated EventBridge role for invoking Step Functions
 resource "aws_iam_role" "eventbridge_role" {
-  name = "eventbridge_role_${terraform.workspace}"
+  name = "eventbridge_role_${var.environment}"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -13,6 +13,11 @@ resource "aws_iam_role" "eventbridge_role" {
       }
     ]
   })
+
+  tags = {
+    Environment = var.environment
+    Component   = "IAM"
+  }
 }
 
 resource "aws_iam_role_policy" "eventbridge_policy" {
@@ -31,7 +36,7 @@ resource "aws_iam_role_policy" "eventbridge_policy" {
 }
 
 resource "aws_iam_role" "lambda_role" {
-  name = "lambda_exec_role"
+  name = "lambda_exec_role_${var.environment}"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
@@ -53,6 +58,11 @@ resource "aws_iam_role" "lambda_role" {
       },
     ]
   })
+
+  tags = {
+    Environment = var.environment
+    Component   = "IAM"
+  }
 }
 
 resource "aws_iam_role_policy" "lambda_policy" {
@@ -104,7 +114,7 @@ resource "aws_iam_role_policy" "lambda_policy" {
 }
 
 resource "aws_iam_role" "sfn_role" {
-  name = "sfn_execution_role_${terraform.workspace}"
+  name = "sfn_execution_role_${var.environment}"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -125,6 +135,11 @@ resource "aws_iam_role" "sfn_role" {
       }
     ]
   })
+
+  tags = {
+    Environment = var.environment
+    Component   = "IAM"
+  }
 }
 
 resource "aws_iam_role_policy" "sfn_policy" {

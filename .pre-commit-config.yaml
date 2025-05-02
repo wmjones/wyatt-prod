@@ -39,9 +39,11 @@ repos:
       - id: terraform_trivy
         args:
           - --args=--severity=HIGH,CRITICAL
-          - --args=--skip-dirs=**/.terraform
+          - --args=--skip-dirs=.terraform
+          - --args=--skip-dirs="**/.terraform/**"
+          - --args=--tf-vars=/workspaces/wyatt-personal-aws/main/environments/dev.tfvars
       - id: terraform_docs      # auto-fills README tables
-        stages: [push]          # heavy ⟶ run only on push
+        stages: [pre-push]          # heavy ⟶ run only on push
 
 #   # 4 — Secret scanning
 #   - repo: https://github.com/Yelp/detect-secrets

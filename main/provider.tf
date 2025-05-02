@@ -4,7 +4,7 @@ provider "aws" {
   default_tags {
     tags = {
       Project     = var.project_name
-      Environment = terraform.workspace
+      Environment = var.environment
       ManagedBy   = "Terraform"
     }
   }
@@ -17,7 +17,7 @@ provider "aws" {
   default_tags {
     tags = {
       Project     = var.project_name
-      Environment = terraform.workspace
+      Environment = var.environment
       ManagedBy   = "Terraform"
     }
   }
@@ -30,7 +30,7 @@ provider "aws" {
   default_tags {
     tags = {
       Project     = var.project_name
-      Environment = terraform.workspace
+      Environment = var.environment
       ManagedBy   = "Terraform"
     }
   }

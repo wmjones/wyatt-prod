@@ -1,0 +1,43 @@
+{
+  "name": "claude-code-dev",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "context": ".."
+  },
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "remoteUser": "vscode",
+  "postCreateCommand": "npm fund || true",
+  "forwardPorts": [5173, 8080],
+  "settings": {
+    "terminal.integrated.defaultProfile.linux": "bash"
+  },
+  "mounts": [
+    // Persist Claude Code configuration and history
+    "source=/Users/wyatt.jones6/.claude.json,target=/home/vscode/.claude.json,type=bind,consistency=cached",
+    "source=/Users/wyatt.jones6/.claude,target=/home/vscode/.claude,type=bind,consistency=cached",
+    // Persist other volumes
+    "source=claude-code-history,target=/home/vscode/.claude-history,type=volume",
+    "source=claude-code-cache,target=/home/vscode/.cache/claude-code,type=volume",
+    "source=npm-global,target=/home/vscode/.npm-global,type=volume",
+    // Persist Terraform credentials
+    "source=terraform-credentials,target=/home/vscode/.terraform.d,type=volume",
+    // Persist pre-commit cache to avoid permission issues
+    "source=pre-commit-cache,target=/home/vscode/.cache/pre-commit,type=volume"
+  ],
+  "remoteEnv": {
+    "LANG": "en_US.UTF-8",
+    "LC_ALL": "en_US.UTF-8"
+  },
+  "features": {
+    "ghcr.io/devcontainers/features/git:1": {}
+  },
+  "extensions": [
+    "ms-vscode.remote-containers",
+    "HashiCorp.terraform",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "ms-python.python",
+    "redhat.vscode-yaml",
+    "eamodio.gitlens"
+  ]
+}

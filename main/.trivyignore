@@ -1,4 +1,0 @@
-# Ignore Dockerfile issues in module examples
-# These are not our code and don't impact our infrastructure
-**/lambda_function/examples/**/*.dockerfile
-**/lambda_function/examples/**/Dockerfile

@@ -2,7 +2,7 @@
 resource "aws_wafv2_web_acl" "cloudfront_waf" {
   provider = aws.us_east_1
 
-  name        = "${var.project_name}-cloudfront-waf-${terraform.workspace}"
+  name        = "${var.project_name}-cloudfront-waf-${var.environment}"
   description = "WAF for CloudFront distribution"
   scope       = "CLOUDFRONT"
 
@@ -63,8 +63,9 @@ resource "aws_wafv2_web_acl" "cloudfront_waf" {
   }
 
   tags = {
-    Component = "Security"
-    Name      = "CloudFront WAF"
+    Component   = "Security"
+    Name        = "CloudFront WAF"
+    Environment = var.environment
   }
 }
 

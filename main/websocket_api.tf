@@ -2,16 +2,26 @@
 
 # WebSocket API Gateway
 resource "aws_apigatewayv2_api" "websocket" {
-  name                       = "${var.project_name}-websocket-api-${terraform.workspace}"
+  name                       = "${var.project_name}-websocket-api-${var.environment}"
   protocol_type              = "WEBSOCKET"
   route_selection_expression = "$request.body.action"
+
+  tags = {
+    Environment = var.environment
+    Component   = "WebSocket API"
+  }
 }
 
 # Stage for WebSocket API
 resource "aws_apigatewayv2_stage" "websocket" {
   api_id      = aws_apigatewayv2_api.websocket.id
-  name        = "production"
+  name        = var.environment
   auto_deploy = true
+
+  tags = {
+    Environment = var.environment
+    Component   = "WebSocket API Stage"
+  }
 }
 
 # Connect route

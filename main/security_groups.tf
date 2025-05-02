@@ -2,7 +2,7 @@
 
 # Security Group for Lambda Functions
 resource "aws_security_group" "lambda" {
-  name        = "${var.project_name}-lambda-sg-${terraform.workspace}"
+  name        = "${var.project_name}-lambda-sg-${var.environment}"
   description = "Security group for Lambda functions"
   vpc_id      = module.vpc.vpc_id
 
@@ -61,8 +61,8 @@ resource "aws_security_group" "lambda" {
   }
 
   tags = {
-    Name        = "${var.project_name}-lambda-sg-${terraform.workspace}"
-    Environment = terraform.workspace
+    Name        = "${var.project_name}-lambda-sg-${var.environment}"
+    Environment = var.environment
     Terraform   = "true"
     Component   = "Security"
   }
@@ -70,7 +70,7 @@ resource "aws_security_group" "lambda" {
 
 # Security Group for RDS (if we add a database in the future)
 resource "aws_security_group" "database" {
-  name        = "${var.project_name}-database-sg-${terraform.workspace}"
+  name        = "${var.project_name}-database-sg-${var.environment}"
   description = "Security group for database instances"
   vpc_id      = module.vpc.vpc_id
 
@@ -93,8 +93,8 @@ resource "aws_security_group" "database" {
   }
 
   tags = {
-    Name        = "${var.project_name}-database-sg-${terraform.workspace}"
-    Environment = terraform.workspace
+    Name        = "${var.project_name}-database-sg-${var.environment}"
+    Environment = var.environment
     Terraform   = "true"
     Component   = "Security"
   }
@@ -102,7 +102,7 @@ resource "aws_security_group" "database" {
 
 # Security Group for ElastiCache (if we add Redis for WebSocket connections or caching)
 resource "aws_security_group" "elasticache" {
-  name        = "${var.project_name}-elasticache-sg-${terraform.workspace}"
+  name        = "${var.project_name}-elasticache-sg-${var.environment}"
   description = "Security group for ElastiCache instances"
   vpc_id      = module.vpc.vpc_id
 
@@ -125,8 +125,8 @@ resource "aws_security_group" "elasticache" {
   }
 
   tags = {
-    Name        = "${var.project_name}-elasticache-sg-${terraform.workspace}"
-    Environment = terraform.workspace
+    Name        = "${var.project_name}-elasticache-sg-${var.environment}"
+    Environment = var.environment
     Terraform   = "true"
     Component   = "Security"
   }
@@ -134,7 +134,7 @@ resource "aws_security_group" "elasticache" {
 
 # Security Group for internal ALB (if we add one in the future)
 resource "aws_security_group" "alb_internal" {
-  name        = "${var.project_name}-alb-internal-sg-${terraform.workspace}"
+  name        = "${var.project_name}-alb-internal-sg-${var.environment}"
   description = "Security group for internal Application Load Balancer"
   vpc_id      = module.vpc.vpc_id
 
@@ -174,8 +174,8 @@ resource "aws_security_group" "alb_internal" {
   }
 
   tags = {
-    Name        = "${var.project_name}-alb-internal-sg-${terraform.workspace}"
-    Environment = terraform.workspace
+    Name        = "${var.project_name}-alb-internal-sg-${var.environment}"
+    Environment = var.environment
     Terraform   = "true"
     Component   = "Security"
   }

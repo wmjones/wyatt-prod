@@ -1,27 +1,70 @@
-# Automated Terraform deployment for my AWS Environments
-## Project Overview
+# Project Documentation
 
-This project aims to create a powerful productivity system by integrating the Todoist API, ChatGPT API, and Notion API. It leverages AWS Step Functions and AWS Lambda to orchestrate the workflow and automate various tasks.
+This directory contains comprehensive documentation for the D3 Dashboard & Productivity System project.
 
-### Features
+## Table of Contents
 
-- **Todoist Integration**: The system seamlessly integrates with the Todoist API, allowing you to manage your tasks and to-do lists efficiently.
+1. [Project Overview](./1_project_overview.md)
+   - Introduction to the project
+   - Architecture principles
+   - Development environment
+   - Deployment process
 
-- **ChatGPT Integration**: By utilizing the ChatGPT API, the system enables natural language interactions, allowing you to have conversational interactions with your productivity system.
+2. [D3 Dashboard](./2_d3_dashboard.md)
+   - Features and capabilities
+   - Architecture components
+   - Implementation status
+   - Next steps
 
-- **Notion Integration**: The system integrates with the Notion API, enabling you to synchronize your tasks, notes, and other productivity-related data with Notion.
+3. [Productivity System](./3_productivity_system.md)
+   - System overview
+   - Architecture components
+   - Implementation status
+   - Configuration requirements
 
-### Workflow Automation
+4. [Terraform Modules](./4_terraform_modules.md)
+   - Module overview
+   - Module interactions
+   - Configuration options
 
-The project utilizes AWS Step Functions to automate the workflow. It orchestrates the different API integrations and performs actions based on predefined logic and triggers. AWS Lambda functions are used to execute specific tasks and handle the integration with the APIs.
+5. [Environment Configuration](./5_environment_configuration.md)
+   - Environment structure
+   - Deployment instructions
+   - Best practices
 
-### Getting Started
+6. [Implementation Roadmap](./6_implementation_roadmap.md)
+   - Current status
+   - Phase 2 (In Progress)
+   - Phase 3 (Planned)
+   - Future enhancements
 
-To get started with this productivity system, follow these steps:
+7. [Technical Specifications](./7_technical_specifications.md)
+   - AWS services used
+   - Frontend technologies
+   - Backend technologies
+   - Data storage details
+   - API endpoints
+   - Security considerations
 
-1. Clone the repository to your local machine.
-2. Set up the necessary AWS credentials and permissions.
-3. Configure the environment variables required for the API integrations.
-4. Deploy the AWS Step Functions and Lambda functions.
-5. Customize the system's behavior and logic based on your preferences.
-6. Start using the productivity system and enjoy its benefits!
+## Using This Documentation
+
+This documentation is structured to provide a clear understanding of the project's architecture, components, and implementation status. Use it to:
+
+1. Understand the overall project design and architecture
+2. Learn about specific components and their interactions
+3. Follow the implementation roadmap and current status
+4. Reference technical specifications for development
+
+## PRD Development
+
+This documentation serves as a foundation for creating a Product Requirements Document (PRD) for the project. The PRD should define:
+
+1. Product vision and goals
+2. User personas and use cases
+3. Functional requirements
+4. Non-functional requirements
+5. Success metrics
+6. Technical approach and architecture
+7. Implementation plan and timeline
+
+The information in these documents provides the necessary context for developing a comprehensive PRD.

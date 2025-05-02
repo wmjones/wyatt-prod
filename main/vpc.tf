@@ -2,8 +2,8 @@ module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
   version = "~> 5.0"
 
-  name = "${var.project_name}-vpc-${terraform.workspace}"
-  cidr = "10.0.0.0/16"
+  name = "${var.project_name}-vpc-${var.environment}"
+  cidr = var.vpc_cidr
 
   # Use 3 AZs for high availability
   azs             = ["${var.aws_region}a", "${var.aws_region}b", "${var.aws_region}c"]
@@ -16,8 +16,8 @@ module "vpc" {
 
   # NAT Gateway for private subnet internet access
   enable_nat_gateway     = true
-  single_nat_gateway     = terraform.workspace == "production" ? false : true
-  one_nat_gateway_per_az = terraform.workspace == "production" ? true : false
+  single_nat_gateway     = var.single_nat_gateway
+  one_nat_gateway_per_az = var.one_nat_gateway_per_az
 
   # IPv6 settings
   enable_ipv6 = false
@@ -35,8 +35,8 @@ module "vpc" {
 
   # Resource tags
   tags = {
-    Environment = terraform.workspace
-    Name        = "${var.project_name}-vpc-${terraform.workspace}"
+    Environment = var.environment
+    Name        = "${var.project_name}-vpc-${var.environment}"
     Terraform   = "true"
     Component   = "Networking"
   }

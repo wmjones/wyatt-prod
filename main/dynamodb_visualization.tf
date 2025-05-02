@@ -4,9 +4,10 @@
 module "parameter_table" {
   source = "./modules/dynamodb"
 
-  table_name = "${var.project_name}-parameters-${terraform.workspace}"
-  hash_key   = "paramId"
-  range_key  = "timestamp"
+  environment = var.environment
+  table_name  = "${var.project_name}-parameters-${var.environment}"
+  hash_key    = "paramId"
+  range_key   = "timestamp"
 
   attributes = [
     {
@@ -19,11 +20,14 @@ module "parameter_table" {
     }
   ]
 
-  billing_mode = "PAY_PER_REQUEST"
+  billing_mode = var.dynamodb_billing_mode
+
+  enable_point_in_time_recovery = var.dynamodb_point_in_time_recovery
 
   tags = {
-    Component = "D3 Dashboard"
-    Name      = "Parameter Table"
+    Component   = "D3 Dashboard"
+    Name        = "Parameter Table"
+    Environment = var.environment
   }
 }
 
@@ -31,9 +35,10 @@ module "parameter_table" {
 module "history_table" {
   source = "./modules/dynamodb"
 
-  table_name = "${var.project_name}-parameter-history-${terraform.workspace}"
-  hash_key   = "userId"
-  range_key  = "timestamp"
+  environment = var.environment
+  table_name  = "${var.project_name}-parameter-history-${var.environment}"
+  hash_key    = "userId"
+  range_key   = "timestamp"
 
   attributes = [
     {
@@ -62,11 +67,14 @@ module "history_table" {
     }
   ]
 
-  billing_mode = "PAY_PER_REQUEST"
+  billing_mode = var.dynamodb_billing_mode
+
+  enable_point_in_time_recovery = var.dynamodb_point_in_time_recovery
 
   tags = {
-    Component = "D3 Dashboard"
-    Name      = "Parameter History Table"
+    Component   = "D3 Dashboard"
+    Name        = "Parameter History Table"
+    Environment = var.environment
   }
 }
 
@@ -74,8 +82,9 @@ module "history_table" {
 module "connection_table" {
   source = "./modules/dynamodb"
 
-  table_name = "${var.project_name}-connections-${terraform.workspace}"
-  hash_key   = "connectionId"
+  environment = var.environment
+  table_name  = "${var.project_name}-connections-${var.environment}"
+  hash_key    = "connectionId"
 
   attributes = [
     {
@@ -84,13 +93,14 @@ module "connection_table" {
     }
   ]
 
-  billing_mode = "PAY_PER_REQUEST"
+  billing_mode = var.dynamodb_billing_mode
 
   # TTL for auto-cleanup of stale connections
   enable_point_in_time_recovery = false
 
   tags = {
-    Component = "D3 Dashboard"
-    Name      = "WebSocket Connections Table"
+    Component   = "D3 Dashboard"
+    Name        = "WebSocket Connections Table"
+    Environment = var.environment
   }
 }

@@ -1,9 +1,10 @@
 resource "aws_s3_bucket" "frontend" {
   bucket = var.bucket_name
 
-  tags = {
-    Name = "Frontend Website Bucket"
-  }
+  tags = merge(var.tags, {
+    Name        = "Frontend Website Bucket"
+    Environment = var.environment
+  })
 }
 
 resource "aws_s3_bucket_website_configuration" "frontend" {

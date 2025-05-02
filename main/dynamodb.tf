@@ -1,9 +1,10 @@
 module "visualization_table" {
   source = "./modules/dynamodb"
 
-  table_name = "${var.project_name}-visualizations-${terraform.workspace}"
-  hash_key   = "userId"
-  range_key  = "visualizationId"
+  environment = var.environment
+  table_name  = "${var.project_name}-visualizations-${var.environment}"
+  hash_key    = "userId"
+  range_key   = "visualizationId"
 
   attributes = [
     {
@@ -32,10 +33,10 @@ module "visualization_table" {
     }
   ]
 
-  billing_mode = "PAY_PER_REQUEST"
+  billing_mode = var.dynamodb_billing_mode
 
   # Enable point-in-time recovery
-  enable_point_in_time_recovery = true
+  enable_point_in_time_recovery = var.dynamodb_point_in_time_recovery
 
   # Auto-scaling settings
   autoscaling_enabled            = false
@@ -43,7 +44,8 @@ module "visualization_table" {
   autoscaling_write_max_capacity = 100
 
   tags = {
-    Component = "D3 Dashboard"
-    Name      = "Visualization Table"
+    Component   = "D3 Dashboard"
+    Name        = "Visualization Table"
+    Environment = var.environment
   }
 }

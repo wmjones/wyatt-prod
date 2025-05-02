@@ -1,0 +1,118 @@
+###############################################################################
+# Integrated Dev Container with Node 20, Python, Terraform, and Claude Code
+###############################################################################
+FROM node:20
+
+# Install basic development tools
+RUN apt update && apt install -y less \
+  git \
+  procps \
+  sudo \
+  fzf \
+  zsh \
+  man-db \
+  unzip \
+  gnupg2 \
+  gh \
+  iproute2 \
+  dnsutils \
+  aggregate \
+  jq \
+  curl \
+  wget \
+  ca-certificates \
+  locales
+
+# Fix locale issues
+RUN localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
+
+# Fix locale issues
+RUN localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
+ENV LANG=en_US.UTF-8
+ENV LC_ALL=en_US.UTF-8
+
+# ---------------------------------------------------------------------------
+# Environment variables & versions
+# ---------------------------------------------------------------------------
+ARG TERRAFORM_VERSION=1.8.4
+ARG NODE_MAJOR=20
+ENV DEBIAN_FRONTEND=noninteractive \
+    PIP_DISABLE_PIP_VERSION_CHECK=1 \
+    PYTHONUNBUFFERED=1
+
+# Modify the existing node user (which already has UID 1000) to be called vscode
+RUN usermod -l vscode node \
+    && groupmod -n vscode node \
+    && usermod -d /home/vscode -m vscode \
+    && ln -s /home/vscode /home/node \
+    && echo vscode ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/vscode \
+    && chmod 0440 /etc/sudoers.d/vscode
+
+# Ensure vscode user has access to /usr/local/share
+RUN mkdir -p /usr/local/share/npm-global && \
+  chown -R vscode:vscode /usr/local/share
+
+ARG USERNAME=vscode
+
+# Set `DEVCONTAINER` environment variable to help with orientation
+ENV DEVCONTAINER=true
+
+# Create workspace and config directories and set permissions
+RUN mkdir -p /workspace /home/vscode/.claude && \
+  chown -R vscode:vscode /workspace /home/vscode/.claude
+
+WORKDIR /workspaces
+
+# ---------------------------------------------------------------------------
+# Install git-delta for improved diffs
+# ---------------------------------------------------------------------------
+RUN ARCH=$(dpkg --print-architecture) && \
+  wget "https://github.com/dandavison/delta/releases/download/0.18.2/git-delta_0.18.2_${ARCH}.deb" && \
+  sudo dpkg -i "git-delta_0.18.2_${ARCH}.deb" && \
+  rm "git-delta_0.18.2_${ARCH}.deb"
+
+# ---------------------------------------------------------------------------
+# Terraform CLI
+# ---------------------------------------------------------------------------
+RUN wget -q https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip -O /tmp/terraform.zip \
+ && unzip /tmp/terraform.zip -d /usr/local/bin \
+ && rm /tmp/terraform.zip
+
+# ---------------------------------------------------------------------------
+# Python 3 tooling (pip + pre-commit)
+# ---------------------------------------------------------------------------
+RUN apt-get install -y --no-install-recommends python3 python3-venv python3-pip \
+    && python3 -m venv /opt/venv \
+    && /opt/venv/bin/pip install --no-cache-dir --upgrade pip pre-commit
+ENV PATH="/opt/venv/bin:${PATH}"
+
+# ---------------------------------------------------------------------------
+# Install Trivy security scanner
+# ---------------------------------------------------------------------------
+RUN curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin v0.18.3
+
+# Set up non-root user
+USER vscode
+
+# Configure npm global packages directory in user home
+ENV NPM_CONFIG_PREFIX=/home/vscode/.npm-global
+ENV PATH=$PATH:/home/vscode/.npm-global/bin
+
+# Set the default shell to bash rather than sh
+ENV SHELL /bin/zsh
+
+# ---------------------------------------------------------------------------
+# Claude Code CLI and MCP dependencies
+# ---------------------------------------------------------------------------
+RUN npm install -g @anthropic-ai/claude-code
+
+# MCP server dependencies
+RUN npm install -g \
+        @modelcontextprotocol/server-filesystem \
+        task-master-ai \
+        @upstash/context7-mcp
+
+# Default shell on container start
+CMD [ "zsh" ]
