@@ -189,6 +189,11 @@ resource "aws_cloudfront_function" "url_rewrite" {
   name    = "url-rewrite-${substr(sha256(var.bucket_name), 0, 8)}"
   runtime = "cloudfront-js-2.0"
   code    = var.cloudfront_function_code
+
+  # Ensure proper handling of function associations during updates/deletions
+  lifecycle {
+    create_before_destroy = true
+  }
 }
 
 resource "aws_cloudfront_distribution" "frontend" {

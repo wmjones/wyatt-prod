@@ -6,7 +6,7 @@ aws_region            = "us-east-2"
 project_name          = "wyatt-personal-aws"
 domain_name           = "example.com" # Replace with your actual domain name
 app_prefix            = "app-dev"
-cognito_domain_prefix = "wyatt-personal-aws-dev"
+cognito_domain_prefix = "wyatt-personal-dev"
 
 # Network Configuration
 vpc_cidr = "10.0.0.0/16"

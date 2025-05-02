@@ -6,6 +6,11 @@ resource "aws_wafv2_web_acl" "cloudfront_waf" {
   description = "WAF for CloudFront distribution"
   scope       = "CLOUDFRONT"
 
+  # Ensure proper handling of CloudFront WAF associations during updates/deletions
+  lifecycle {
+    create_before_destroy = true
+  }
+
   default_action {
     allow {}
   }
