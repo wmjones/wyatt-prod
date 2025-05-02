@@ -34,9 +34,9 @@ resource "aws_s3_bucket_public_access_block" "frontend" {
   bucket = aws_s3_bucket.frontend.id
 
   block_public_acls       = true
-  block_public_policy     = true
+  block_public_policy     = false # Allow public bucket policies to support website hosting
   ignore_public_acls      = true
-  restrict_public_buckets = true
+  restrict_public_buckets = false # Allow public access via bucket policy
 }
 
 resource "aws_s3_bucket" "logs" {
@@ -328,6 +328,7 @@ resource "aws_s3_bucket_policy" "frontend" {
     Version = "2012-10-17"
     Statement = [
       {
+        # Allow CloudFront access for secure distribution
         Effect = "Allow"
         Principal = {
           Service = "cloudfront.amazonaws.com"
@@ -339,6 +340,13 @@ resource "aws_s3_bucket_policy" "frontend" {
             "AWS:SourceArn" = aws_cloudfront_distribution.frontend.arn
           }
         }
+      },
+      {
+        # Allow public read access for website hosting
+        Effect    = "Allow"
+        Principal = "*"
+        Action    = "s3:GetObject"
+        Resource  = "${aws_s3_bucket.frontend.arn}/*"
       }
     ]
   })
