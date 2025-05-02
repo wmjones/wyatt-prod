@@ -94,7 +94,7 @@ This solution addresses the challenges data analysts and business intelligence t
   - getVisualizationData.py: Retrieves current visualization parameters
   - updateVisualizationParams.py: Updates parameters and broadcasts changes
   - wsConnect.py and wsDisconnect.py: Handle WebSocket connections
-  
+
 - **API Gateway**:
   - HTTP API with routes for getting and updating visualization data
   - WebSocket API for real-time updates
@@ -266,7 +266,7 @@ This solution addresses the challenges data analysts and business intelligence t
 ## Security Considerations
 - JWT token validation for API access
 - HTTPS for all communications
-- Proper bucket policies for S3 
+- Proper bucket policies for S3
 - Origin Access Control for CloudFront to S3 access
 - KMS encryption for data at rest with appropriate key policies
 - Least privilege IAM policies
