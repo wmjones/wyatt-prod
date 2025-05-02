@@ -311,16 +311,17 @@ resource "aws_cloudfront_distribution" "frontend" {
 
   # Add SPA routing for single-page applications and handle errors
   dynamic "custom_error_response" {
-    for_each = var.single_page_application ? [1, 2] : []
+    # Only configure 404 in dynamic block if single_page_application is true
+    for_each = var.single_page_application ? [1] : []
     content {
-      error_code            = custom_error_response.key == 1 ? 403 : 404
+      error_code            = 404
       response_code         = 200
       response_page_path    = "/index.html"
       error_caching_min_ttl = 0
     }
   }
   
-  # Always add explicit error responses for access denied errors
+  # Always handle 403 access denied errors
   custom_error_response {
     error_code            = 403
     response_code         = 200
