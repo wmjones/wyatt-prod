@@ -1,54 +1,44 @@
 import { Amplify } from 'aws-amplify';
 import { fetchAuthSession, getCurrentUser as getAmplifyCurrentUser } from 'aws-amplify/auth';
-
-// Define types for Amplify configuration
-interface AmplifyConfig {
-  Cognito?: {
-    userPoolId?: string;
-    userPoolClientId?: string;
-    region?: string;
-  };
-  API?: {
-    REST?: {
-      [key: string]: {
-        endpoint?: string;
-        region?: string;
-      };
-    };
-  };
-}
+import { ResourcesConfig } from 'aws-amplify/core';
+import { type AuthConfig } from 'aws-amplify/auth';
+import { type APIConfig } from 'aws-amplify/api';
 
 // Initialize Amplify with configuration
-export const configureAmplify = (config: AmplifyConfig = {}) => {
-  // Default configuration - will be overridden by the provided config
-  const defaultConfig = {
-    Cognito: {
-      userPoolId: 'us-east-1_xxxxxxxx', // Replace with actual Cognito User Pool ID in production
-      userPoolClientId: 'xxxxxxxxxxxxxxxxxxxxxxxxxx', // Replace with actual App Client ID in production
-      region: 'us-east-1',
+export const configureAmplify = (providedConfig: Partial<ResourcesConfig> = {}) => {
+  // Default configuration
+  const defaultConfig: ResourcesConfig = {
+    Auth: {
+      Cognito: {
+        userPoolId: 'us-east-1_xxxxxxxx', // Replace with actual Cognito User Pool ID in production
+        userPoolClientId: 'xxxxxxxxxxxxxxxxxxxxxxxxxx', // Replace with actual App Client ID in production
+        loginWith: {
+          email: true
+        }
+      }
     },
     API: {
       REST: {
         api: {
           endpoint: 'https://api.example.com', // Replace with actual API Gateway endpoint
-          region: 'us-east-1',
-        },
-      },
-    },
+          region: 'us-east-1'
+        }
+      }
+    }
   };
 
   // Merge the default config with the provided config
-  const mergedConfig = {
+  const mergedConfig: ResourcesConfig = {
     ...defaultConfig,
-    ...config,
-    Cognito: {
-      ...defaultConfig.Cognito,
-      ...(config.Cognito || {}),
+    ...providedConfig,
+    Auth: {
+      ...defaultConfig.Auth,
+      ...(providedConfig.Auth || {})
     },
     API: {
       ...defaultConfig.API,
-      ...(config.API || {}),
-    },
+      ...(providedConfig.API || {})
+    }
   };
 
   // Configure Amplify with the merged config
