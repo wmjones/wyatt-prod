@@ -27,6 +27,7 @@ resource "aws_s3_bucket_server_side_encryption_configuration" "frontend" {
       kms_master_key_id = var.kms_key_arn
       sse_algorithm     = var.kms_key_arn != null ? "aws:kms" : "AES256"
     }
+    bucket_key_enabled = true
   }
 }
 
@@ -34,9 +35,9 @@ resource "aws_s3_bucket_public_access_block" "frontend" {
   bucket = aws_s3_bucket.frontend.id
 
   block_public_acls       = true
-  block_public_policy     = false # Allow public bucket policies to support website hosting
+  block_public_policy     = true # Block public bucket policies for security
   ignore_public_acls      = true
-  restrict_public_buckets = false # Allow public access via bucket policy
+  restrict_public_buckets = true # Restrict public access for security
 }
 
 resource "aws_s3_bucket" "logs" {
@@ -201,7 +202,7 @@ resource "aws_cloudfront_distribution" "frontend" {
     domain_name              = aws_s3_bucket.frontend.bucket_regional_domain_name
     origin_access_control_id = aws_cloudfront_origin_access_control.frontend.id
     origin_id                = "S3-${var.bucket_name}"
-    
+
     # Adding origin path if needed
     # origin_path = ""  # Uncomment and set if your content is in a subfolder
   }
@@ -320,7 +321,7 @@ resource "aws_cloudfront_distribution" "frontend" {
       error_caching_min_ttl = 0
     }
   }
-  
+
   # Always handle 403 access denied errors
   custom_error_response {
     error_code            = 403
@@ -341,8 +342,8 @@ resource "aws_s3_bucket_policy" "frontend" {
     Statement = [
       {
         # CloudFront OAC access with proper service principal
-        Sid       = "AllowCloudFrontServicePrincipalReadOnly"
-        Effect    = "Allow"
+        Sid    = "AllowCloudFrontServicePrincipalReadOnly"
+        Effect = "Allow"
         Principal = {
           Service = "cloudfront.amazonaws.com"
         }
@@ -353,15 +354,8 @@ resource "aws_s3_bucket_policy" "frontend" {
             "AWS:SourceArn" = aws_cloudfront_distribution.frontend.arn
           }
         }
-      },
-      {
-        # Public access for S3 website endpoint
-        Sid       = "PublicReadGetObject"
-        Effect    = "Allow"
-        Principal = "*"
-        Action    = "s3:GetObject" 
-        Resource  = "${aws_s3_bucket.frontend.arn}/*"
       }
+      # Removed public access policy for security
     ]
   })
 }

@@ -20,6 +20,39 @@ resource "aws_kms_key" "s3_key" {
   deletion_window_in_days = 10
   enable_key_rotation     = true
 
+  # Add policy to allow CloudFront to use the key
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid    = "Enable IAM User Permissions"
+        Effect = "Allow"
+        Principal = {
+          AWS = "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
+        }
+        Action   = "kms:*"
+        Resource = "*"
+      },
+      {
+        Sid    = "Allow CloudFront to use the key"
+        Effect = "Allow"
+        Principal = {
+          Service = "cloudfront.amazonaws.com"
+        }
+        Action = [
+          "kms:Decrypt",
+          "kms:GenerateDataKey*"
+        ]
+        Resource = "*"
+        Condition = {
+          StringEquals = {
+            "AWS:SourceArn" = module.frontend.cloudfront_distribution_arn
+          }
+        }
+      }
+    ]
+  })
+
   tags = {
     Component = "Security"
     Name      = "S3 Encryption Key"
