@@ -4,14 +4,14 @@ import { ResourcesConfig } from 'aws-amplify/core';
 import { type AuthConfig } from 'aws-amplify/auth';
 import { type APIConfig } from 'aws-amplify/api';
 
-// Initialize Amplify with configuration
-export const configureAmplify = (providedConfig: Partial<ResourcesConfig> = {}) => {
-  // Default configuration
-  const defaultConfig: ResourcesConfig = {
+// Get configuration from environment variables (set during build)
+const getEnvConfig = (): ResourcesConfig => {
+  return {
     Auth: {
       Cognito: {
-        userPoolId: 'us-east-1_xxxxxxxx', // Replace with actual Cognito User Pool ID in production
-        userPoolClientId: 'xxxxxxxxxxxxxxxxxxxxxxxxxx', // Replace with actual App Client ID in production
+        userPoolId: process.env.REACT_APP_USER_POOL_ID || 'us-east-1_xxxxxxxx',
+        userPoolClientId: process.env.REACT_APP_USER_POOL_CLIENT_ID || 'xxxxxxxxxxxxxxxxxxxxxxxxxx',
+        region: process.env.REACT_APP_REGION || 'us-east-1',
         loginWith: {
           email: true
         }
@@ -20,12 +20,18 @@ export const configureAmplify = (providedConfig: Partial<ResourcesConfig> = {}) 
     API: {
       REST: {
         api: {
-          endpoint: 'https://api.example.com', // Replace with actual API Gateway endpoint
-          region: 'us-east-1'
+          endpoint: process.env.REACT_APP_API_ENDPOINT || 'https://api.example.com',
+          region: process.env.REACT_APP_REGION || 'us-east-1'
         }
       }
     }
   };
+};
+
+// Initialize Amplify with configuration
+export const configureAmplify = (providedConfig: Partial<ResourcesConfig> = {}) => {
+  // Default configuration from environment variables
+  const defaultConfig = getEnvConfig();
 
   // Merge the default config with the provided config
   const mergedConfig: ResourcesConfig = {
@@ -43,6 +49,15 @@ export const configureAmplify = (providedConfig: Partial<ResourcesConfig> = {}) 
 
   // Configure Amplify with the merged config
   Amplify.configure(mergedConfig);
+
+  // Log configuration in development mode
+  if (process.env.NODE_ENV === 'development') {
+    console.log('Amplify configured with:', JSON.stringify({
+      userPoolId: mergedConfig.Auth?.Cognito?.userPoolId,
+      region: mergedConfig.Auth?.Cognito?.region,
+      apiEndpoint: mergedConfig.API?.REST?.api?.endpoint,
+    }, null, 2));
+  }
 };
 
 // Export type for AuthState

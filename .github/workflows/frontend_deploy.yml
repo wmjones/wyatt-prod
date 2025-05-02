@@ -30,6 +30,38 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Get AWS resources info
+        id: get-resources
+        run: |
+          # Get S3 bucket name
+          BUCKET_NAME=$(aws ssm get-parameter --name "/wyatt-personal-aws-${{ env.ENVIRONMENT }}/frontend_bucket_name" --query "Parameter.Value" --output text)
+          echo "s3_bucket=${BUCKET_NAME}" >> $GITHUB_OUTPUT
+
+          # Get CloudFront distribution ID
+          CF_ID=$(aws ssm get-parameter --name "/wyatt-personal-aws-${{ env.ENVIRONMENT }}/cloudfront_id" --query "Parameter.Value" --output text || echo '')
+          if [ -n "$CF_ID" ]; then
+            echo "cloudfront_id=${CF_ID}" >> $GITHUB_OUTPUT
+          fi
+
+          # Get Cognito User Pool ID (using SSM parameter or direct from Terraform outputs)
+          USER_POOL_ID=$(aws ssm get-parameter --name "/wyatt-personal-aws-${{ env.ENVIRONMENT }}/cognito_user_pool_id" --query "Parameter.Value" --output text 2>/dev/null || echo 'us-east-2_xxxxxxxx')
+          echo "cognito_user_pool_id=${USER_POOL_ID}" >> $GITHUB_OUTPUT
+
+          # Get Cognito Client ID
+          CLIENT_ID=$(aws ssm get-parameter --name "/wyatt-personal-aws-${{ env.ENVIRONMENT }}/cognito_client_id" --query "Parameter.Value" --output text 2>/dev/null || echo 'xxxxxxxxxxxxxxxxxxxxxxxxxx')
+          echo "cognito_client_id=${CLIENT_ID}" >> $GITHUB_OUTPUT
+
+          # Get API endpoint
+          API_ENDPOINT=$(aws ssm get-parameter --name "/wyatt-personal-aws-${{ env.ENVIRONMENT }}/api_endpoint" --query "Parameter.Value" --output text 2>/dev/null || echo 'https://api.example.com')
+          echo "api_endpoint=${API_ENDPOINT}" >> $GITHUB_OUTPUT
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
@@ -45,40 +77,23 @@ jobs:
           npm install --no-save ajv@8.12.0 ajv-keywords@5.1.0
           npm install
 
-      - name: Set environment variable
+      - name: Set environment variables for build
         run: |
           echo "REACT_APP_STAGE=${{ env.ENVIRONMENT }}" >> src/frontend/react-app/.env.production.local
           echo "REACT_APP_REGION=${{ env.AWS_REGION }}" >> src/frontend/react-app/.env.production.local
+          echo "REACT_APP_USER_POOL_ID=${{ steps.get-resources.outputs.cognito_user_pool_id }}" >> src/frontend/react-app/.env.production.local
+          echo "REACT_APP_USER_POOL_CLIENT_ID=${{ steps.get-resources.outputs.cognito_client_id }}" >> src/frontend/react-app/.env.production.local
+          echo "REACT_APP_API_ENDPOINT=${{ steps.get-resources.outputs.api_endpoint }}" >> src/frontend/react-app/.env.production.local
           echo "NODE_OPTIONS=--max_old_space_size=4096" >> $GITHUB_ENV
 
       - name: Build React app
         working-directory: src/frontend/react-app
         run: CI=false npm run build
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@v4
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-
-      - name: Get S3 bucket name
-        id: get-bucket
-        run: |
-          # Use AWS CLI to get the output value from CloudFormation/SSM parameter
-          BUCKET_NAME=$(aws ssm get-parameter --name "/wyatt-personal-aws-${{ env.ENVIRONMENT }}/frontend_bucket_name" --query "Parameter.Value" --output text)
-          echo "s3_bucket=${BUCKET_NAME}" >> $GITHUB_OUTPUT
-
-          # Get CloudFront distribution ID
-          CF_ID=$(aws ssm get-parameter --name "/wyatt-personal-aws-${{ env.ENVIRONMENT }}/cloudfront_id" --query "Parameter.Value" --output text || echo '')
-          if [ -n "$CF_ID" ]; then
-            echo "cloudfront_id=${CF_ID}" >> $GITHUB_OUTPUT
-          fi
-
       - name: Deploy static assets to S3 with cache headers
         run: |
-          echo "Deploying static assets to bucket: ${{ steps.get-bucket.outputs.s3_bucket }}"
-          aws s3 sync src/frontend/react-app/build/ s3://${{ steps.get-bucket.outputs.s3_bucket }}/ \
+          echo "Deploying static assets to bucket: ${{ steps.get-resources.outputs.s3_bucket }}"
+          aws s3 sync src/frontend/react-app/build/ s3://${{ steps.get-resources.outputs.s3_bucket }}/ \
             --delete \
             --cache-control "max-age=31536000,public" \
             --exclude "*.html" \
@@ -88,8 +103,8 @@ jobs:
 
       - name: Deploy HTML, JSON, and config files with no-cache headers
         run: |
-          echo "Deploying HTML and JSON files to bucket: ${{ steps.get-bucket.outputs.s3_bucket }}"
-          aws s3 sync src/frontend/react-app/build/ s3://${{ steps.get-bucket.outputs.s3_bucket }}/ \
+          echo "Deploying HTML and JSON files to bucket: ${{ steps.get-resources.outputs.s3_bucket }}"
+          aws s3 sync src/frontend/react-app/build/ s3://${{ steps.get-resources.outputs.s3_bucket }}/ \
             --cache-control "max-age=0,no-cache,no-store,must-revalidate" \
             --include "*.html" \
             --include "*.json" \
@@ -97,9 +112,9 @@ jobs:
             --exclude "static/**/*"
 
       - name: Invalidate CloudFront cache
-        if: steps.get-bucket.outputs.cloudfront_id != ''
+        if: steps.get-resources.outputs.cloudfront_id != ''
         run: |
-          echo "Invalidating CloudFront distribution: ${{ steps.get-bucket.outputs.cloudfront_id }}"
+          echo "Invalidating CloudFront distribution: ${{ steps.get-resources.outputs.cloudfront_id }}"
           aws cloudfront create-invalidation \
-            --distribution-id ${{ steps.get-bucket.outputs.cloudfront_id }} \
+            --distribution-id ${{ steps.get-resources.outputs.cloudfront_id }} \
             --paths "/*"
