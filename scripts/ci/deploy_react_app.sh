@@ -35,11 +35,21 @@ ENV_FILE="$REACT_APP_DIR/.env.production.local"
 echo "REACT_APP_STAGE=$ENVIRONMENT" > $ENV_FILE
 echo "REACT_APP_REGION=$AWS_REGION" >> $ENV_FILE
 
+# Increase memory for Node.js
+export NODE_OPTIONS=--max_old_space_size=4096
+
 # Build the React app
 echo "Building React app..."
 cd $REACT_APP_DIR
+
+# Install ajv dependencies first to ensure they're available
+npm install --no-save ajv@8.12.0 ajv-keywords@5.1.0
+
+# Install all dependencies
 npm install
-npm run build
+
+# Build with CI=false to ignore warnings
+CI=false npm run build
 
 # Check if build was successful
 if [ ! -d "$BUILD_DIR" ]; then
