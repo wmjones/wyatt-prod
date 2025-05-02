@@ -33,12 +33,16 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-          cache-dependency-path: 'src/frontend/react-app/package-lock.json'
+          # Don't use npm cache since package-lock.json is gitignored
 
       - name: Install dependencies
         working-directory: src/frontend/react-app
-        run: npm ci
+        run: npm install
+
+      - name: Set environment variable
+        run: |
+          echo "REACT_APP_STAGE=${{ env.ENVIRONMENT }}" >> src/frontend/react-app/.env.production.local
+          echo "REACT_APP_REGION=${{ env.AWS_REGION }}" >> src/frontend/react-app/.env.production.local
 
       - name: Build React app
         working-directory: src/frontend/react-app
@@ -71,15 +75,19 @@ jobs:
             --delete \
             --cache-control "max-age=31536000,public" \
             --exclude "*.html" \
-            --exclude "*.json"
+            --exclude "*.json" \
+            --exclude "*.txt" \
+            --exclude "asset-manifest.json"
 
-      - name: Deploy HTML and JSON files with no-cache headers
+      - name: Deploy HTML, JSON, and config files with no-cache headers
         run: |
           echo "Deploying HTML and JSON files to bucket: ${{ steps.get-bucket.outputs.s3_bucket }}"
           aws s3 sync src/frontend/react-app/build/ s3://${{ steps.get-bucket.outputs.s3_bucket }}/ \
             --cache-control "max-age=0,no-cache,no-store,must-revalidate" \
             --include "*.html" \
-            --include "*.json"
+            --include "*.json" \
+            --include "*.txt" \
+            --exclude "static/**/*"
 
       - name: Invalidate CloudFront cache
         if: steps.get-bucket.outputs.cloudfront_id != ''
