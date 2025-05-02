@@ -9,6 +9,7 @@ The development container includes:
 - Terraform CLI (v1.8.4)
 - Node.js 20 (LTS) with npm and npx
 - Python 3 with pip and pre-commit
+- Trivy security scanner (latest version) for vulnerability scanning
 - Claude Code CLI
 - MCP servers for enhanced AI assistance
 
@@ -105,3 +106,39 @@ If you encounter permission issues with pre-commit:
    ```bash
    sudo mkdir -p /home/vscode/.cache/pre-commit && sudo chown -R vscode:vscode /home/vscode/.cache
    ```
+
+## Using Trivy Security Scanner
+
+The container comes with Trivy, a comprehensive security scanner for container images, file systems, and git repositories.
+
+### Scanning Configuration Files
+
+To scan Terraform or other IaC files for misconfigurations:
+
+```bash
+# Scan a specific configuration file
+trivy config /path/to/file.tf
+
+# Scan all configuration files in current directory
+trivy fs --security-checks config .
+```
+
+### Scanning for Vulnerabilities
+
+```bash
+# Scan local filesystem for vulnerabilities
+trivy fs .
+
+# Scan a container image
+trivy image image-name:tag
+```
+
+### Common Issues
+
+If you encounter errors with Trivy commands, make sure to:
+
+1. Use the correct syntax for the specific scanning type
+2. Ensure you have sufficient permissions for the files being scanned
+3. Update the vulnerability database with `trivy --debug image --download-db-only`
+
+For more details, refer to the [Trivy documentation](https://aquasecurity.github.io/trivy/latest/)

@@ -59,9 +59,16 @@ ARG USERNAME=vscode
 # Set `DEVCONTAINER` environment variable to help with orientation
 ENV DEVCONTAINER=true
 
+# Create pre-commit cache directory with proper permissions
+RUN mkdir -p /home/vscode/pre-commit-cache && \
+    chown -R vscode:vscode /home/vscode/pre-commit-cache
+
+# Set environment variable for all processes that run in the container
+ENV PRE_COMMIT_HOME=/home/vscode/pre-commit-cache
+
 # Create workspace and config directories and set permissions
-RUN mkdir -p /workspace /home/vscode/.claude && \
-  chown -R vscode:vscode /workspace /home/vscode/.claude
+RUN mkdir -p /workspace /home/vscode/.claude /home/vscode/.cache && \
+  chown -R vscode:vscode /workspace /home/vscode/.claude /home/vscode/.cache
 
 WORKDIR /workspaces
 
@@ -91,7 +98,11 @@ ENV PATH="/opt/venv/bin:${PATH}"
 # ---------------------------------------------------------------------------
 # Install Trivy security scanner
 # ---------------------------------------------------------------------------
-RUN curl -sfL https://raw.githubusercontent.com/aquasecurity/trivy/main/contrib/install.sh | sh -s -- -b /usr/local/bin v0.18.3
+RUN apt-get install -y wget apt-transport-https gnupg lsb-release \
+    && wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | tee /usr/share/keyrings/trivy.gpg > /dev/null \
+    && echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | tee -a /etc/apt/sources.list.d/trivy.list \
+    && apt-get update \
+    && apt-get install -y trivy
 
 # Set up non-root user
 USER vscode

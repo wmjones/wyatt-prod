@@ -21,8 +21,8 @@
     "source=npm-global,target=/home/vscode/.npm-global,type=volume",
     // Persist Terraform credentials
     "source=terraform-credentials,target=/home/vscode/.terraform.d,type=volume",
-    // Persist pre-commit cache to avoid permission issues
-    "source=pre-commit-cache,target=/home/vscode/.cache/pre-commit,type=volume"
+    // Optional: persist pre-commit cache
+    "source=pre-commit-cache,target=/home/vscode/pre-commit-cache,type=volume"
   ],
   "remoteEnv": {
     "LANG": "en_US.UTF-8",
@@ -39,5 +39,6 @@
     "ms-python.python",
     "redhat.vscode-yaml",
     "eamodio.gitlens"
-  ]
+  ],
+  "runArgs": ["--ipc=host"]
 }
