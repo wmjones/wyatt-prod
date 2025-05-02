@@ -1,34 +1,32 @@
 #!/bin/bash
-# Simple script to start a local development server for testing the static website
+# Script to start a local development server for testing the React application
 
-STATIC_SITE_DIR="/workspaces/wyatt-personal-aws/src/frontend/static-site"
-PORT=8080
+REACT_APP_DIR="/workspaces/wyatt-personal-aws/src/frontend/react-app"
+PORT=3000
 
-# Check if Python is installed
-if command -v python3 &>/dev/null; then
-    PYTHON_CMD="python3"
-elif command -v python &>/dev/null; then
-    PYTHON_CMD="python"
-else
-    echo "Error: Python is not installed. Please install Python to use this script."
+# Check if Node.js is installed
+if ! command -v npm &>/dev/null; then
+    echo "Error: Node.js/npm is not installed. Please install Node.js to use this script."
     exit 1
 fi
 
-# Check if the static site directory exists
-if [ ! -d "$STATIC_SITE_DIR" ]; then
-    echo "Error: Static site directory not found at $STATIC_SITE_DIR"
+# Check if the React app directory exists
+if [ ! -d "$REACT_APP_DIR" ]; then
+    echo "Error: React app directory not found at $REACT_APP_DIR"
     exit 1
 fi
 
-# Navigate to the static site directory
-cd "$STATIC_SITE_DIR" || exit 1
+# Navigate to the React app directory
+cd "$REACT_APP_DIR" || exit 1
 
-echo "Starting local development server at http://localhost:$PORT"
+# Install dependencies if node_modules doesn't exist
+if [ ! -d "$REACT_APP_DIR/node_modules" ]; then
+    echo "Installing dependencies..."
+    npm install
+fi
+
+echo "Starting React development server at http://localhost:$PORT"
 echo "Press Ctrl+C to stop the server"
 
-# Start Python HTTP server
-if [ "$PYTHON_CMD" = "python3" ]; then
-    $PYTHON_CMD -m http.server $PORT
-else
-    $PYTHON_CMD -m SimpleHTTPServer $PORT
-fi
+# Start React development server
+npm start

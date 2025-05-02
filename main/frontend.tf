@@ -46,6 +46,10 @@ module "frontend" {
   # Use KMS key for encryption
   kms_key_arn = aws_kms_key.s3_key.arn
 
+  # React app build directory for deployment
+  # When deploying manually, leave as null and use deploy_react_app.sh script
+  react_app_build_dir = null # Set to the build directory path when using Terraform for deployment
+
   tags = {
     Component   = "Frontend"
     Environment = var.environment

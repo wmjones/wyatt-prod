@@ -77,16 +77,32 @@ li {
   margin-bottom: 0.5rem;
 }
 
-.welcome {
-  text-align: center;
-}
-
-.welcome ul {
+.button {
   display: inline-block;
-  text-align: left;
   margin-top: 1rem;
+  padding: 0.75rem 1.5rem;
+  background-color: var(--primary-color);
+  color: white;
+  text-decoration: none;
+  border-radius: 4px;
+  font-weight: 500;
+  transition: background-color 0.2s ease;
 }
 
+.button:hover {
+  background-color: var(--primary-dark);
+}
+
+footer {
+  margin-top: 2rem;
+  text-align: center;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--light-gray);
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+/* Status indicators */
 .status-card {
   display: flex;
   align-items: center;
@@ -119,35 +135,11 @@ li {
   flex: 1;
 }
 
+/* Error styles */
 .error-container {
   text-align: center;
 }
 
 .error {
   text-align: center;
-}
-
-.button {
-  display: inline-block;
-  margin-top: 1rem;
-  padding: 0.75rem 1.5rem;
-  background-color: var(--primary-color);
-  color: white;
-  text-decoration: none;
-  border-radius: 4px;
-  font-weight: 500;
-  transition: background-color 0.2s ease;
-}
-
-.button:hover {
-  background-color: var(--primary-dark);
-}
-
-footer {
-  margin-top: 2rem;
-  text-align: center;
-  padding-top: 1.5rem;
-  border-top: 1px solid var(--light-gray);
-  color: #6b7280;
-  font-size: 0.875rem;
 }
