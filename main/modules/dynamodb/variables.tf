@@ -1,3 +1,13 @@
+variable "environment" {
+  description = "Deployment environment (dev, prod)"
+  type        = string
+  validation {
+    condition     = contains(["dev", "prod"], var.environment)
+    error_message = "Allowed values for environment are \"dev\" or \"prod\"."
+  }
+  default = "dev"
+}
+
 variable "table_name" {
   description = "Name of the DynamoDB table"
   type        = string

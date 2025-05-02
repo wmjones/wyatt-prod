@@ -42,5 +42,7 @@ module "dynamodb_table" {
   } : {}
 
   # Tagging
-  tags = var.tags
+  tags = merge(var.tags, {
+    Environment = var.environment
+  })
 }

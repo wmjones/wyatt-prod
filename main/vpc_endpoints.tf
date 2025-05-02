@@ -4,7 +4,7 @@
 
 # Security group for VPC Endpoints
 resource "aws_security_group" "vpc_endpoints" {
-  name        = "${var.project_name}-vpc-endpoints-sg-${terraform.workspace}"
+  name        = "${var.project_name}-vpc-endpoints-sg-${var.environment}"
   description = "Security group for VPC endpoints"
   vpc_id      = module.vpc.vpc_id
 
@@ -17,8 +17,8 @@ resource "aws_security_group" "vpc_endpoints" {
   }
 
   tags = {
-    Name        = "${var.project_name}-vpc-endpoints-sg-${terraform.workspace}"
-    Environment = terraform.workspace
+    Name        = "${var.project_name}-vpc-endpoints-sg-${var.environment}"
+    Environment = var.environment
     Terraform   = "true"
     Component   = "Networking"
   }
@@ -32,8 +32,8 @@ resource "aws_vpc_endpoint" "s3" {
   route_table_ids   = concat(module.vpc.private_route_table_ids, module.vpc.public_route_table_ids)
 
   tags = {
-    Name        = "${var.project_name}-s3-endpoint-${terraform.workspace}"
-    Environment = terraform.workspace
+    Name        = "${var.project_name}-s3-endpoint-${var.environment}"
+    Environment = var.environment
     Terraform   = "true"
     Component   = "Networking"
   }
@@ -46,8 +46,8 @@ resource "aws_vpc_endpoint" "dynamodb" {
   route_table_ids   = concat(module.vpc.private_route_table_ids, module.vpc.public_route_table_ids)
 
   tags = {
-    Name        = "${var.project_name}-dynamodb-endpoint-${terraform.workspace}"
-    Environment = terraform.workspace
+    Name        = "${var.project_name}-dynamodb-endpoint-${var.environment}"
+    Environment = var.environment
     Terraform   = "true"
     Component   = "Networking"
   }
@@ -56,7 +56,7 @@ resource "aws_vpc_endpoint" "dynamodb" {
 # Interface Endpoints - These create ENIs in your subnet and incur hourly costs
 # Only create these in production to reduce costs in dev environments
 locals {
-  create_interface_endpoints = terraform.workspace == "production" ? true : false
+  create_interface_endpoints = var.create_interface_endpoints
   interface_endpoint_services = [
     "com.amazonaws.${var.aws_region}.lambda",
     "com.amazonaws.${var.aws_region}.apigateway",
@@ -81,8 +81,8 @@ resource "aws_vpc_endpoint" "interface_endpoints" {
   private_dns_enabled = true
 
   tags = {
-    Name        = "${var.project_name}-${split(".", each.value)[2]}-endpoint-${terraform.workspace}"
-    Environment = terraform.workspace
+    Name        = "${var.project_name}-${split(".", each.value)[2]}-endpoint-${var.environment}"
+    Environment = var.environment
     Terraform   = "true"
     Component   = "Networking"
   }

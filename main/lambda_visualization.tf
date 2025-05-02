@@ -3,7 +3,7 @@
 locals {
   # Shorten the names to avoid IAM role name length limitations (64 chars max)
   function_prefix = "viz"
-  env_suffix      = terraform.workspace == "prod" ? "prod" : "dev"
+  env_suffix      = var.environment
 
   # Use the same deployment package as other lambda functions
   lambda_viz_zip_path = local.lambda_zip_path
@@ -13,6 +13,7 @@ locals {
 module "get_visualization_lambda" {
   source = "./modules/lambda_function"
 
+  environment   = var.environment
   function_name = "${local.function_prefix}-get-${local.env_suffix}"
   description   = "Lambda function to get normal distribution parameters"
   handler       = "visualization/getVisualizationData.lambda_handler"
@@ -40,8 +41,9 @@ module "get_visualization_lambda" {
   }
 
   tags = {
-    Component = "D3 Dashboard"
-    Function  = "Get Visualization Data"
+    Component   = "D3 Dashboard"
+    Function    = "Get Visualization Data"
+    Environment = var.environment
   }
 }
 
@@ -49,6 +51,7 @@ module "get_visualization_lambda" {
 module "update_visualization_lambda" {
   source = "./modules/lambda_function"
 
+  environment   = var.environment
   function_name = "${local.function_prefix}-update-${local.env_suffix}"
   description   = "Lambda function to update normal distribution parameters"
   handler       = "visualization/updateVisualizationParams.lambda_handler"
@@ -86,8 +89,9 @@ module "update_visualization_lambda" {
   }
 
   tags = {
-    Component = "D3 Dashboard"
-    Function  = "Update Visualization Data"
+    Component   = "D3 Dashboard"
+    Function    = "Update Visualization Data"
+    Environment = var.environment
   }
 }
 
@@ -95,6 +99,7 @@ module "update_visualization_lambda" {
 module "ws_connect_lambda" {
   source = "./modules/lambda_function"
 
+  environment   = var.environment
   function_name = "${local.function_prefix}-ws-connect-${local.env_suffix}"
   description   = "Lambda function to handle WebSocket connections"
   handler       = "visualization/wsConnect.lambda_handler"
@@ -122,8 +127,9 @@ module "ws_connect_lambda" {
   }
 
   tags = {
-    Component = "D3 Dashboard"
-    Function  = "WebSocket Connect"
+    Component   = "D3 Dashboard"
+    Function    = "WebSocket Connect"
+    Environment = var.environment
   }
 }
 
@@ -131,6 +137,7 @@ module "ws_connect_lambda" {
 module "ws_disconnect_lambda" {
   source = "./modules/lambda_function"
 
+  environment   = var.environment
   function_name = "${local.function_prefix}-ws-disconnect-${local.env_suffix}"
   description   = "Lambda function to handle WebSocket disconnections"
   handler       = "visualization/wsDisconnect.lambda_handler"
@@ -158,7 +165,8 @@ module "ws_disconnect_lambda" {
   }
 
   tags = {
-    Component = "D3 Dashboard"
-    Function  = "WebSocket Disconnect"
+    Component   = "D3 Dashboard"
+    Function    = "WebSocket Disconnect"
+    Environment = var.environment
   }
 }

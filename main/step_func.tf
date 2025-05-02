@@ -1,7 +1,7 @@
 module "todoist_workflow" {
   source = "./modules/step_function"
 
-  name     = "${var.project_name}-todoist-workflow-${terraform.workspace}"
+  name     = "${var.project_name}-todoist-workflow-${var.environment}"
   type     = "STANDARD"
   role_arn = aws_iam_role.sfn_role.arn
 
@@ -65,7 +65,8 @@ module "todoist_workflow" {
   })
 
   tags = {
-    Component = "Productivity System"
-    Name      = "Todoist Workflow"
+    Component   = "Productivity System"
+    Name        = "Todoist Workflow"
+    Environment = var.environment
   }
 }

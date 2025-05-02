@@ -17,6 +17,7 @@ env:
       'wyatt-personal-aws-dev'
     }}
   CONFIG_DIRECTORY: "./main"
+  # No longer using tfvars file directly, using Terraform Cloud variables instead
 
 jobs:
   deployment_package_zip:
@@ -50,6 +51,7 @@ jobs:
         with:
           workspace: ${{ env.TF_WORKSPACE }}
           configuration_version: ${{ steps.apply-upload.outputs.configuration_version_id }}
+          # Environment variables are automatically passed to Terraform Cloud
 
       - name: Apply
         uses: hashicorp/tfc-workflows-github/actions/apply-run@v1.0.0

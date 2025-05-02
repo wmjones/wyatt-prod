@@ -2,13 +2,14 @@
 resource "aws_cloudwatch_event_rule" "todoist_workflow" {
   provider = aws.us_east_2 # Explicitly specify the us-east-2 provider
 
-  name                = "todoist-workflow-rule-${terraform.workspace}"
+  name                = "todoist-workflow-rule-${var.environment}"
   description         = "Run the Todoist workflow on a schedule"
   schedule_expression = "rate(15 minutes)"
 
   tags = {
-    Component = "Productivity System"
-    Name      = "EventBridge Scheduler"
+    Component   = "Productivity System"
+    Name        = "EventBridge Scheduler"
+    Environment = var.environment
   }
 
   # Add lifecycle to prevent recreation and ensure proper creation

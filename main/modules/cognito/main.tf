@@ -57,7 +57,9 @@ resource "aws_cognito_user_pool" "main" {
     }
   }
 
-  tags = var.tags
+  tags = merge(var.tags, {
+    Environment = var.environment
+  })
 }
 
 # Domain configuration

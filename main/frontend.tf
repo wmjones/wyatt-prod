@@ -20,7 +20,8 @@ EOF
 module "frontend" {
   source = "./modules/frontend"
 
-  bucket_name = "${lower(var.project_name)}-app-${terraform.workspace}-${random_id.bucket_suffix.hex}"
+  environment = var.environment
+  bucket_name = "${lower(var.project_name)}-app-${var.environment}-${random_id.bucket_suffix.hex}"
   domain_name = var.domain_name
   app_prefix  = var.app_prefix
 
@@ -46,7 +47,8 @@ module "frontend" {
   kms_key_arn = aws_kms_key.s3_key.arn
 
   tags = {
-    Component = "Frontend"
+    Component   = "Frontend"
+    Environment = var.environment
   }
 
   providers = {

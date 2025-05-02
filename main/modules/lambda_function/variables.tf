@@ -1,3 +1,13 @@
+variable "environment" {
+  description = "Deployment environment (dev, prod)"
+  type        = string
+  validation {
+    condition     = contains(["dev", "prod"], var.environment)
+    error_message = "Allowed values for environment are \"dev\" or \"prod\"."
+  }
+  default = "dev"
+}
+
 variable "function_name" {
   description = "Name of the Lambda function"
   type        = string
