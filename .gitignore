@@ -5,9 +5,12 @@
 # Local .terraform directories
 **/.terraform/*
 
+# Local development and temporary files
+dev_output.txt
 precommit.log
 .env.example
 .cursor/*
+.windsurfrules
 
 # .tfstate files
 *.tfstate
