@@ -7,6 +7,7 @@ This directory contains configuration for the VS Code Development Container used
 The development container includes:
 
 - Terraform CLI (v1.8.4)
+- terraform-docs (v0.20.0) for generating module documentation
 - Node.js 20 (LTS) with npm and npx
 - Python 3 with pip and pre-commit
 - Trivy security scanner (latest version) for vulnerability scanning

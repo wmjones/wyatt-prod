@@ -81,11 +81,18 @@ RUN ARCH=$(dpkg --print-architecture) && \
   rm "git-delta_0.18.2_${ARCH}.deb"
 
 # ---------------------------------------------------------------------------
-# Terraform CLI
+# Terraform CLI and terraform-docs
 # ---------------------------------------------------------------------------
 RUN wget -q https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip -O /tmp/terraform.zip \
  && unzip /tmp/terraform.zip -d /usr/local/bin \
  && rm /tmp/terraform.zip
+
+# Install terraform-docs
+RUN curl -sSLo ./terraform-docs.tar.gz https://terraform-docs.io/dl/v0.20.0/terraform-docs-v0.20.0-linux-amd64.tar.gz \
+ && tar -xzf terraform-docs.tar.gz \
+ && chmod +x terraform-docs \
+ && mv terraform-docs /usr/local/bin/ \
+ && rm terraform-docs.tar.gz
 
 # ---------------------------------------------------------------------------
 # Python 3 tooling (pip + pre-commit)
