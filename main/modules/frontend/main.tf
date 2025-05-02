@@ -328,7 +328,7 @@ resource "aws_s3_bucket_policy" "frontend" {
     Version = "2012-10-17"
     Statement = [
       {
-        # Allow CloudFront access for secure distribution
+        # Allow CloudFront access via Origin Access Control (OAC)
         Effect = "Allow"
         Principal = {
           Service = "cloudfront.amazonaws.com"
@@ -342,11 +342,11 @@ resource "aws_s3_bucket_policy" "frontend" {
         }
       },
       {
-        # Allow public read access for website hosting
-        Effect    = "Allow"
+        # Alternative statement to support both CloudFront OAC and direct access
+        Effect = "Allow" 
         Principal = "*"
-        Action    = "s3:GetObject"
-        Resource  = "${aws_s3_bucket.frontend.arn}/*"
+        Action   = "s3:GetObject"
+        Resource = "${aws_s3_bucket.frontend.arn}/*"
       }
     ]
   })
