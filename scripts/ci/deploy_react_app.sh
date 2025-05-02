@@ -29,6 +29,12 @@ if [ -z "$BUCKET_NAME" ] || [ "$BUCKET_NAME" == "None" ]; then
     exit 1
 fi
 
+# Set environment variables for the build
+echo "Setting environment variables for $ENVIRONMENT environment..."
+ENV_FILE="$REACT_APP_DIR/.env.production.local"
+echo "REACT_APP_STAGE=$ENVIRONMENT" > $ENV_FILE
+echo "REACT_APP_REGION=$AWS_REGION" >> $ENV_FILE
+
 # Build the React app
 echo "Building React app..."
 cd $REACT_APP_DIR
@@ -53,14 +59,18 @@ aws s3 sync $BUILD_DIR s3://$BUCKET_NAME/ \
     --cache-control "max-age=31536000,public" \
     --exclude "*.html" \
     --exclude "*.json" \
+    --exclude "*.txt" \
+    --exclude "asset-manifest.json" \
     --region $AWS_REGION
 
 # Upload HTML and JSON files with no caching
-echo "Uploading HTML and JSON files with no caching..."
+echo "Uploading HTML, JSON, and config files with no caching..."
 aws s3 sync $BUILD_DIR s3://$BUCKET_NAME/ \
     --cache-control "max-age=0,no-cache,no-store,must-revalidate" \
     --include "*.html" \
     --include "*.json" \
+    --include "*.txt" \
+    --exclude "static/**/*" \
     --region $AWS_REGION
 
 # If CloudFront distribution ID is available, invalidate the cache
