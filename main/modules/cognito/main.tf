@@ -243,33 +243,37 @@ resource "aws_iam_role" "authenticated_role" {
     ]
   })
 
-  inline_policy {
-    name = "authenticated-policy"
-    policy = jsonencode({
-      Version = "2012-10-17"
-      Statement = [
-        {
-          Effect = "Allow"
-          Action = [
-            "cognito-sync:*",
-            "cognito-identity:*"
-          ]
-          Resource = "*"
-        },
-        # Add API access permissions
-        {
-          Effect = "Allow"
-          Action = [
-            "execute-api:Invoke"
-          ]
-          Resource = var.api_gateway_arns
-        }
-      ]
-    })
-  }
-
   tags = merge(var.tags, {
     Environment = var.environment
+  })
+}
+
+# Authenticated role policy
+resource "aws_iam_role_policy" "authenticated_policy" {
+  count = (var.create_identity_pool && var.authenticated_role_arn == null) ? 1 : 0
+  name  = "authenticated-policy"
+  role  = aws_iam_role.authenticated_role[0].id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "cognito-sync:*",
+          "cognito-identity:*"
+        ]
+        Resource = "*"
+      },
+      # Add API access permissions
+      {
+        Effect = "Allow"
+        Action = [
+          "execute-api:Invoke"
+        ]
+        Resource = var.api_gateway_arns
+      }
+    ]
   })
 }
 
@@ -299,31 +303,35 @@ resource "aws_iam_role" "unauthenticated_role" {
     ]
   })
 
-  inline_policy {
-    name = "unauthenticated-policy"
-    policy = jsonencode({
-      Version = "2012-10-17"
-      Statement = [
-        {
-          Effect = "Allow"
-          Action = [
-            "cognito-sync:*"
-          ]
-          Resource = "*"
-        },
-        # Add limited public API access if needed
-        {
-          Effect = "Allow"
-          Action = [
-            "execute-api:Invoke"
-          ]
-          Resource = var.public_api_gateway_arns
-        }
-      ]
-    })
-  }
-
   tags = merge(var.tags, {
     Environment = var.environment
+  })
+}
+
+# Unauthenticated role policy
+resource "aws_iam_role_policy" "unauthenticated_policy" {
+  count = (var.create_identity_pool && var.unauthenticated_role_arn == null) ? 1 : 0
+  name  = "unauthenticated-policy"
+  role  = aws_iam_role.unauthenticated_role[0].id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "cognito-sync:*"
+        ]
+        Resource = "*"
+      },
+      # Add limited public API access if needed
+      {
+        Effect = "Allow"
+        Action = [
+          "execute-api:Invoke"
+        ]
+        Resource = var.public_api_gateway_arns
+      }
+    ]
   })
 }
