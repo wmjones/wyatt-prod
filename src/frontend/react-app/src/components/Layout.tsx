@@ -1,4 +1,8 @@
 import React, { ReactNode } from 'react';
+import RetroHeader from './RetroHeader';
+import RetroFooter from './RetroFooter';
+import RetroPattern from './RetroPattern';
+import CursorTrail from './CursorTrail';
 
 interface LayoutProps {
   children: ReactNode;
@@ -6,21 +10,20 @@ interface LayoutProps {
 
 const Layout: React.FC<LayoutProps> = ({ children }) => {
   return (
-    <div className="container">
-      <header>
-        <h1>D3 Visualization Dashboard</h1>
-        <p>A platform for interactive data visualization</p>
-        <div className="nav-links" style={{ textAlign: 'center', marginTop: '15px' }}>
-          <a href="/" style={{ margin: '0 10px', color: 'var(--primary-color)', textDecoration: 'none' }}>Home</a>
-          <a href="/demo" style={{ margin: '0 10px', color: 'var(--primary-color)', textDecoration: 'none' }}>Demo</a>
-        </div>
-      </header>
+    <div className="relative min-h-screen">
+      <CursorTrail />
+      <RetroPattern />
 
-      <main>{children}</main>
+      <div className="container mx-auto px-4 py-12">
+        <RetroHeader
+          title="D3 VISUALIZATION DASHBOARD"
+          subtitle="Interactive Data Visualization"
+        />
 
-      <footer>
-        <p>D3 Visualization Dashboard - Deployed via CI/CD Pipeline</p>
-      </footer>
+        <main>{children}</main>
+
+        <RetroFooter />
+      </div>
     </div>
   );
 };
