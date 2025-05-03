@@ -11,7 +11,7 @@ const HomePage: React.FC = () => {
           <div className="space-y-6">
             <h2 className="retro-text text-3xl text-retro-teal">Data Visualization</h2>
             <p className="mono-text">
-              Experience interactive data visualization with our retro-inspired dashboard. 
+              Experience interactive data visualization with our retro-inspired dashboard.
               Explore statistical distributions with real-time parameter controls.
             </p>
             <div className="flex gap-4">
@@ -22,35 +22,35 @@ const HomePage: React.FC = () => {
                 About
               </a>
             </div>
-            
+
             <div className="border-2 border-dashed border-retro-pink p-4 bg-white">
               <p className="mono-text text-sm">
-                <span className="text-retro-purple font-bold">&lt;NEW&gt;</span> 
+                <span className="text-retro-purple font-bold">&lt;NEW&gt;</span>
                 Interactive normal distribution visualization with parameter controls!
                 <span className="text-retro-purple font-bold">&lt;/NEW&gt;</span>
               </p>
             </div>
           </div>
         </div>
-        
+
         <div className="order-1 md:order-2">
           <div className="retro-card p-6">
             <h3 className="retro-text text-2xl mb-4 text-center text-retro-purple">FEATURES</h3>
             <ul className="space-y-2 mono-text">
               <li className="flex items-start">
-                <span className="text-retro-teal mr-2">→</span> 
+                <span className="text-retro-teal mr-2">→</span>
                 <span>Interactive parameter controls</span>
               </li>
               <li className="flex items-start">
-                <span className="text-retro-teal mr-2">→</span> 
+                <span className="text-retro-teal mr-2">→</span>
                 <span>Real-time visualization updates</span>
               </li>
               <li className="flex items-start">
-                <span className="text-retro-teal mr-2">→</span> 
+                <span className="text-retro-teal mr-2">→</span>
                 <span>Statistical insights</span>
               </li>
               <li className="flex items-start">
-                <span className="text-retro-teal mr-2">→</span> 
+                <span className="text-retro-teal mr-2">→</span>
                 <span>WebSocket real-time collaboration</span>
               </li>
             </ul>
@@ -59,7 +59,7 @@ const HomePage: React.FC = () => {
       </div>
 
       <MarqueeText text="⚡ D3 VISUALIZATION DASHBOARD ⚡ INTERACTIVE DATA EXPLORATION ⚡ REAL-TIME COLLABORATION ⚡" />
-      
+
       <div className="my-16">
         <h2 className="retro-text text-3xl text-retro-teal mb-8 text-center">PROJECT STATUS</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -69,7 +69,7 @@ const HomePage: React.FC = () => {
           <StatusCard title="VISUALIZATIONS" status="in-progress" text="See Demo page" />
         </div>
       </div>
-      
+
       <div className="my-16">
         <h2 className="retro-text text-3xl text-retro-teal mb-8 text-center">DYNAMODB INFRASTRUCTURE</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -88,7 +88,7 @@ const HomePage: React.FC = () => {
               </ul>
             </CardContent>
           </Card>
-          
+
           <Card retro className="p-4">
             <CardHeader className="pb-2">
               <CardTitle className="retro-text text-xl text-retro-purple">HISTORY TABLE</CardTitle>
@@ -104,7 +104,7 @@ const HomePage: React.FC = () => {
               </ul>
             </CardContent>
           </Card>
-          
+
           <Card retro className="p-4">
             <CardHeader className="pb-2">
               <CardTitle className="retro-text text-xl text-retro-purple">CONNECTION TABLE</CardTitle>
@@ -121,14 +121,14 @@ const HomePage: React.FC = () => {
             </CardContent>
           </Card>
         </div>
-        
+
         <div className="flex justify-center mt-10">
           <a href="/demo" className="retro-button">
             TRY THE DEMO
           </a>
         </div>
       </div>
-      
+
       <div className="my-16">
         <h2 className="retro-text text-3xl text-retro-teal mb-8 text-center">WHY CHOOSE US</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">

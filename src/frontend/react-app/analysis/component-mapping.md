@@ -53,10 +53,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     <div className="relative min-h-screen">
       <CursorTrail />
       <RetroPattern />
-      
+
       <div className="container mx-auto px-4 py-12">
-        <RetroHeader 
-          title="D3 VISUALIZATION DASHBOARD" 
+        <RetroHeader
+          title="D3 VISUALIZATION DASHBOARD"
           subtitle="Interactive Data Visualization"
         />
 
@@ -102,7 +102,7 @@ const HomePage: React.FC = () => {
           <div className="space-y-6">
             <h2 className="retro-text text-3xl text-retro-teal">Data Visualization</h2>
             <p className="mono-text">
-              Experience interactive data visualization with our retro-inspired dashboard. 
+              Experience interactive data visualization with our retro-inspired dashboard.
               Explore statistical distributions with real-time parameter controls.
             </p>
             <div className="flex gap-4">
@@ -113,35 +113,35 @@ const HomePage: React.FC = () => {
                 About
               </a>
             </div>
-            
+
             <div className="border-2 border-dashed border-retro-pink p-4 bg-white">
               <p className="mono-text text-sm">
-                <span className="text-retro-purple font-bold">&lt;NEW&gt;</span> 
+                <span className="text-retro-purple font-bold">&lt;NEW&gt;</span>
                 Interactive normal distribution visualization with parameter controls!
                 <span className="text-retro-purple font-bold">&lt;/NEW&gt;</span>
               </p>
             </div>
           </div>
         </div>
-        
+
         <div className="order-1 md:order-2">
           <div className="retro-card p-6">
             <h3 className="retro-text text-2xl mb-4 text-center text-retro-purple">FEATURES</h3>
             <ul className="space-y-2 mono-text">
               <li className="flex items-start">
-                <span className="text-retro-teal mr-2">→</span> 
+                <span className="text-retro-teal mr-2">→</span>
                 <span>Interactive parameter controls</span>
               </li>
               <li className="flex items-start">
-                <span className="text-retro-teal mr-2">→</span> 
+                <span className="text-retro-teal mr-2">→</span>
                 <span>Real-time visualization updates</span>
               </li>
               <li className="flex items-start">
-                <span className="text-retro-teal mr-2">→</span> 
+                <span className="text-retro-teal mr-2">→</span>
                 <span>Statistical insights</span>
               </li>
               <li className="flex items-start">
-                <span className="text-retro-teal mr-2">→</span> 
+                <span className="text-retro-teal mr-2">→</span>
                 <span>WebSocket real-time collaboration</span>
               </li>
             </ul>
@@ -150,7 +150,7 @@ const HomePage: React.FC = () => {
       </div>
 
       <MarqueeText text="⚡ D3 VISUALIZATION DASHBOARD ⚡ INTERACTIVE DATA EXPLORATION ⚡ REAL-TIME COLLABORATION ⚡" />
-      
+
       <div className="my-16 grid grid-cols-1 md:grid-cols-3 gap-6">
         {['VISUALIZE', 'ANALYZE', 'COLLABORATE'].map((item, i) => (
           <div key={i} className="retro-card p-6 text-center">
@@ -187,7 +187,7 @@ const DemoPage: React.FC = () => {
   return (
     <section className="visualizer">
       <h2>Normal Distribution Visualizer</h2>
-      
+
       {/* Connection status indicator */}
       <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
         {/* Status indicator */}
@@ -234,7 +234,7 @@ const DemoPage: React.FC = () => {
     <div>
       <div className="retro-card p-6 mb-8">
         <h2 className="retro-text text-3xl text-center text-retro-purple mb-6">NORMAL DISTRIBUTION VISUALIZER</h2>
-        
+
         {/* Connection status indicator */}
         <div className="flex items-center mb-4 mono-text">
           <div
@@ -264,9 +264,9 @@ const DemoPage: React.FC = () => {
               className="retro-input"
             />
           </div>
-          
+
           {/* Other inputs styled similarly */}
-          
+
           <div className="flex flex-col">
             <label className="mono-text text-sm font-medium mb-1">&nbsp;</label>
             <button
@@ -276,7 +276,7 @@ const DemoPage: React.FC = () => {
               UPDATE PARAMETERS
             </button>
           </div>
-          
+
           <div className="flex flex-col">
             <label className="mono-text text-sm font-medium mb-1">&nbsp;</label>
             <button
@@ -306,7 +306,7 @@ const DemoPage: React.FC = () => {
             {/* Parameter data */}
           </div>
         </div>
-        
+
         {/* Other data tables styled similarly */}
       </div>
 
@@ -402,7 +402,7 @@ const RetroFooter: React.FC = () => {
   return (
     <footer className="mt-20 text-center">
       <div className="zigzag mb-8"></div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
         <div>
           <h4 className="retro-text text-xl text-retro-teal mb-4">NAVIGATION</h4>
@@ -412,7 +412,7 @@ const RetroFooter: React.FC = () => {
             <li><a href="/about" className="hover:text-retro-purple">About</a></li>
           </ul>
         </div>
-        
+
         <div>
           <h4 className="retro-text text-xl text-retro-teal mb-4">RESOURCES</h4>
           <ul className="space-y-2 mono-text">
@@ -421,7 +421,7 @@ const RetroFooter: React.FC = () => {
             <li><a href="https://aws.amazon.com/" target="_blank" rel="noopener noreferrer" className="hover:text-retro-purple">AWS</a></li>
           </ul>
         </div>
-        
+
         <div>
           <h4 className="retro-text text-xl text-retro-teal mb-4">CONNECT</h4>
           <p className="mono-text mb-2">Join our retro visualization community!</p>
@@ -438,7 +438,7 @@ const RetroFooter: React.FC = () => {
           </div>
         </div>
       </div>
-      
+
       <p className="mono-text text-sm">
         D3 Visualization Dashboard - © {new Date().getFullYear()} - Deployed via CI/CD Pipeline
       </p>

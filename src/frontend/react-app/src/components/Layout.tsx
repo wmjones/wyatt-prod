@@ -13,10 +13,10 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
     <div className="relative min-h-screen">
       <CursorTrail />
       <RetroPattern />
-      
+
       <div className="container mx-auto px-4 py-12">
-        <RetroHeader 
-          title="D3 VISUALIZATION DASHBOARD" 
+        <RetroHeader
+          title="D3 VISUALIZATION DASHBOARD"
           subtitle="Interactive Data Visualization"
         />
 

@@ -92,7 +92,7 @@
   .retro-text {
     font-family: 'VT323', monospace;
   }
-  
+
   .pixel-text {
     font-family: 'Press Start 2P', cursive;
     line-height: 1.5;
@@ -119,8 +119,8 @@
   }
 
   .zigzag {
-    background: 
-      linear-gradient(-45deg, transparent 33.33%, #ff6ac1 0, #ff6ac1 66.66%, transparent 0), 
+    background:
+      linear-gradient(-45deg, transparent 33.33%, #ff6ac1 0, #ff6ac1 66.66%, transparent 0),
       linear-gradient(45deg, transparent 33.33%, #33C3F0 0, #33C3F0 66.66%, transparent 0);
     background-size: 16px 8px;
     background-position: 0 0, 0 4px;
@@ -152,7 +152,7 @@
   .text-shadow {
     text-shadow: 3px 3px 0px rgba(0, 0, 0, 0.3);
   }
-  
+
   .text-gradient {
     background: linear-gradient(90deg, #ff6ac1, #9b87f5, #33C3F0);
     -webkit-background-clip: text;

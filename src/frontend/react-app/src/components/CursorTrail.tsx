@@ -27,7 +27,7 @@ const CursorTrail: React.FC = () => {
   useEffect(() => {
     const interval = setInterval(() => {
       setCounter((prev) => prev + 1);
-      
+
       setTrail((prevTrail) => {
         // Add new dot
         const newTrail = [

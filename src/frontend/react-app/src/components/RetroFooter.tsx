@@ -4,7 +4,7 @@ const RetroFooter: React.FC = () => {
   return (
     <footer className="mt-20 text-center">
       <div className="zigzag mb-8"></div>
-      
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
         <div>
           <h4 className="retro-text text-xl text-retro-teal mb-4">NAVIGATION</h4>
@@ -14,7 +14,7 @@ const RetroFooter: React.FC = () => {
             <li><a href="/about" className="hover:text-retro-purple">About</a></li>
           </ul>
         </div>
-        
+
         <div>
           <h4 className="retro-text text-xl text-retro-teal mb-4">RESOURCES</h4>
           <ul className="space-y-2 mono-text">
@@ -23,7 +23,7 @@ const RetroFooter: React.FC = () => {
             <li><a href="https://aws.amazon.com/" target="_blank" rel="noopener noreferrer" className="hover:text-retro-purple">AWS</a></li>
           </ul>
         </div>
-        
+
         <div>
           <h4 className="retro-text text-xl text-retro-teal mb-4">CONNECT</h4>
           <p className="mono-text mb-2">Join our retro visualization community!</p>
@@ -40,7 +40,7 @@ const RetroFooter: React.FC = () => {
           </div>
         </div>
       </div>
-      
+
       <p className="mono-text text-sm">
         D3 Visualization Dashboard - © {new Date().getFullYear()} - Deployed via CI/CD Pipeline
       </p>

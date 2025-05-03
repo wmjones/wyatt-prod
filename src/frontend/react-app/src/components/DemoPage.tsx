@@ -215,7 +215,7 @@ const DemoPage: React.FC = () => {
     <div>
       <div className="retro-card p-6 mb-8">
         <h2 className="retro-text text-3xl text-center text-retro-purple mb-6">NORMAL DISTRIBUTION VISUALIZER</h2>
-        
+
         {/* Connection status indicator */}
         <div className="flex items-center mb-4 mono-text">
           <div
@@ -245,7 +245,7 @@ const DemoPage: React.FC = () => {
               retro
             />
           </div>
-          
+
           <div className="flex flex-col">
             <label className="mono-text text-sm font-medium mb-1" htmlFor="stdDev">Standard Deviation (σ)</label>
             <Input
@@ -258,7 +258,7 @@ const DemoPage: React.FC = () => {
               retro
             />
           </div>
-          
+
           <div className="flex flex-col">
             <label className="mono-text text-sm font-medium mb-1" htmlFor="user-id">User ID</label>
             <Input
@@ -269,7 +269,7 @@ const DemoPage: React.FC = () => {
               retro
             />
           </div>
-          
+
           <div className="flex flex-col">
             <label className="mono-text text-sm font-medium mb-1" htmlFor="param-id">Parameter ID</label>
             <Input
@@ -280,7 +280,7 @@ const DemoPage: React.FC = () => {
               retro
             />
           </div>
-          
+
           <div className="flex flex-col">
             <label className="mono-text text-sm font-medium mb-1">&nbsp;</label>
             <button
@@ -290,7 +290,7 @@ const DemoPage: React.FC = () => {
               UPDATE PARAMETERS
             </button>
           </div>
-          
+
           <div className="flex flex-col">
             <label className="mono-text text-sm font-medium mb-1">&nbsp;</label>
             <button
@@ -333,7 +333,7 @@ const DemoPage: React.FC = () => {
             )}
           </CardContent>
         </Card>
-        
+
         <Card retro className="p-4">
           <CardHeader className="pb-2">
             <CardTitle className="retro-text text-xl text-retro-purple mb-2 pb-2 border-b-2 border-retro-purple border-dashed">
@@ -357,7 +357,7 @@ const DemoPage: React.FC = () => {
             )}
           </CardContent>
         </Card>
-        
+
         <Card retro className="p-4">
           <CardHeader className="pb-2">
             <CardTitle className="retro-text text-xl text-retro-purple mb-2 pb-2 border-b-2 border-retro-purple border-dashed">

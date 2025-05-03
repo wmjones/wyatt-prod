@@ -14,13 +14,13 @@ const ErrorPage: React.FC = () => {
           RETURN HOME
         </a>
       </div>
-      
+
       <div className="mt-8 grid grid-cols-4 gap-2">
         {Array(4).fill(0).map((_, i) => (
           <div key={i} className={`h-2 w-full bg-${
-            i === 0 ? 'retro-purple' : 
-            i === 1 ? 'retro-teal' : 
-            i === 2 ? 'retro-pink' : 
+            i === 0 ? 'retro-purple' :
+            i === 1 ? 'retro-teal' :
+            i === 2 ? 'retro-pink' :
             'retro-yellow'
           }`}></div>
         ))}
