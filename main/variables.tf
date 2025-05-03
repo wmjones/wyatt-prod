@@ -66,6 +66,18 @@ variable "cognito_deletion_protection" {
   default     = false
 }
 
+variable "cognito_identity_pool_enabled" {
+  description = "Whether to create a Cognito Identity Pool for the User Pool"
+  type        = bool
+  default     = true
+}
+
+variable "cognito_allow_unauthenticated" {
+  description = "Whether to allow unauthenticated access to the Identity Pool"
+  type        = bool
+  default     = false
+}
+
 variable "dynamodb_billing_mode" {
   description = "DynamoDB billing mode (PROVISIONED or PAY_PER_REQUEST)"
   type        = string

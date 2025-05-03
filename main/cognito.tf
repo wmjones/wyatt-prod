@@ -5,6 +5,7 @@ module "cognito" {
   user_pool_name      = "${var.project_name}-user-pool-${var.environment}"
   domain_prefix       = var.cognito_domain_prefix
   deletion_protection = var.cognito_deletion_protection
+  mfa_enabled         = var.environment == "prod" ? true : false
 
   # Define app client for web application
   clients = [
@@ -20,9 +21,28 @@ module "cognito" {
     }
   ]
 
+  # Identity Pool Configuration
+  create_identity_pool             = var.cognito_identity_pool_enabled
+  main_client_name                 = "${var.project_name}-web-client-${var.environment}"
+  allow_unauthenticated_identities = var.cognito_allow_unauthenticated
+
+  # API Gateway ARNs that authenticated users can access
+  # Placeholder - will be replaced with actual ARN when API Gateway is created
+  api_gateway_arns = ["*"]
+
+  # No public API endpoints for unauthenticated users by default
+  public_api_gateway_arns = []
+
+  # Lambda triggers for custom functionality
+  # Uncomment and specify ARNs when Lambda functions are created
+  # lambda_triggers = {
+  #   pre_sign_up = module.pre_signup_lambda.lambda_function_arn
+  # }
+
   tags = {
     Component   = "Authentication"
     Name        = "User Pool"
     Environment = var.environment
+    Project     = var.project_name
   }
 }

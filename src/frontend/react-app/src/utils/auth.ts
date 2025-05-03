@@ -1,4 +1,4 @@
-import { Amplify } from 'aws-amplify';
+import { Amplify, Auth as AmplifyAuth } from 'aws-amplify';
 import { ResourcesConfig } from 'aws-amplify';
 
 // Get configuration from environment variables (set during build)
@@ -67,12 +67,70 @@ export interface User {
 
 // Helper function to get current authenticated user
 export const getCurrentUser = async (): Promise<User | null> => {
-  // For demo purposes, we'll return a mock user
+  // For demo purposes
+  if (process.env.NODE_ENV === 'development') {
+    // Return a mock user for development
+    return {
+      username: 'demo-user',
+      attributes: {
+        email: 'demo@example.com',
+        sub: '123456789',
+      },
+    };
+  }
+
+  try {
+    // For production, use actual Cognito authentication
+    const user = await AmplifyAuth.currentAuthenticatedUser();
+    return {
+      username: user.username,
+      attributes: user.attributes,
+    };
+  } catch (error) {
+    console.log('No authenticated user found');
+    return null;
+  }
+};
+
+// Sign in helper function
+export const signIn = async (
+  username: string,
+  password: string
+): Promise<User> => {
+  // For demo in development
+  if (process.env.NODE_ENV === 'development') {
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // Mock authentication for demo
+    if (username === 'demo@example.com' && password === 'password') {
+      return {
+        username: 'demo-user',
+        attributes: {
+          email: username,
+          sub: '123456789',
+        }
+      };
+    }
+    throw new Error('Invalid email or password');
+  }
+
+  // For production use Cognito
+  const user = await AmplifyAuth.signIn(username, password);
   return {
-    username: 'demo-user',
-    attributes: {
-      email: 'demo@example.com',
-      sub: '123456789',
-    },
+    username: user.username,
+    attributes: user.attributes || { email: username, sub: user.userSub || '' },
   };
+};
+
+// Sign out helper function
+export const signOut = async (): Promise<void> => {
+  if (process.env.NODE_ENV === 'development') {
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 500));
+    return;
+  }
+
+  // For production
+  await AmplifyAuth.signOut();
 };

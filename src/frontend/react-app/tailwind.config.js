@@ -103,6 +103,10 @@ module.exports = {
         'marquee': {
           '0%': { transform: 'translateX(0)' },
           '100%': { transform: 'translateX(-50%)' }
+        },
+        'fade-in': {
+          '0%': { opacity: '0' },
+          '100%': { opacity: '1' }
         }
       },
       animation: {
@@ -112,7 +116,8 @@ module.exports = {
         'bounce-slow': 'bounce-slow 4s ease-in-out infinite',
         'spin-slow': 'spin-slow 8s linear infinite',
         'cursor-trail': 'cursor-trail 0.8s forwards',
-        'blink': 'blink 1.2s infinite'
+        'blink': 'blink 1.2s infinite',
+        'fade-in': 'fade-in 0.2s ease-out'
       }
     }
   },

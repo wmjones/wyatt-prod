@@ -11,6 +11,8 @@ precommit.log
 .env.example
 .cursor/*
 .windsurfrules
+.roo/*
+.roomodes
 
 # .tfstate files
 *.tfstate
