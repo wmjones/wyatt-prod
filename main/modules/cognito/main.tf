@@ -1,3 +1,9 @@
+# Local values for client outputs
+locals {
+  client_id    = length(aws_cognito_user_pool_client.clients) > 0 ? aws_cognito_user_pool_client.clients[keys(aws_cognito_user_pool_client.clients)[0]].id : "none"
+  callback_url = length(aws_cognito_user_pool_client.clients) > 0 ? aws_cognito_user_pool_client.clients[keys(aws_cognito_user_pool_client.clients)[0]].callback_urls[0] : "none"
+}
+
 resource "aws_cognito_user_pool" "main" {
   name = var.user_pool_name
 

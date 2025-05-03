@@ -31,7 +31,7 @@ output "domain" {
 
 output "hosted_ui_url" {
   description = "Hosted UI URL for the Cognito User Pool"
-  value       = "${var.domain_prefix}.auth.${data.aws_region.current.name}.amazoncognito.com/login?client_id=${var.main_client_name != "" ? aws_cognito_user_pool_client.clients[var.main_client_name].id : "none"}&response_type=code&redirect_uri=${var.main_client_name != "" ? aws_cognito_user_pool_client.clients[var.main_client_name].callback_urls[0] : "none"}"
+  value       = "${var.domain_prefix}.auth.${data.aws_region.current.name}.amazoncognito.com/login?client_id=${local.client_id}&response_type=code&redirect_uri=${local.callback_url}"
 }
 
 # Identity Pool outputs
