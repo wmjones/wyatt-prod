@@ -1,5 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import NormalDistribution from './visualization/NormalDistribution';
+import MarqueeText from './MarqueeText';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Input } from './ui/input';
 
 const DemoPage: React.FC = () => {
   const [mean, setMean] = useState<number>(0);
@@ -209,202 +212,194 @@ const DemoPage: React.FC = () => {
   }, []);
 
   return (
-    <section className="visualizer">
-      <h2>Normal Distribution Visualizer</h2>
-
-      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '20px' }}>
-        <div
-          style={{
-            width: '12px',
-            height: '12px',
-            borderRadius: '50%',
-            marginRight: '8px',
-            backgroundColor:
-              wsStatus === 'connected' ? 'var(--success-color)' :
-              wsStatus === 'connecting' ? 'var(--warning-color)' :
-              'var(--error-color)'
-          }}
-        ></div>
-        <span>{
-          wsStatus === 'connected' ? 'Connected' :
-          wsStatus === 'connecting' ? 'Connecting...' :
-          'Disconnected'
-        }</span>
-      </div>
-
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '20px', marginBottom: '20px', justifyContent: 'center' }}>
-        <div style={{ display: 'flex', flexDirection: 'column', minWidth: '200px' }}>
-          <label style={{ marginBottom: '5px', fontWeight: 500 }} htmlFor="mean">Mean (μ)</label>
-          <input
-            type="number"
-            id="mean"
-            value={mean}
-            onChange={e => setMean(parseFloat(e.target.value))}
-            step="0.1"
-            style={{ padding: '8px', border: '1px solid var(--light-gray)', borderRadius: '4px' }}
-          />
+    <div>
+      <div className="retro-card p-6 mb-8">
+        <h2 className="retro-text text-3xl text-center text-retro-purple mb-6">NORMAL DISTRIBUTION VISUALIZER</h2>
+        
+        {/* Connection status indicator */}
+        <div className="flex items-center mb-4 mono-text">
+          <div
+            className={`w-3 h-3 rounded-full mr-2 ${
+              wsStatus === 'connected' ? 'bg-retro-teal' :
+              wsStatus === 'connecting' ? 'bg-retro-yellow' :
+              'bg-retro-pink'
+            }`}
+          ></div>
+          <span>{
+            wsStatus === 'connected' ? 'Connected' :
+            wsStatus === 'connecting' ? 'Connecting...' :
+            'Disconnected'
+          }</span>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', minWidth: '200px' }}>
-          <label style={{ marginBottom: '5px', fontWeight: 500 }} htmlFor="stdDev">Standard Deviation (σ)</label>
-          <input
-            type="number"
-            id="stdDev"
-            value={stdDev}
-            onChange={e => setStdDev(parseFloat(e.target.value))}
-            min="0.1"
-            step="0.1"
-            style={{ padding: '8px', border: '1px solid var(--light-gray)', borderRadius: '4px' }}
-          />
+        {/* Parameter controls */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
+          <div className="flex flex-col">
+            <label className="mono-text text-sm font-medium mb-1" htmlFor="mean">Mean (μ)</label>
+            <Input
+              type="number"
+              id="mean"
+              value={mean}
+              onChange={e => setMean(parseFloat(e.target.value))}
+              step="0.1"
+              retro
+            />
+          </div>
+          
+          <div className="flex flex-col">
+            <label className="mono-text text-sm font-medium mb-1" htmlFor="stdDev">Standard Deviation (σ)</label>
+            <Input
+              type="number"
+              id="stdDev"
+              value={stdDev}
+              onChange={e => setStdDev(parseFloat(e.target.value))}
+              min="0.1"
+              step="0.1"
+              retro
+            />
+          </div>
+          
+          <div className="flex flex-col">
+            <label className="mono-text text-sm font-medium mb-1" htmlFor="user-id">User ID</label>
+            <Input
+              type="text"
+              id="user-id"
+              value={userId}
+              onChange={e => setUserId(e.target.value)}
+              retro
+            />
+          </div>
+          
+          <div className="flex flex-col">
+            <label className="mono-text text-sm font-medium mb-1" htmlFor="param-id">Parameter ID</label>
+            <Input
+              type="text"
+              id="param-id"
+              value={paramId}
+              onChange={e => setParamId(e.target.value)}
+              retro
+            />
+          </div>
+          
+          <div className="flex flex-col">
+            <label className="mono-text text-sm font-medium mb-1">&nbsp;</label>
+            <button
+              onClick={updateParameters}
+              className="retro-button"
+            >
+              UPDATE PARAMETERS
+            </button>
+          </div>
+          
+          <div className="flex flex-col">
+            <label className="mono-text text-sm font-medium mb-1">&nbsp;</label>
+            <button
+              onClick={toggleWebSocketConnection}
+              className="retro-button"
+            >
+              {wsStatus === 'connected' ? 'DISCONNECT' : 'CONNECT WEBSOCKET'}
+            </button>
+          </div>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', minWidth: '200px' }}>
-          <label style={{ marginBottom: '5px', fontWeight: 500 }} htmlFor="user-id">User ID</label>
-          <input
-            type="text"
-            id="user-id"
-            value={userId}
-            onChange={e => setUserId(e.target.value)}
-            style={{ padding: '8px', border: '1px solid var(--light-gray)', borderRadius: '4px' }}
-          />
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', minWidth: '200px' }}>
-          <label style={{ marginBottom: '5px', fontWeight: 500 }} htmlFor="param-id">Parameter ID</label>
-          <input
-            type="text"
-            id="param-id"
-            value={paramId}
-            onChange={e => setParamId(e.target.value)}
-            style={{ padding: '8px', border: '1px solid var(--light-gray)', borderRadius: '4px' }}
-          />
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', minWidth: '200px' }}>
-          <label style={{ marginBottom: '5px', fontWeight: 500 }}>&nbsp;</label>
-          <button
-            onClick={updateParameters}
-            style={{
-              backgroundColor: 'var(--primary-color)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              padding: '10px 15px',
-              cursor: 'pointer',
-              fontWeight: 500
-            }}
-          >
-            Update Parameters
-          </button>
-        </div>
-
-        <div style={{ display: 'flex', flexDirection: 'column', minWidth: '200px' }}>
-          <label style={{ marginBottom: '5px', fontWeight: 500 }}>&nbsp;</label>
-          <button
-            onClick={toggleWebSocketConnection}
-            style={{
-              backgroundColor: 'var(--primary-color)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              padding: '10px 15px',
-              cursor: 'pointer',
-              fontWeight: 500
-            }}
-          >
-            {wsStatus === 'connected' ? 'Disconnect WebSocket' : 'Connect WebSocket'}
-          </button>
+        {/* Visualization */}
+        <div className="flex flex-col items-center my-8 border-4 border-black p-4 bg-white">
+          <NormalDistribution mean={mean} stdDev={stdDev} updatedBy={lastUpdatedBy} />
         </div>
       </div>
 
-      <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginTop: '20px' }}>
-        <NormalDistribution mean={mean} stdDev={stdDev} updatedBy={lastUpdatedBy} />
-      </div>
+      <MarqueeText text={`⚡ PARAMETER VALUES: MEAN = ${mean.toFixed(1)} ⚡ STD DEV = ${stdDev.toFixed(1)} ⚡`} />
 
-      <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px', marginTop: '20px' }}>
-        <div style={{ flex: 1, minWidth: '250px', border: '1px solid var(--light-gray)', borderRadius: '4px', padding: '10px' }}>
-          <h4 style={{ color: 'var(--primary-dark)', marginBottom: '10px', borderBottom: '1px solid var(--light-gray)', paddingBottom: '5px' }}>
-            Parameter Table
-          </h4>
-          <div>
+      {/* Data tables */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 my-8">
+        <Card retro className="p-4">
+          <CardHeader className="pb-2">
+            <CardTitle className="retro-text text-xl text-retro-purple mb-2 pb-2 border-b-2 border-retro-purple border-dashed">
+              PARAMETER TABLE
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="mono-text text-sm">
             {parameterData ? (
-              <>
+              <div className="space-y-1">
                 <div>Parameter ID: {parameterData.paramId}</div>
                 <div>Mean: {parameterData.mean}</div>
                 <div>StdDev: {parameterData.stdDev}</div>
                 <div>Last Updated: {new Date(parameterData.lastUpdatedAt).toLocaleString()}</div>
                 <div>Last Updated By: {parameterData.lastUpdatedBy}</div>
                 <div>Version: {parameterData.version}</div>
-              </>
+              </div>
             ) : (
               "Not fetched yet"
             )}
-          </div>
-        </div>
-
-        <div style={{ flex: 1, minWidth: '250px', border: '1px solid var(--light-gray)', borderRadius: '4px', padding: '10px' }}>
-          <h4 style={{ color: 'var(--primary-dark)', marginBottom: '10px', borderBottom: '1px solid var(--light-gray)', paddingBottom: '5px' }}>
-            History Table
-          </h4>
-          <div>
+          </CardContent>
+        </Card>
+        
+        <Card retro className="p-4">
+          <CardHeader className="pb-2">
+            <CardTitle className="retro-text text-xl text-retro-purple mb-2 pb-2 border-b-2 border-retro-purple border-dashed">
+              HISTORY TABLE
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="mono-text text-sm max-h-60 overflow-y-auto">
             {historyData.length > 0 ? (
-              historyData.map((item, index) => (
-                <div key={index} style={{ borderBottom: '1px dashed #eee', padding: '5px 0', fontSize: '0.9em' }}>
-                  <div>Parameter: {item.parameter}</div>
-                  <div>Changed from {item.oldValue} to {item.newValue}</div>
-                  <div>Time: {item.time}</div>
-                  <div>By: {item.updatedBy}</div>
-                </div>
-              ))
+              <div className="space-y-3">
+                {historyData.map((item, index) => (
+                  <div key={index} className="border-b border-dashed border-gray-200 pb-2">
+                    <div>Parameter: {item.parameter}</div>
+                    <div>Changed from {item.oldValue} to {item.newValue}</div>
+                    <div>Time: {item.time}</div>
+                    <div>By: {item.updatedBy}</div>
+                  </div>
+                ))}
+              </div>
             ) : (
               "No history yet"
             )}
-          </div>
-        </div>
-
-        <div style={{ flex: 1, minWidth: '250px', border: '1px solid var(--light-gray)', borderRadius: '4px', padding: '10px' }}>
-          <h4 style={{ color: 'var(--primary-dark)', marginBottom: '10px', borderBottom: '1px solid var(--light-gray)', paddingBottom: '5px' }}>
-            Connection Table
-          </h4>
-          <div>
+          </CardContent>
+        </Card>
+        
+        <Card retro className="p-4">
+          <CardHeader className="pb-2">
+            <CardTitle className="retro-text text-xl text-retro-purple mb-2 pb-2 border-b-2 border-retro-purple border-dashed">
+              CONNECTION TABLE
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="mono-text text-sm">
             {connectionData ? (
-              <>
+              <div className="space-y-1">
                 <div>Connection ID: {connectionData.connectionId}</div>
                 <div>User ID: {connectionData.userId}</div>
                 <div>Connected At: {connectionData.connectedAt}</div>
                 <div>TTL: {connectionData.ttl}</div>
-              </>
+              </div>
             ) : (
               "Not connected"
             )}
-          </div>
-        </div>
+          </CardContent>
+        </Card>
       </div>
 
-      <div style={{
-        maxHeight: '200px',
-        overflowY: 'auto',
-        border: '1px solid var(--light-gray)',
-        padding: '10px',
-        borderRadius: '4px',
-        fontFamily: 'monospace',
-        backgroundColor: '#f8f8f8',
-        marginTop: '20px'
-      }}>
-        {logs.map((log, index) => (
-          <div key={index} style={{ marginBottom: '5px', padding: '3px 0', borderBottom: '1px solid #eee' }}>
-            <span style={{ color: '#888', marginRight: '8px' }}>[{log.time}]</span>
-            <span style={{
-              color: log.type === 'error' ? 'var(--error-color)' :
-                    log.type === 'success' ? 'var(--success-color)' :
-                    'var(--primary-color)'
-            }}>
-              {log.message}
-            </span>
-          </div>
-        ))}
+      {/* Log output */}
+      <div className="retro-card p-4 font-mono text-sm">
+        <h4 className="retro-text text-xl text-retro-purple mb-2 pb-2 border-b-2 border-retro-purple border-dashed">
+          SYSTEM LOG
+        </h4>
+        <div className="max-h-40 overflow-y-auto">
+          {logs.map((log, index) => (
+            <div key={index} className="mb-1 pb-1 border-b border-gray-200 border-dashed">
+              <span className="text-gray-500 mr-2">[{log.time}]</span>
+              <span className={
+                log.type === 'error' ? 'text-retro-pink' :
+                log.type === 'success' ? 'text-retro-teal' :
+                'text-retro-purple'
+              }>
+                {log.message}
+              </span>
+            </div>
+          ))}
+        </div>
       </div>
-    </section>
+    </div>
   );
 };
 
