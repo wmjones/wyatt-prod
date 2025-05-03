@@ -83,7 +83,7 @@ resource "aws_cognito_user_pool" "main" {
 
     string_attribute_constraints {
       min_length = 3
-      max_length = 100
+      max_length = 20
     }
   }
 
@@ -102,7 +102,7 @@ resource "aws_cognito_user_pool" "main" {
 
   # Add custom schema for user preferences
   schema {
-    name                     = "custom:user_preferences"
+    name                     = "custom:preferences"
     attribute_data_type      = "String"
     developer_only_attribute = false
     mutable                  = true
