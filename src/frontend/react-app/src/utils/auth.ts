@@ -309,9 +309,8 @@ export const signUp = async (
       options: {
         userAttributes: {
           email,
-          name: displayName,
-          // Including formatted name to satisfy schema requirements
-          'name.formatted': displayName
+          name: displayName
+          // Removed 'name.formatted' as it's not in the Cognito schema
         }
       }
     });
@@ -331,6 +330,12 @@ export const signUp = async (
       if (error.message.includes('User pool client')) {
         console.error('Sign-up failed: User pool client error', error);
         throw new Error('Authentication service configuration error. Please contact support with error code: USER_POOL_CLIENT_ERROR');
+      }
+
+      // Handle schema validation errors
+      if (error.message.includes('schema') || error.message.includes('attributes')) {
+        console.error('Sign-up failed: Schema validation error', error);
+        throw new Error('Unable to create account due to validation error. Please contact support with error code: SCHEMA_VALIDATION_ERROR');
       }
 
       // Handle password policy errors
