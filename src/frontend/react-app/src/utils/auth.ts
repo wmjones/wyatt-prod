@@ -1,5 +1,6 @@
-import { Amplify, Auth as AmplifyAuth } from 'aws-amplify';
+import { Amplify } from 'aws-amplify';
 import { ResourcesConfig } from 'aws-amplify';
+import { signIn as amplifySignIn, signOut as amplifySignOut, getCurrentUser as amplifyGetCurrentUser } from 'aws-amplify/auth';
 
 // Get configuration from environment variables (set during build)
 const getEnvConfig = (): ResourcesConfig => {
@@ -81,10 +82,10 @@ export const getCurrentUser = async (): Promise<User | null> => {
 
   try {
     // For production, use actual Cognito authentication
-    const user = await AmplifyAuth.currentAuthenticatedUser();
+    const { username, signInDetails } = await amplifyGetCurrentUser();
     return {
-      username: user.username,
-      attributes: user.attributes,
+      username,
+      attributes: signInDetails?.userAttributes || { email: username, sub: '' },
     };
   } catch (error) {
     console.log('No authenticated user found');
@@ -116,11 +117,17 @@ export const signIn = async (
   }
 
   // For production use Cognito
-  const user = await AmplifyAuth.signIn(username, password);
-  return {
-    username: user.username,
-    attributes: user.attributes || { email: username, sub: user.userSub || '' },
-  };
+  const { isSignedIn, nextStep } = await amplifySignIn({ username, password });
+
+  if (isSignedIn) {
+    const { username: user, signInDetails } = await amplifyGetCurrentUser();
+    return {
+      username: user,
+      attributes: signInDetails?.userAttributes || { email: username, sub: '' },
+    };
+  }
+
+  throw new Error(`Could not sign in. Next step: ${nextStep.signInStep}`)
 };
 
 // Sign out helper function
@@ -132,5 +139,5 @@ export const signOut = async (): Promise<void> => {
   }
 
   // For production
-  await AmplifyAuth.signOut();
+  await amplifySignOut();
 };

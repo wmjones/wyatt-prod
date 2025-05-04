@@ -8,6 +8,12 @@ on:
     paths:
       - 'src/frontend/react-app/**'
   workflow_dispatch:  # Allow manual triggering
+  workflow_run:
+    workflows: ["Terraform Apply"]
+    types:
+      - completed
+    branches:
+      - dev
 
 permissions:
   contents: read   # Required for actions/checkout
@@ -26,6 +32,10 @@ jobs:
   deploy:
     name: Build and Deploy React App
     runs-on: ubuntu-latest
+    # Only run on direct push, manual dispatch, or successful terraform apply on dev branch
+    if: >-
+      github.event_name != 'workflow_run' ||
+      (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success')
     steps:
       - name: Checkout
         uses: actions/checkout@v4
