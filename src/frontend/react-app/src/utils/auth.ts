@@ -1,6 +1,41 @@
 import { Amplify } from 'aws-amplify';
 import { ResourcesConfig } from 'aws-amplify';
-import { signIn as amplifySignIn, signOut as amplifySignOut, getCurrentUser as amplifyGetCurrentUser } from 'aws-amplify/auth';
+import {
+  signIn as amplifySignIn,
+  signOut as amplifySignOut,
+  getCurrentUser as amplifyGetCurrentUser,
+  type AuthSignInOutput,
+  type GetCurrentUserOutput
+} from 'aws-amplify/auth';
+
+/**
+ * AWS Amplify v6 type extensions
+ *
+ * NOTE: The AWS Amplify v6 authentication response structure has changed significantly.
+ * In Amplify v6, the CognitoAuthSignInDetails type doesn't have a userAttributes property directly.
+ * Instead, attributes are accessed differently in the signInDetails object.
+ *
+ * This extension creates a predictable interface for accessing user attributes regardless of
+ * how the underlying structure might change in Amplify updates.
+ *
+ * IMPORTANT: If upgrading AWS Amplify, review this code to ensure compatibility.
+ */
+interface ExtendedSignInDetails {
+  /**
+   * User attributes such as email, sub (user ID), and custom attributes.
+   * In Amplify v6, these might be accessed differently depending on the auth flow.
+   */
+  userAttributes?: {
+    email: string;
+    sub: string;
+    [key: string]: any;
+  };
+
+  /**
+   * Allow for other properties that might exist in the signInDetails
+   */
+  [key: string]: any;
+}
 
 // Get configuration from environment variables (set during build)
 const getEnvConfig = (): ResourcesConfig => {
@@ -83,9 +118,15 @@ export const getCurrentUser = async (): Promise<User | null> => {
   try {
     // For production, use actual Cognito authentication
     const { username, signInDetails } = await amplifyGetCurrentUser();
+
+    // Extract user attributes safely with type assertions
+    const extendedDetails = signInDetails as ExtendedSignInDetails;
+    const attributes = extendedDetails?.userAttributes ||
+                      { email: username, sub: signInDetails?.sub || '' };
+
     return {
       username,
-      attributes: signInDetails?.userAttributes || { email: username, sub: '' },
+      attributes,
     };
   } catch (error) {
     console.log('No authenticated user found');
@@ -121,9 +162,15 @@ export const signIn = async (
 
   if (isSignedIn) {
     const { username: user, signInDetails } = await amplifyGetCurrentUser();
+
+    // Extract user attributes safely with type assertions
+    const extendedDetails = signInDetails as ExtendedSignInDetails;
+    const attributes = extendedDetails?.userAttributes ||
+                      { email: username, sub: signInDetails?.sub || '' };
+
     return {
       username: user,
-      attributes: signInDetails?.userAttributes || { email: username, sub: '' },
+      attributes,
     };
   }
 
