@@ -124,11 +124,12 @@ jobs:
           echo "REACT_APP_USER_POOL_ID=${{ steps.get-resources.outputs.cognito_user_pool_id }}" >> src/frontend/react-app/.env.production.local
           echo "REACT_APP_USER_POOL_CLIENT_ID=${{ steps.get-resources.outputs.cognito_client_id }}" >> src/frontend/react-app/.env.production.local
           echo "REACT_APP_API_ENDPOINT=${{ steps.get-resources.outputs.api_endpoint }}" >> src/frontend/react-app/.env.production.local
-          echo "NODE_OPTIONS=--max_old_space_size=4096" >> $GITHUB_ENV
 
       - name: Build React app
         if: steps.check_changes.outputs.changes_detected == 'true'
         working-directory: src/frontend/react-app
+        env:
+          NODE_OPTIONS: "--max_old_space_size=4096"
         run: CI=false npm run build
 
       - name: Deploy static assets to S3 with cache headers
