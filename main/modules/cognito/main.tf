@@ -5,22 +5,52 @@ resource "aws_cognito_user_pool" "main" {
   username_attributes      = ["email"]
   auto_verified_attributes = ["email"]
 
-  # Password policy settings
-  password_policy {
-    minimum_length    = 8
-    require_lowercase = true
-    require_uppercase = true
-    require_numbers   = true
-    require_symbols   = false
+  # Account recovery settings
+  account_recovery_setting {
+    recovery_mechanism {
+      name     = "verified_email"
+      priority = 1
+    }
   }
 
-  # MFA configuration
-  mfa_configuration = "OFF"
+  # Admin account creation settings
+  admin_create_user_config {
+    allow_admin_create_user_only = false
+    invite_message_template {
+      email_message = "Your username is {username} and temporary password is {####}. Please login and change your password."
+      email_subject = "Your temporary password for ${var.user_pool_name}"
+      sms_message   = "Your username is {username} and temporary password is {####}."
+    }
+  }
 
-  # Uncomment this if you want to use MFA (requires mfa_configuration = "OPTIONAL" or "REQUIRED")
-  # software_token_mfa_configuration {
-  #   enabled = true
-  # }
+  # Password policy settings
+  password_policy {
+    minimum_length                   = 8
+    require_lowercase                = true
+    require_uppercase                = true
+    require_numbers                  = true
+    require_symbols                  = true
+    temporary_password_validity_days = 7
+  }
+
+  # MFA configuration - optional for better security
+  mfa_configuration = var.mfa_enabled ? "OPTIONAL" : "OFF"
+
+  # Enable if MFA is enabled
+  dynamic "software_token_mfa_configuration" {
+    for_each = var.mfa_enabled ? [1] : []
+    content {
+      enabled = true
+    }
+  }
+
+  # Verification message customization
+  verification_message_template {
+    default_email_option = "CONFIRM_WITH_CODE"
+    email_message        = "Your verification code is {####}. Please use this to verify your email address."
+    email_subject        = "Your email verification code"
+    sms_message          = "Your verification code is {####}."
+  }
 
   # Email provider configuration
   email_configuration {
@@ -30,7 +60,7 @@ resource "aws_cognito_user_pool" "main" {
   # User pool deletion protection
   deletion_protection = var.deletion_protection ? "ACTIVE" : "INACTIVE"
 
-  # User attributes
+  # Schema attributes - Include standard attributes
   schema {
     name                     = "name"
     attribute_data_type      = "String"
@@ -53,7 +83,51 @@ resource "aws_cognito_user_pool" "main" {
 
     string_attribute_constraints {
       min_length = 3
-      max_length = 100
+      max_length = 20
+    }
+  }
+
+  schema {
+    name                     = "email"
+    attribute_data_type      = "String"
+    developer_only_attribute = false
+    mutable                  = true
+    required                 = true
+
+    string_attribute_constraints {
+      min_length = 5
+      max_length = 255
+    }
+  }
+
+  # Add custom schema for user preferences
+  schema {
+    name                     = "custom:preferences"
+    attribute_data_type      = "String"
+    developer_only_attribute = false
+    mutable                  = true
+    required                 = false
+
+    string_attribute_constraints {
+      min_length = 0
+      max_length = 2048
+    }
+  }
+
+  # Lambda triggers for custom functionality (if defined)
+  dynamic "lambda_config" {
+    for_each = var.lambda_triggers != null ? [1] : []
+    content {
+      create_auth_challenge          = lookup(var.lambda_triggers, "create_auth_challenge", null)
+      custom_message                 = lookup(var.lambda_triggers, "custom_message", null)
+      define_auth_challenge          = lookup(var.lambda_triggers, "define_auth_challenge", null)
+      post_authentication            = lookup(var.lambda_triggers, "post_authentication", null)
+      post_confirmation              = lookup(var.lambda_triggers, "post_confirmation", null)
+      pre_authentication             = lookup(var.lambda_triggers, "pre_authentication", null)
+      pre_sign_up                    = lookup(var.lambda_triggers, "pre_sign_up", null)
+      pre_token_generation           = lookup(var.lambda_triggers, "pre_token_generation", null)
+      user_migration                 = lookup(var.lambda_triggers, "user_migration", null)
+      verify_auth_challenge_response = lookup(var.lambda_triggers, "verify_auth_challenge_response", null)
     }
   }
 
@@ -81,4 +155,191 @@ resource "aws_cognito_user_pool_client" "clients" {
   allowed_oauth_scopes                 = each.value.allowed_oauth_scopes
   allowed_oauth_flows_user_pool_client = each.value.allowed_oauth_flows_user_pool_client
   supported_identity_providers         = each.value.supported_identity_providers
+
+  # Enable token revocation for better security
+  enable_token_revocation = true
+
+  # Prevent user existence errors for better security
+  prevent_user_existence_errors = "ENABLED"
+
+  # Set the token validity configuration
+  refresh_token_validity = 30 # days
+  access_token_validity  = 1  # hours
+  id_token_validity      = 1  # hours
+
+  # Standard authentication flow
+  explicit_auth_flows = [
+    "ALLOW_USER_PASSWORD_AUTH",
+    "ALLOW_ADMIN_USER_PASSWORD_AUTH",
+    "ALLOW_REFRESH_TOKEN_AUTH",
+    "ALLOW_USER_SRP_AUTH"
+  ]
+}
+
+# Local values for client outputs - placed after client resources are created
+locals {
+  main_client_exists = var.main_client_name != "" && contains(keys(aws_cognito_user_pool_client.clients), var.main_client_name)
+  client_id          = local.main_client_exists ? aws_cognito_user_pool_client.clients[var.main_client_name].id : "none"
+  # Use try function to safely access callback_urls, and providing a default if it doesn't exist
+  callback_url = local.main_client_exists ? try(aws_cognito_user_pool_client.clients[var.main_client_name].callback_urls[0], "none") : "none"
+}
+
+# Create identity pool if enabled
+resource "aws_cognito_identity_pool" "main" {
+  count                            = var.create_identity_pool ? 1 : 0
+  identity_pool_name               = "${var.user_pool_name}-identity-pool"
+  allow_unauthenticated_identities = var.allow_unauthenticated_identities
+  allow_classic_flow               = true
+
+  # Connect to our User Pool
+  cognito_identity_providers {
+    client_id               = local.client_id
+    provider_name           = aws_cognito_user_pool.main.endpoint
+    server_side_token_check = false
+  }
+
+  # Add additional providers if provided
+  dynamic "cognito_identity_providers" {
+    for_each = [for client_name, client in aws_cognito_user_pool_client.clients : client if client_name != var.main_client_name]
+    content {
+      client_id               = cognito_identity_providers.value.id
+      provider_name           = aws_cognito_user_pool.main.endpoint
+      server_side_token_check = false
+    }
+  }
+
+  tags = merge(var.tags, {
+    Environment = var.environment
+  })
+}
+
+# Identity pool roles
+resource "aws_cognito_identity_pool_roles_attachment" "main" {
+  count            = var.create_identity_pool ? 1 : 0
+  identity_pool_id = aws_cognito_identity_pool.main[0].id
+
+  # Basic role mapping
+  roles = {
+    "authenticated"   = var.authenticated_role_arn != null ? var.authenticated_role_arn : aws_iam_role.authenticated_role[0].arn
+    "unauthenticated" = var.unauthenticated_role_arn != null ? var.unauthenticated_role_arn : aws_iam_role.unauthenticated_role[0].arn
+  }
+}
+
+# Create authenticated IAM role if not provided
+resource "aws_iam_role" "authenticated_role" {
+  count = (var.create_identity_pool && var.authenticated_role_arn == null) ? 1 : 0
+  name  = "${var.user_pool_name}-authenticated-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Federated = "cognito-identity.amazonaws.com"
+        }
+        Action = "sts:AssumeRoleWithWebIdentity"
+        Condition = {
+          StringEquals = {
+            "cognito-identity.amazonaws.com:aud" = aws_cognito_identity_pool.main[0].id
+          }
+          "ForAnyValue:StringLike" = {
+            "cognito-identity.amazonaws.com:amr" = "authenticated"
+          }
+        }
+      }
+    ]
+  })
+
+  tags = merge(var.tags, {
+    Environment = var.environment
+  })
+}
+
+# Authenticated role policy
+resource "aws_iam_role_policy" "authenticated_policy" {
+  count = (var.create_identity_pool && var.authenticated_role_arn == null) ? 1 : 0
+  name  = "authenticated-policy"
+  role  = aws_iam_role.authenticated_role[0].id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "cognito-sync:*",
+          "cognito-identity:*"
+        ]
+        Resource = "*"
+      },
+      # Add API access permissions
+      {
+        Effect = "Allow"
+        Action = [
+          "execute-api:Invoke"
+        ]
+        Resource = var.api_gateway_arns
+      }
+    ]
+  })
+}
+
+# Create unauthenticated IAM role if not provided
+resource "aws_iam_role" "unauthenticated_role" {
+  count = (var.create_identity_pool && var.unauthenticated_role_arn == null) ? 1 : 0
+  name  = "${var.user_pool_name}-unauthenticated-role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Principal = {
+          Federated = "cognito-identity.amazonaws.com"
+        }
+        Action = "sts:AssumeRoleWithWebIdentity"
+        Condition = {
+          StringEquals = {
+            "cognito-identity.amazonaws.com:aud" = aws_cognito_identity_pool.main[0].id
+          }
+          "ForAnyValue:StringLike" = {
+            "cognito-identity.amazonaws.com:amr" = "unauthenticated"
+          }
+        }
+      }
+    ]
+  })
+
+  tags = merge(var.tags, {
+    Environment = var.environment
+  })
+}
+
+# Unauthenticated role policy
+resource "aws_iam_role_policy" "unauthenticated_policy" {
+  count = (var.create_identity_pool && var.unauthenticated_role_arn == null) ? 1 : 0
+  name  = "unauthenticated-policy"
+  role  = aws_iam_role.unauthenticated_role[0].id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "cognito-sync:*"
+        ]
+        Resource = "*"
+      },
+      # Add limited public API access if needed
+      {
+        Effect = "Allow"
+        Action = [
+          "execute-api:Invoke"
+        ]
+        Resource = var.public_api_gateway_arns
+      }
+    ]
+  })
 }

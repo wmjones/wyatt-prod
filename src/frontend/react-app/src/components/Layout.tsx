@@ -3,6 +3,7 @@ import RetroHeader from './RetroHeader';
 import RetroFooter from './RetroFooter';
 import RetroPattern from './RetroPattern';
 import CursorTrail from './CursorTrail';
+import LoginBox from './LoginBox';
 
 interface LayoutProps {
   children: ReactNode;
@@ -15,6 +16,7 @@ const Layout: React.FC<LayoutProps> = ({ children }) => {
       <RetroPattern />
 
       <div className="container mx-auto px-4 py-12">
+        <LoginBox />
         <RetroHeader
           title="D3 VISUALIZATION DASHBOARD"
           subtitle="Interactive Data Visualization"

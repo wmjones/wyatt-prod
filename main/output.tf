@@ -44,9 +44,39 @@ output "cognito_user_pool_id" {
   value       = module.cognito.user_pool_id
 }
 
+output "cognito_user_pool_arn" {
+  description = "ARN of the Cognito User Pool"
+  value       = module.cognito.user_pool_arn
+}
+
 output "cognito_client_id" {
   description = "ID of the Cognito User Pool web client"
   value       = module.cognito.client_ids["${var.project_name}-web-client-${var.environment}"]
+}
+
+output "cognito_domain" {
+  description = "Domain for the Cognito hosted UI"
+  value       = module.cognito.domain
+}
+
+output "cognito_hosted_ui_url" {
+  description = "URL for the Cognito hosted UI login page"
+  value       = module.cognito.hosted_ui_url
+}
+
+output "cognito_identity_pool_id" {
+  description = "ID of the Cognito Identity Pool (if created)"
+  value       = var.cognito_identity_pool_enabled ? module.cognito.identity_pool_id : null
+}
+
+output "cognito_authenticated_role_arn" {
+  description = "ARN of the IAM role for authenticated users"
+  value       = var.cognito_identity_pool_enabled ? module.cognito.authenticated_role_arn : null
+}
+
+output "cognito_unauthenticated_role_arn" {
+  description = "ARN of the IAM role for unauthenticated users"
+  value       = var.cognito_identity_pool_enabled ? module.cognito.unauthenticated_role_arn : null
 }
 
 # Existing Productivity Lambda Outputs

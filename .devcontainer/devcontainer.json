@@ -27,11 +27,14 @@
     // Check if .aws directory exists on host and only mount if it does
     "source=/Users/wyatt.jones6/.aws,target=/home/vscode/.aws,type=bind,consistency=cached",
     // Optional: persist pre-commit cache
-    "source=pre-commit-cache,target=/home/vscode/pre-commit-cache,type=volume"
+    "source=pre-commit-cache,target=/home/vscode/pre-commit-cache,type=volume",
+    // Persist taskmaster-ai data
+    "source=taskmaster-ai-data,target=/workspaces/${localWorkspaceFolderBasename}/.taskmaster,type=volume"
   ],
   "remoteEnv": {
     "LANG": "en_US.UTF-8",
-    "LC_ALL": "en_US.UTF-8"
+    "LC_ALL": "en_US.UTF-8",
+    "TASKMASTER_DATA_DIR": "/workspaces/${localWorkspaceFolderBasename}/.taskmaster"
   },
   "features": {
     "ghcr.io/devcontainers/features/git:1": {}
