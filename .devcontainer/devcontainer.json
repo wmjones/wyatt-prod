@@ -23,7 +23,7 @@
     "source=claude-code-cache,target=/home/vscode/.cache/claude-code,type=volume",
     "source=npm-global,target=/home/vscode/.npm-global,type=volume",
     // Persist Terraform credentials
-    "source=terraform-credentials,target=/home/vscode/.terraform.d,type=volume",
+    "source=/Users/wyatt.jones6/.terraform.d,target=/home/vscode/.terraform.d,type=bind,consistency=cached",
     // Check if .aws directory exists on host and only mount if it does
     "source=/Users/wyatt.jones6/.aws,target=/home/vscode/.aws,type=bind,consistency=cached",
     // Optional: persist pre-commit cache

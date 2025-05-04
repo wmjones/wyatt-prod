@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Card, CardContent } from './ui/card';
-import { AuthState, User, getCurrentUser, signIn, signOut } from '../utils/auth';
+import { AuthState, User, getCurrentUser, signIn, signOut, getEnvConfig } from '../utils/auth';
+import AuthConfigError from './AuthConfigError';
 
 const LoginBox: React.FC = () => {
   const [authState, setAuthState] = useState<AuthState>(AuthState.SignIn);
@@ -177,7 +178,15 @@ const LoginBox: React.FC = () => {
           </button>
         </div>
 
-        {error && <div className="text-retro-pink text-xs mono-text">{error}</div>}
+        {error && error.includes('Authentication service') ? (
+          <AuthConfigError
+            error={error}
+            userPoolId={getEnvConfig().Auth?.Cognito?.userPoolId}
+            clientId={getEnvConfig().Auth?.Cognito?.userPoolClientId}
+          />
+        ) : (
+          <div className="text-retro-pink text-xs mono-text">{error}</div>
+        )}
 
         <Button
           type="submit"

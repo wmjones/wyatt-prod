@@ -53,6 +53,59 @@ Legacy Terraform wrapper script (deprecated - use deploy.sh instead).
 
 Alias for `deploy.sh` for backward compatibility.
 
+### store-terraform-outputs.sh
+
+Stores Terraform outputs as SSM parameters for use in CI/CD pipelines.
+
+**Usage:**
+```bash
+./store-terraform-outputs.sh [environment]
+```
+
+**Parameters:**
+- `environment`: Optional. Either `dev` or `prod`. Defaults to `dev` if not specified.
+
+**Examples:**
+```bash
+# Store outputs for development environment
+./store-terraform-outputs.sh dev
+
+# Store outputs for production environment
+./store-terraform-outputs.sh prod
+```
+
+**Features:**
+- Retrieves Terraform outputs and stores them in SSM parameters
+- Used by CI/CD pipelines to get configuration values
+- Updates parameters when Terraform infrastructure changes
+
+### verify-cognito-config.sh
+
+Verifies the Cognito configuration by checking SSM parameters and AWS resources.
+
+**Usage:**
+```bash
+./verify-cognito-config.sh [environment]
+```
+
+**Parameters:**
+- `environment`: Optional. Either `dev` or `prod`. Defaults to `dev` if not specified.
+
+**Examples:**
+```bash
+# Verify Cognito configuration for development environment
+./verify-cognito-config.sh dev
+
+# Verify Cognito configuration for production environment
+./verify-cognito-config.sh prod
+```
+
+**Features:**
+- Checks if SSM parameters for Cognito exist
+- Verifies that the Cognito resources exist in AWS
+- Provides troubleshooting information for authentication issues
+- Suggests next steps if issues are found
+
 ### lint-and-tasks.sh
 
 Runs linting tools and task management utilities for the codebase.
