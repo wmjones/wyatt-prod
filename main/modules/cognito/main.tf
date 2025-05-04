@@ -247,24 +247,28 @@ resource "aws_iam_role_policy" "authenticated_policy" {
 
   policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "cognito-sync:*",
-          "cognito-identity:*"
-        ]
-        Resource = "*"
-      },
-      # Add API access permissions
-      {
-        Effect = "Allow"
-        Action = [
-          "execute-api:Invoke"
-        ]
-        Resource = var.api_gateway_arns
-      }
-    ]
+    Statement = concat(
+      [
+        {
+          Effect = "Allow"
+          Action = [
+            "cognito-sync:*",
+            "cognito-identity:*"
+          ]
+          Resource = "*"
+        }
+      ],
+      # Only add API Gateway permissions if ARNs are provided
+      length(var.api_gateway_arns) > 0 ? [
+        {
+          Effect = "Allow"
+          Action = [
+            "execute-api:Invoke"
+          ]
+          Resource = var.api_gateway_arns
+        }
+      ] : []
+    )
   })
 }
 
@@ -307,22 +311,26 @@ resource "aws_iam_role_policy" "unauthenticated_policy" {
 
   policy = jsonencode({
     Version = "2012-10-17"
-    Statement = [
-      {
-        Effect = "Allow"
-        Action = [
-          "cognito-sync:*"
-        ]
-        Resource = "*"
-      },
-      # Add limited public API access if needed
-      {
-        Effect = "Allow"
-        Action = [
-          "execute-api:Invoke"
-        ]
-        Resource = var.public_api_gateway_arns
-      }
-    ]
+    Statement = concat(
+      [
+        {
+          Effect = "Allow"
+          Action = [
+            "cognito-sync:*"
+          ]
+          Resource = "*"
+        }
+      ],
+      # Only add API Gateway permissions if ARNs are provided
+      length(var.public_api_gateway_arns) > 0 ? [
+        {
+          Effect = "Allow"
+          Action = [
+            "execute-api:Invoke"
+          ]
+          Resource = var.public_api_gateway_arns
+        }
+      ] : []
+    )
   })
 }
