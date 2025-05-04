@@ -83,13 +83,13 @@ variable "unauthenticated_role_arn" {
 }
 
 variable "api_gateway_arns" {
-  description = "List of API Gateway ARNs that authenticated users can access"
+  description = "List of API Gateway ARNs that authenticated users can access (use ['*'] for all resources)"
   type        = list(string)
   default     = ["*"]
 }
 
 variable "public_api_gateway_arns" {
-  description = "List of API Gateway ARNs that unauthenticated users can access"
+  description = "List of API Gateway ARNs that unauthenticated users can access (must be specific ARNs, not wildcard)"
   type        = list(string)
   default     = []
 }
