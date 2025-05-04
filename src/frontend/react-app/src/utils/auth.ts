@@ -38,7 +38,7 @@ interface ExtendedSignInDetails {
 }
 
 // Get configuration from environment variables (set during build)
-const getEnvConfig = (): ResourcesConfig => {
+export const getEnvConfig = (): ResourcesConfig => {
   return {
     Auth: {
       Cognito: {
@@ -64,6 +64,23 @@ export const configureAmplify = (providedConfig: Partial<ResourcesConfig> = {}) 
   // Default configuration from environment variables
   const defaultConfig = getEnvConfig();
 
+  // Check if we have valid Cognito configuration
+  const userPoolId = defaultConfig.Auth?.Cognito?.userPoolId || '';
+  const userPoolClientId = defaultConfig.Auth?.Cognito?.userPoolClientId || '';
+
+  // Check if we have placeholder values (indicating real values weren't provided)
+  const isPlaceholderUserPoolId = userPoolId.includes('xxxxxxxx');
+  const isPlaceholderClientId = userPoolClientId.includes('xxxxxxxxxxxxxxxxxxxxxxxxxx');
+
+  // Log configuration info
+  console.log('Amplify configuration status:', {
+    environment: process.env.NODE_ENV,
+    stage: process.env.REACT_APP_STAGE || 'unknown',
+    region: process.env.REACT_APP_REGION || 'unknown',
+    hasValidUserPoolId: !isPlaceholderUserPoolId,
+    hasValidClientId: !isPlaceholderClientId
+  });
+
   // Simple way to merge configs
   Amplify.configure(defaultConfig);
 
@@ -72,12 +89,20 @@ export const configureAmplify = (providedConfig: Partial<ResourcesConfig> = {}) 
     Amplify.configure(providedConfig);
   }
 
-  // Log configuration in development mode
-  if (process.env.NODE_ENV === 'development') {
+  // More detailed logging in development or if using placeholder values
+  if (process.env.NODE_ENV === 'development' || isPlaceholderUserPoolId || isPlaceholderClientId) {
     console.log('Amplify configured with:', JSON.stringify({
       userPoolId: defaultConfig.Auth?.Cognito?.userPoolId,
       apiEndpoint: defaultConfig.API?.REST?.api?.endpoint,
     }, null, 2));
+
+    if (isPlaceholderUserPoolId || isPlaceholderClientId) {
+      console.warn('WARNING: Using placeholder values for Cognito configuration. Authentication will not work correctly.');
+      console.warn('Please ensure the following environment variables are set correctly:');
+      console.warn('- REACT_APP_USER_POOL_ID');
+      console.warn('- REACT_APP_USER_POOL_CLIENT_ID');
+      console.warn('Check that the store-terraform-outputs.sh script has been run after terraform apply.');
+    }
   }
 };
 
@@ -158,25 +183,50 @@ export const signIn = async (
     throw new Error('Invalid email or password');
   }
 
-  // For production use Cognito
-  const { isSignedIn, nextStep } = await amplifySignIn({ username, password });
+  // Check if we have valid Cognito configuration
+  const config = getEnvConfig();
+  const userPoolId = config.Auth?.Cognito?.userPoolId || '';
+  const userPoolClientId = config.Auth?.Cognito?.userPoolClientId || '';
 
-  if (isSignedIn) {
-    const { username: user, signInDetails } = await amplifyGetCurrentUser();
+  const isPlaceholderUserPoolId = userPoolId.includes('xxxxxxxx');
+  const isPlaceholderClientId = userPoolClientId.includes('xxxxxxxxxxxxxxxxxxxxxxxxxx');
 
-    // Extract user attributes safely with type assertions
-    const extendedDetails = signInDetails as ExtendedSignInDetails;
-    // Safely fallback to username if attributes aren't available
-    const attributes = extendedDetails?.userAttributes ||
-                      { email: username, sub: (signInDetails as any)?.sub || username || '' };
-
-    return {
-      username: user,
-      attributes,
-    };
+  // If we're using placeholder values, provide a more helpful error message
+  if (isPlaceholderUserPoolId || isPlaceholderClientId) {
+    console.error('Authentication failed: Invalid Cognito configuration');
+    throw new Error('Authentication service is not properly configured. Please contact support with error code: COGNITO_CONFIG_ERROR');
   }
 
-  throw new Error(`Could not sign in. Next step: ${nextStep.signInStep}`)
+  try {
+    // For production use Cognito
+    const { isSignedIn, nextStep } = await amplifySignIn({ username, password });
+
+    if (isSignedIn) {
+      const { username: user, signInDetails } = await amplifyGetCurrentUser();
+
+      // Extract user attributes safely with type assertions
+      const extendedDetails = signInDetails as ExtendedSignInDetails;
+      // Safely fallback to username if attributes aren't available
+      const attributes = extendedDetails?.userAttributes ||
+                        { email: username, sub: (signInDetails as any)?.sub || username || '' };
+
+      return {
+        username: user,
+        attributes,
+      };
+    }
+
+    throw new Error(`Could not sign in. Next step: ${nextStep.signInStep}`);
+  } catch (error) {
+    // Handle specific Cognito error for user pool client not existing
+    if (error instanceof Error && error.message.includes('User pool client')) {
+      console.error('Authentication failed: User pool client error', error);
+      throw new Error('Authentication service configuration error. Please contact support with error code: USER_POOL_CLIENT_ERROR');
+    }
+
+    // Re-throw other errors
+    throw error;
+  }
 };
 
 // Sign out helper function
