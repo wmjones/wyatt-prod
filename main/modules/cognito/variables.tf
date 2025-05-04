@@ -99,3 +99,58 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "schema_attributes" {
+  description = "List of schema attributes for Cognito User Pool (NOTE: Changes to these after initial creation will be ignored due to the lifecycle block)"
+  type = list(object({
+    name                     = string
+    attribute_data_type      = string
+    developer_only_attribute = optional(bool, false)
+    mutable                  = optional(bool, true)
+    required                 = optional(bool, false)
+    min_length               = optional(number, 0)
+    max_length               = optional(number, 2048)
+    min_value                = optional(string)
+    max_value                = optional(string)
+  }))
+  default = [
+    {
+      name                = "name"
+      attribute_data_type = "String"
+      mutable             = true
+      required            = true
+      min_length          = 3
+      max_length          = 100
+    },
+    {
+      name                = "preferred_username"
+      attribute_data_type = "String"
+      mutable             = true
+      required            = false
+      min_length          = 3
+      max_length          = 20
+    },
+    {
+      name                = "email"
+      attribute_data_type = "String"
+      mutable             = true
+      required            = true
+      min_length          = 5
+      max_length          = 255
+    },
+    {
+      name                = "custom:preferences"
+      attribute_data_type = "String"
+      mutable             = true
+      required            = false
+      min_length          = 0
+      max_length          = 2048
+    }
+  ]
+}
+
+variable "prevent_schema_changes" {
+  description = "Flag for whether schema changes should be prevented (DEPRECATED: schema changes are now always ignored via lifecycle block)"
+  type        = bool
+  default     = false
+}
