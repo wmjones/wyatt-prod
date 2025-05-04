@@ -15,6 +15,8 @@ const LoginBox: React.FC = () => {
   // Form state
   const [email, setEmail] = useState<string>('');
   const [password, setPassword] = useState<string>('');
+  // confirmPassword is not used in this version, but kept for future sign-up form implementation
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [confirmPassword, setConfirmPassword] = useState<string>('');
   const [rememberMe, setRememberMe] = useState<boolean>(false);
   const [showPassword, setShowPassword] = useState<boolean>(false);
@@ -105,6 +107,8 @@ const LoginBox: React.FC = () => {
   };
 
   // Handle switching back to sign in form
+  // Will be used when sign-up and forgot-password forms are implemented
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const handleSwitchToSignIn = () => {
     setAuthState(AuthState.SignIn);
     setError('');

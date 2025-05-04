@@ -4,8 +4,6 @@ import {
   signIn as amplifySignIn,
   signOut as amplifySignOut,
   getCurrentUser as amplifyGetCurrentUser,
-  type AuthSignInOutput,
-  type GetCurrentUserOutput
 } from 'aws-amplify/auth';
 
 /**
@@ -122,7 +120,7 @@ export const getCurrentUser = async (): Promise<User | null> => {
     // Extract user attributes safely with type assertions
     const extendedDetails = signInDetails as ExtendedSignInDetails;
     const attributes = extendedDetails?.userAttributes ||
-                      { email: username, sub: signInDetails?.sub || '' };
+                      { email: username, sub: username || '' };
 
     return {
       username,
@@ -166,7 +164,7 @@ export const signIn = async (
     // Extract user attributes safely with type assertions
     const extendedDetails = signInDetails as ExtendedSignInDetails;
     const attributes = extendedDetails?.userAttributes ||
-                      { email: username, sub: signInDetails?.sub || '' };
+                      { email: username, sub: username || '' };
 
     return {
       username: user,
