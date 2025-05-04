@@ -1,6 +1,6 @@
 import React from 'react';
 import MarqueeText from './MarqueeText';
-import { Button } from './ui/button';
+// Removing unused Button import
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 
 const HomePage: React.FC = () => {

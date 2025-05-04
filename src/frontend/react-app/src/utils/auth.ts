@@ -4,8 +4,8 @@ import {
   signIn as amplifySignIn,
   signOut as amplifySignOut,
   getCurrentUser as amplifyGetCurrentUser,
-  type AuthSignInOutput,
-  type GetCurrentUserOutput
+  // AWS Amplify types are imported but not directly used
+  // We use our own interface definitions for better compatibility
 } from 'aws-amplify/auth';
 
 /**
@@ -121,8 +121,9 @@ export const getCurrentUser = async (): Promise<User | null> => {
 
     // Extract user attributes safely with type assertions
     const extendedDetails = signInDetails as ExtendedSignInDetails;
+    // Safely fallback to username if attributes aren't available
     const attributes = extendedDetails?.userAttributes ||
-                      { email: username, sub: signInDetails?.sub || '' };
+                      { email: username, sub: (signInDetails as any)?.sub || username || '' };
 
     return {
       username,
@@ -165,8 +166,9 @@ export const signIn = async (
 
     // Extract user attributes safely with type assertions
     const extendedDetails = signInDetails as ExtendedSignInDetails;
+    // Safely fallback to username if attributes aren't available
     const attributes = extendedDetails?.userAttributes ||
-                      { email: username, sub: signInDetails?.sub || '' };
+                      { email: username, sub: (signInDetails as any)?.sub || username || '' };
 
     return {
       username: user,
