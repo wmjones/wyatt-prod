@@ -101,7 +101,7 @@ variable "tags" {
 }
 
 variable "schema_attributes" {
-  description = "List of schema attributes for Cognito User Pool"
+  description = "List of schema attributes for Cognito User Pool (NOTE: Changes to these after initial creation will be ignored due to the lifecycle block)"
   type = list(object({
     name                     = string
     attribute_data_type      = string
@@ -150,7 +150,7 @@ variable "schema_attributes" {
 }
 
 variable "prevent_schema_changes" {
-  description = "Whether to prevent schema changes to avoid errors when updating existing Cognito User Pools"
+  description = "Flag for whether schema changes should be prevented (DEPRECATED: schema changes are now always ignored via lifecycle block)"
   type        = bool
   default     = false
 }

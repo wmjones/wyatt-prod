@@ -1,7 +1,8 @@
 resource "aws_cognito_user_pool" "main" {
   # Add lifecycle block to ignore schema changes after initial creation
+  # Schema changes are always ignored if prevent_schema_changes is true (managed via config)
   lifecycle {
-    ignore_changes = var.prevent_schema_changes ? [schema] : []
+    ignore_changes = [schema]
   }
   name = var.user_pool_name
 
@@ -67,10 +68,10 @@ resource "aws_cognito_user_pool" "main" {
   # Use schema_attributes variable to define schemas or disable schema attributes with lifecycle ignore_changes
   # This approach prevents "cannot modify or remove schema items" errors after creation
 
-  # Only add schema attributes during initial creation
-  # Schema defined by AWS default will be kept, and no custom schemas will be added if prevent_schema_changes = true
+  # Schema changes are handled by the lifecycle ignore_changes directive
+  # Only apply schema if schema_attributes are provided, otherwise use AWS defaults
   dynamic "schema" {
-    for_each = var.prevent_schema_changes ? [] : var.schema_attributes
+    for_each = var.schema_attributes
     content {
       name                     = schema.value.name
       attribute_data_type      = schema.value.attribute_data_type
