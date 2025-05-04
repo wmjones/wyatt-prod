@@ -1,7 +1,7 @@
 {
   "name": "claude-code-dev",
   "build": {
-    "dockerfile": "Dockerfile",
+    "dockerfile": "DOCKERFILE",
     "context": "..",
     "args": {
       "TARGETARCH": "arm64"
@@ -16,20 +16,22 @@
   },
   "mounts": [
     // Persist Claude Code configuration and history
-    "source=/Users/wyatt.jones6/.claude.json,target=/home/vscode/.claude.json,type=bind,consistency=cached",
-    "source=/Users/wyatt.jones6/.claude,target=/home/vscode/.claude,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.claude.json,target=/home/vscode/.claude.json,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.claude,target=/home/vscode/.claude,type=bind,consistency=cached",
     // Persist other volumes
     "source=claude-code-history,target=/home/vscode/.claude-history,type=volume",
     "source=claude-code-cache,target=/home/vscode/.cache/claude-code,type=volume",
     "source=npm-global,target=/home/vscode/.npm-global,type=volume",
     // Persist Terraform credentials
-    "source=/Users/wyatt.jones6/.terraform.d,target=/home/vscode/.terraform.d,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.terraform.d,target=/home/vscode/.terraform.d,type=bind,consistency=cached",
     // Check if .aws directory exists on host and only mount if it does
-    "source=/Users/wyatt.jones6/.aws,target=/home/vscode/.aws,type=bind,consistency=cached",
+    "source=${localEnv:HOME}/.aws,target=/home/vscode/.aws,type=bind,consistency=cached",
     // Optional: persist pre-commit cache
     "source=pre-commit-cache,target=/home/vscode/pre-commit-cache,type=volume",
     // Persist taskmaster-ai data
-    "source=taskmaster-ai-data,target=/workspaces/${localWorkspaceFolderBasename}/.taskmaster,type=volume"
+    "source=taskmaster-ai-data,target=/workspaces/${localWorkspaceFolderBasename}/.taskmaster,type=volume",
+    // Persist GitHub CLI configuration
+    "source=${localEnv:HOME}/.config/gh,target=/home/vscode/.config/gh,type=bind,consistency=cached"
   ],
   "remoteEnv": {
     "LANG": "en_US.UTF-8",

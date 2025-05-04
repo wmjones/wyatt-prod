@@ -16,7 +16,6 @@ RUN apt update && apt install -y less \
   man-db \
   unzip \
   gnupg2 \
-  gh \
   iproute2 \
   dnsutils \
   aggregate \
@@ -25,6 +24,13 @@ RUN apt update && apt install -y less \
   wget \
   ca-certificates \
   locales
+
+# Install GitHub CLI
+RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
+  && chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
+  && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+  && apt update \
+  && apt install -y gh
 
 # Fix locale issues
 RUN localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
@@ -70,8 +76,8 @@ RUN mkdir -p /home/vscode/pre-commit-cache && \
 ENV PRE_COMMIT_HOME=/home/vscode/pre-commit-cache
 
 # Create workspace and config directories and set permissions
-RUN mkdir -p /workspace /home/vscode/.claude /home/vscode/.cache && \
-  chown -R vscode:vscode /workspace /home/vscode/.claude /home/vscode/.cache
+RUN mkdir -p /workspace /home/vscode/.claude /home/vscode/.cache /home/vscode/.config/gh && \
+  chown -R vscode:vscode /workspace /home/vscode/.claude /home/vscode/.cache /home/vscode/.config/gh
 
 WORKDIR /workspaces
 
@@ -157,6 +163,14 @@ RUN npm install -g \
         @modelcontextprotocol/server-filesystem \
         task-master-ai \
         @upstash/context7-mcp
+
+# Add GitHub CLI aliases
+RUN echo 'alias gh-runs="gh run list"' >> /home/vscode/.bashrc && \
+    echo 'alias gh-watch="gh run watch"' >> /home/vscode/.bashrc && \
+    echo 'alias gh-view="gh run view"' >> /home/vscode/.bashrc && \
+    echo 'alias gh-runs="gh run list"' >> /home/vscode/.zshrc && \
+    echo 'alias gh-watch="gh run watch"' >> /home/vscode/.zshrc && \
+    echo 'alias gh-view="gh run view"' >> /home/vscode/.zshrc
 
 # Default shell on container start
 CMD [ "zsh" ]
