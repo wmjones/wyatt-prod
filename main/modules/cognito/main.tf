@@ -180,7 +180,8 @@ resource "aws_cognito_user_pool_client" "clients" {
 locals {
   main_client_exists = var.main_client_name != "" && contains(keys(aws_cognito_user_pool_client.clients), var.main_client_name)
   client_id          = local.main_client_exists ? aws_cognito_user_pool_client.clients[var.main_client_name].id : "none"
-  callback_url       = local.main_client_exists ? aws_cognito_user_pool_client.clients[var.main_client_name].callback_urls[0] : "none"
+  # Use try function to safely access callback_urls, and providing a default if it doesn't exist
+  callback_url = local.main_client_exists ? try(aws_cognito_user_pool_client.clients[var.main_client_name].callback_urls[0], "none") : "none"
 }
 
 # Create identity pool if enabled
@@ -192,7 +193,7 @@ resource "aws_cognito_identity_pool" "main" {
 
   # Connect to our User Pool
   cognito_identity_providers {
-    client_id               = aws_cognito_user_pool_client.clients[var.main_client_name].id
+    client_id               = local.client_id
     provider_name           = aws_cognito_user_pool.main.endpoint
     server_side_token_check = false
   }
