@@ -13,7 +13,7 @@ precommit.log
 .windsurfrules
 .roo/*
 .roomodes
-./src/frontend/react-app/build_log.txt
+src/frontend/react-app/build_log.txt
 
 # .tfstate files
 *.tfstate
