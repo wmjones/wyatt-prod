@@ -269,7 +269,8 @@ export const signIn = async (
 export const signUp = async (
   username: string,
   password: string,
-  email: string
+  email: string,
+  name?: string
 ): Promise<{ isSignUpComplete: boolean; nextStep?: string; userSub?: string }> => {
   // Check if we're using placeholder values (development mode)
   const config = getEnvConfig();
@@ -299,12 +300,18 @@ export const signUp = async (
 
   try {
     // For production, use Cognito
+    // Use the username as the name if not provided
+    const displayName = name || username;
+
     const { isSignUpComplete, userId, nextStep } = await amplifySignUp({
       username,
       password,
       options: {
         userAttributes: {
-          email
+          email,
+          name: displayName,
+          // Including formatted name to satisfy schema requirements
+          'name.formatted': displayName
         }
       }
     });

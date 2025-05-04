@@ -139,8 +139,12 @@ const LoginBox: React.FC = () => {
       // Save email for verification step
       setSigningUpEmail(email);
 
-      // Call sign up
-      const result = await signUp(email, password, email);
+      // Extract username from email (before @) to use as display name
+      // This ensures we have a valid name attribute for Cognito
+      const displayName = email.split('@')[0];
+
+      // Call sign up with email as both username and email, and display name
+      const result = await signUp(email, password, email, displayName);
 
       // Check if further verification is needed
       if (!result.isSignUpComplete) {
