@@ -28,13 +28,13 @@ const RetroFooter: React.FC = () => {
           <h4 className="retro-text text-xl text-retro-teal mb-4">CONNECT</h4>
           <p className="mono-text mb-2">Join our retro visualization community!</p>
           <div className="flex justify-center space-x-4">
-            <a href="#" className="text-retro-purple hover:text-retro-pink text-xl">
+            <a href="mailto:contact@example.com" aria-label="Email" className="text-retro-purple hover:text-retro-pink text-xl">
               <span>📧</span>
             </a>
-            <a href="#" className="text-retro-purple hover:text-retro-pink text-xl">
+            <a href="https://example.com/chat" aria-label="Chat" className="text-retro-purple hover:text-retro-pink text-xl">
               <span>💬</span>
             </a>
-            <a href="#" className="text-retro-purple hover:text-retro-pink text-xl">
+            <a href="tel:+12345678900" aria-label="Phone" className="text-retro-purple hover:text-retro-pink text-xl">
               <span>📱</span>
             </a>
           </div>
