@@ -39,7 +39,7 @@ const AuthConfigError: React.FC<AuthConfigErrorProps> = ({
   const isDevMode = isPlaceholderUserPoolId || isPlaceholderClientId;
   const iconColorClass = isDevMode ? "bg-blue-100" : "bg-red-100";
   const iconColor = isDevMode ? "text-blue-500" : "text-red-500";
-  
+
   return (
     <Card className="w-full max-w-md p-6 mx-auto mt-4 bg-white shadow-lg rounded-lg">
       <div className="text-center">
