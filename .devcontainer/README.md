@@ -11,6 +11,7 @@ The development container includes:
 - Node.js 20 (LTS) with npm and npx
 - Python 3 with pip and pre-commit
 - Trivy security scanner (latest version) for vulnerability scanning
+- GitHub CLI for Git and GitHub interactions
 - Claude Code CLI
 - MCP servers for enhanced AI assistance
 
