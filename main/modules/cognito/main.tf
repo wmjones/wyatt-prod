@@ -1,4 +1,8 @@
 resource "aws_cognito_user_pool" "main" {
+  # Add lifecycle block to ignore schema changes after initial creation
+  lifecycle {
+    ignore_changes = var.prevent_schema_changes ? [schema] : []
+  }
   name = var.user_pool_name
 
   # Username and email configuration
@@ -60,57 +64,35 @@ resource "aws_cognito_user_pool" "main" {
   # User pool deletion protection
   deletion_protection = var.deletion_protection ? "ACTIVE" : "INACTIVE"
 
-  # Schema attributes - Include standard attributes
-  schema {
-    name                     = "name"
-    attribute_data_type      = "String"
-    developer_only_attribute = false
-    mutable                  = true
-    required                 = true
+  # Use schema_attributes variable to define schemas or disable schema attributes with lifecycle ignore_changes
+  # This approach prevents "cannot modify or remove schema items" errors after creation
 
-    string_attribute_constraints {
-      min_length = 3
-      max_length = 100
-    }
-  }
+  # Only add schema attributes during initial creation
+  # Schema defined by AWS default will be kept, and no custom schemas will be added if prevent_schema_changes = true
+  dynamic "schema" {
+    for_each = var.prevent_schema_changes ? [] : var.schema_attributes
+    content {
+      name                     = schema.value.name
+      attribute_data_type      = schema.value.attribute_data_type
+      developer_only_attribute = lookup(schema.value, "developer_only_attribute", false)
+      mutable                  = lookup(schema.value, "mutable", true)
+      required                 = lookup(schema.value, "required", false)
 
-  schema {
-    name                     = "preferred_username"
-    attribute_data_type      = "String"
-    developer_only_attribute = false
-    mutable                  = true
-    required                 = false
+      dynamic "string_attribute_constraints" {
+        for_each = schema.value.attribute_data_type == "String" ? [1] : []
+        content {
+          min_length = lookup(schema.value, "min_length", 0)
+          max_length = lookup(schema.value, "max_length", 2048)
+        }
+      }
 
-    string_attribute_constraints {
-      min_length = 3
-      max_length = 20
-    }
-  }
-
-  schema {
-    name                     = "email"
-    attribute_data_type      = "String"
-    developer_only_attribute = false
-    mutable                  = true
-    required                 = true
-
-    string_attribute_constraints {
-      min_length = 5
-      max_length = 255
-    }
-  }
-
-  # Add custom schema for user preferences
-  schema {
-    name                     = "custom:preferences"
-    attribute_data_type      = "String"
-    developer_only_attribute = false
-    mutable                  = true
-    required                 = false
-
-    string_attribute_constraints {
-      min_length = 0
-      max_length = 2048
+      dynamic "number_attribute_constraints" {
+        for_each = schema.value.attribute_data_type == "Number" ? [1] : []
+        content {
+          min_value = lookup(schema.value, "min_value", null)
+          max_value = lookup(schema.value, "max_value", null)
+        }
+      }
     }
   }
 

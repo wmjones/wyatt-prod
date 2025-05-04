@@ -1,11 +1,12 @@
 module "cognito" {
   source = "./modules/cognito"
 
-  environment         = var.environment
-  user_pool_name      = "${var.project_name}-user-pool-${var.environment}"
-  domain_prefix       = var.cognito_domain_prefix
-  deletion_protection = var.cognito_deletion_protection
-  mfa_enabled         = var.environment == "prod" ? true : false
+  environment            = var.environment
+  user_pool_name         = "${var.project_name}-user-pool-${var.environment}"
+  domain_prefix          = var.cognito_domain_prefix
+  deletion_protection    = var.cognito_deletion_protection
+  mfa_enabled            = var.environment == "prod" ? true : false
+  prevent_schema_changes = true # Enable this to prevent schema modification errors on updates
 
   # Define app client for web application
   clients = [
