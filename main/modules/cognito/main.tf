@@ -1,9 +1,3 @@
-# Local values for client outputs
-locals {
-  client_id    = length(aws_cognito_user_pool_client.clients) > 0 ? aws_cognito_user_pool_client.clients[keys(aws_cognito_user_pool_client.clients)[0]].id : "none"
-  callback_url = length(aws_cognito_user_pool_client.clients) > 0 ? aws_cognito_user_pool_client.clients[keys(aws_cognito_user_pool_client.clients)[0]].callback_urls[0] : "none"
-}
-
 resource "aws_cognito_user_pool" "main" {
   name = var.user_pool_name
 
@@ -180,6 +174,13 @@ resource "aws_cognito_user_pool_client" "clients" {
     "ALLOW_REFRESH_TOKEN_AUTH",
     "ALLOW_USER_SRP_AUTH"
   ]
+}
+
+# Local values for client outputs - placed after client resources are created
+locals {
+  main_client_exists = var.main_client_name != "" && contains(keys(aws_cognito_user_pool_client.clients), var.main_client_name)
+  client_id          = local.main_client_exists ? aws_cognito_user_pool_client.clients[var.main_client_name].id : "none"
+  callback_url       = local.main_client_exists ? aws_cognito_user_pool_client.clients[var.main_client_name].callback_urls[0] : "none"
 }
 
 # Create identity pool if enabled
