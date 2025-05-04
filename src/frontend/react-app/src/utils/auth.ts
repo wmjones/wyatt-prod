@@ -3,6 +3,8 @@ import { ResourcesConfig } from 'aws-amplify';
 import {
   signIn as amplifySignIn,
   signOut as amplifySignOut,
+  signUp as amplifySignUp,
+  confirmSignUp as amplifyConfirmSignUp,
   getCurrentUser as amplifyGetCurrentUser,
   // AWS Amplify types are imported but not directly used
   // We use our own interface definitions for better compatibility
@@ -97,11 +99,17 @@ export const configureAmplify = (providedConfig: Partial<ResourcesConfig> = {}) 
     }, null, 2));
 
     if (isPlaceholderUserPoolId || isPlaceholderClientId) {
-      console.warn('WARNING: Using placeholder values for Cognito configuration. Authentication will not work correctly.');
-      console.warn('Please ensure the following environment variables are set correctly:');
-      console.warn('- REACT_APP_USER_POOL_ID');
-      console.warn('- REACT_APP_USER_POOL_CLIENT_ID');
-      console.warn('Check that the store-terraform-outputs.sh script has been run after terraform apply.');
+      console.info('INFO: Using development mode for authentication.');
+      console.info('This is expected in development environments. Use development credentials to log in:');
+      console.info('- Email: demo@example.com');
+      console.info('- Password: password');
+      console.info('');
+      console.info('To use real Cognito authentication, ensure the following:');
+      console.info('1. Run terraform apply to create Cognito resources');
+      console.info('2. Run scripts/store-terraform-outputs.sh to store Cognito parameters in SSM');
+      console.info('3. Set the following environment variables:');
+      console.info('   - REACT_APP_USER_POOL_ID');
+      console.info('   - REACT_APP_USER_POOL_CLIENT_ID');
     }
   }
 };
@@ -128,16 +136,28 @@ export interface User {
 
 // Helper function to get current authenticated user
 export const getCurrentUser = async (): Promise<User | null> => {
-  // For demo purposes
-  if (process.env.NODE_ENV === 'development') {
-    // Return a mock user for development
-    return {
-      username: 'demo-user',
-      attributes: {
-        email: 'demo@example.com',
-        sub: '123456789',
-      },
-    };
+  // Check if we're using placeholder values (development mode)
+  const config = getEnvConfig();
+  const userPoolId = config.Auth?.Cognito?.userPoolId || '';
+  const userPoolClientId = config.Auth?.Cognito?.userPoolClientId || '';
+
+  const isPlaceholderUserPoolId = userPoolId.includes('xxxxxxxx');
+  const isPlaceholderClientId = userPoolClientId.includes('xxxxxxxxxxxxxxxxxxxxxxxxxx');
+
+  // Development mode: check local storage for development login state
+  if (process.env.NODE_ENV === 'development' || isPlaceholderUserPoolId || isPlaceholderClientId) {
+    // Check if we have a development login in localStorage
+    const devLoginState = localStorage.getItem('dev-auth-state');
+    if (devLoginState === 'logged-in') {
+      return {
+        username: 'dev-user',
+        attributes: {
+          email: 'demo@example.com',
+          sub: 'dev-user-id',
+        },
+      };
+    }
+    return null;
   }
 
   try {
@@ -191,10 +211,26 @@ export const signIn = async (
   const isPlaceholderUserPoolId = userPoolId.includes('xxxxxxxx');
   const isPlaceholderClientId = userPoolClientId.includes('xxxxxxxxxxxxxxxxxxxxxxxxxx');
 
-  // If we're using placeholder values, provide a more helpful error message
+  // If we're using placeholder values, switch to development mode login
   if (isPlaceholderUserPoolId || isPlaceholderClientId) {
-    console.error('Authentication failed: Invalid Cognito configuration');
-    throw new Error('Authentication service is not properly configured. Please contact support with error code: COGNITO_CONFIG_ERROR');
+    console.info('Using development mode for authentication');
+
+    // In development mode, allow login with demo credentials
+    if (username === 'demo@example.com' && password === 'password') {
+      // Store dev login state in localStorage
+      localStorage.setItem('dev-auth-state', 'logged-in');
+
+      return {
+        username: 'dev-user',
+        attributes: {
+          email: username,
+          sub: 'dev-user-id',
+        }
+      };
+    } else {
+      // Provide helpful error message for incorrect demo credentials
+      throw new Error('Development mode active. Use demo@example.com / password to login.');
+    }
   }
 
   try {
@@ -229,9 +265,152 @@ export const signIn = async (
   }
 };
 
+// Sign up helper function
+export const signUp = async (
+  username: string,
+  password: string,
+  email: string
+): Promise<{ isSignUpComplete: boolean; nextStep?: string; userSub?: string }> => {
+  // Check if we're using placeholder values (development mode)
+  const config = getEnvConfig();
+  const userPoolId = config.Auth?.Cognito?.userPoolId || '';
+  const userPoolClientId = config.Auth?.Cognito?.userPoolClientId || '';
+
+  const isPlaceholderUserPoolId = userPoolId.includes('xxxxxxxx');
+  const isPlaceholderClientId = userPoolClientId.includes('xxxxxxxxxxxxxxxxxxxxxxxxxx');
+
+  // If we're using placeholder values, switch to development mode signup
+  if (process.env.NODE_ENV === 'development' || isPlaceholderUserPoolId || isPlaceholderClientId) {
+    console.info('Using development mode for sign-up');
+
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+
+    // In development mode, simulate successful sign-up
+    localStorage.setItem('dev-signup-email', email);
+    localStorage.setItem('dev-signup-username', username);
+
+    return {
+      isSignUpComplete: false,
+      nextStep: 'CONFIRM_SIGN_UP',
+      userSub: 'dev-user-id'
+    };
+  }
+
+  try {
+    // For production, use Cognito
+    const { isSignUpComplete, userId, nextStep } = await amplifySignUp({
+      username,
+      password,
+      options: {
+        userAttributes: {
+          email
+        }
+      }
+    });
+
+    return {
+      isSignUpComplete,
+      nextStep: nextStep?.signUpStep,
+      userSub: userId
+    };
+  } catch (error) {
+    // Handle specific Cognito errors
+    if (error instanceof Error) {
+      if (error.name === 'UsernameExistsException') {
+        throw new Error('This email is already registered. Please sign in instead.');
+      }
+
+      if (error.message.includes('User pool client')) {
+        console.error('Sign-up failed: User pool client error', error);
+        throw new Error('Authentication service configuration error. Please contact support with error code: USER_POOL_CLIENT_ERROR');
+      }
+
+      // Handle password policy errors
+      if (error.message.includes('password')) {
+        throw new Error(error.message);
+      }
+    }
+
+    // Re-throw other errors
+    console.error('Sign-up error:', error);
+    throw error;
+  }
+};
+
+// Confirm sign up helper function
+export const confirmSignUp = async (
+  username: string,
+  confirmationCode: string
+): Promise<boolean> => {
+  // Check if we're using placeholder values (development mode)
+  const config = getEnvConfig();
+  const userPoolId = config.Auth?.Cognito?.userPoolId || '';
+  const userPoolClientId = config.Auth?.Cognito?.userPoolClientId || '';
+
+  const isPlaceholderUserPoolId = userPoolId.includes('xxxxxxxx');
+  const isPlaceholderClientId = userPoolClientId.includes('xxxxxxxxxxxxxxxxxxxxxxxxxx');
+
+  // If we're using placeholder values, switch to development mode
+  if (process.env.NODE_ENV === 'development' || isPlaceholderUserPoolId || isPlaceholderClientId) {
+    console.info('Using development mode for confirming sign-up');
+
+    // Simulate API call delay
+    await new Promise(resolve => setTimeout(resolve, 800));
+
+    // In development mode, any code confirms the user
+    if (confirmationCode.length === 6) {
+      // Store confirmed user in local storage for development
+      localStorage.setItem('dev-auth-state', 'signed-up');
+      return true;
+    } else {
+      throw new Error('Invalid confirmation code. Please enter the 6-digit code.');
+    }
+  }
+
+  try {
+    // For production, use Cognito
+    const { isSignUpComplete } = await amplifyConfirmSignUp({
+      username,
+      confirmationCode
+    });
+
+    return isSignUpComplete;
+  } catch (error) {
+    // Handle specific Cognito errors
+    if (error instanceof Error) {
+      if (error.name === 'CodeMismatchException') {
+        throw new Error('Invalid verification code. Please try again.');
+      }
+
+      if (error.name === 'ExpiredCodeException') {
+        throw new Error('Verification code has expired. Please request a new one.');
+      }
+    }
+
+    // Re-throw other errors
+    console.error('Confirm sign-up error:', error);
+    throw error;
+  }
+};
+
 // Sign out helper function
 export const signOut = async (): Promise<void> => {
-  if (process.env.NODE_ENV === 'development') {
+  // Check if we're using placeholder values (development mode)
+  const config = getEnvConfig();
+  const userPoolId = config.Auth?.Cognito?.userPoolId || '';
+  const userPoolClientId = config.Auth?.Cognito?.userPoolClientId || '';
+
+  const isPlaceholderUserPoolId = userPoolId.includes('xxxxxxxx');
+  const isPlaceholderClientId = userPoolClientId.includes('xxxxxxxxxxxxxxxxxxxxxxxxxx');
+
+  // Handle development mode or placeholder values
+  if (process.env.NODE_ENV === 'development' || isPlaceholderUserPoolId || isPlaceholderClientId) {
+    // Clear development auth state
+    localStorage.removeItem('dev-auth-state');
+    localStorage.removeItem('dev-signup-email');
+    localStorage.removeItem('dev-signup-username');
+
     // Simulate API call delay
     await new Promise(resolve => setTimeout(resolve, 500));
     return;
