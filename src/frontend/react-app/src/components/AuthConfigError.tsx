@@ -1,5 +1,6 @@
 import React from 'react';
 import { Card } from './ui/card';
+import { isDevelopment } from '../utils/environment';
 
 interface AuthConfigErrorProps {
   error: string;
@@ -59,7 +60,7 @@ const AuthConfigError: React.FC<AuthConfigErrorProps> = ({
         <p className="text-gray-600 mb-4">{errorMessage}</p>
         <p className="text-gray-500 text-sm">{actionMessage}</p>
 
-        {process.env.NODE_ENV === 'development' && (
+        {isDevelopment() && (
           <div className="mt-6 p-4 bg-gray-100 rounded text-left">
             <p className="text-sm font-medium text-gray-700">Developer Information:</p>
             <ul className="mt-2 text-xs text-gray-600 space-y-1">

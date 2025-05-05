@@ -1,0 +1,22 @@
+{
+  "name": "wyatt-personal-aws",
+  "version": "1.0.0",
+  "description": "D3 Dashboard & Productivity System",
+  "private": true,
+  "workspaces": [
+    "src/frontend/react-app"
+  ],
+  "scripts": {
+    "test": "cd src/frontend/react-app && npm test",
+    "test:ci": "cd src/frontend/react-app && npm run test:ci",
+    "test:coverage": "cd src/frontend/react-app && npm run test:coverage",
+    "build": "cd src/frontend/react-app && npm run build",
+    "start": "cd src/frontend/react-app && npm start"
+  },
+  "devDependencies": {
+    "jest": "^27.5.1"
+  },
+  "dependencies": {
+    "task-master-ai": "0.13.2"
+  }
+}

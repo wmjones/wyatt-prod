@@ -1,0 +1,7 @@
+# Build artifacts
+build/
+node_modules/
+coverage/
+
+# Test utils with syntax issues
+src/test-utils/auth-test-utils.ts

@@ -1,0 +1,36 @@
+codecov:
+  require_ci_to_pass: true
+
+coverage:
+  precision: 2
+  round: down
+  range: "70...90"
+  status:
+    project:
+      default:
+        target: 70%
+        threshold: 5%
+    patch:
+      default:
+        target: 70%
+        threshold: 10%
+
+parsers:
+  gcov:
+    branch_detection:
+      conditional: yes
+      loop: yes
+      method: no
+      macro: no
+
+comment:
+  layout: "reach,diff,flags,files,footer"
+  behavior: default
+  require_changes: false
+
+ignore:
+  - "src/frontend/react-app/src/test-utils"
+  - "src/frontend/react-app/src/mocks"
+  - "src/frontend/react-app/src/reportWebVitals.ts"
+  - "src/frontend/react-app/src/setupTests.ts"
+  - "src/frontend/react-app/src/index.tsx"

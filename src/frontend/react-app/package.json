@@ -3,10 +3,11 @@
   "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@testing-library/dom": "^10.4.0",
+    "@babel/runtime": "7.27.1",
+    "@testing-library/dom": "10.4.0",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^14.0.0",
-    "@testing-library/user-event": "^13.5.0",
+    "@testing-library/user-event": "14.5.2",
     "@types/d3": "^7.4.3",
     "@types/jest": "^27.5.2",
     "@types/node": "^16.18.126",
@@ -25,12 +26,19 @@
     "web-vitals": "^2.1.4"
   },
   "devDependencies": {
+    "@babel/plugin-transform-runtime": "7.27.1",
     "ajv": "^8.12.0",
     "ajv-keywords": "^5.1.0",
     "autoprefixer": "10.4.19",
     "class-variance-authority": "0.7.1",
     "clsx": "2.1.1",
+    "eslint-plugin-jest-dom": "5.5.0",
+    "eslint-plugin-testing-library": "5.11.1",
+    "jest": "29.7.0",
+    "jest-environment-jsdom": "29.7.0",
+    "msw": "^1.2.5",
     "postcss": "8.4.38",
+    "react-test-renderer": "18.2.0",
     "tailwind-merge": "3.2.0",
     "tailwindcss": "3.4.1",
     "tailwindcss-animate": "1.0.7"
@@ -47,6 +55,23 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "test:coverage": "react-scripts test --coverage --watchAll=false",
+    "test:coverage:report": "react-scripts test --coverage --watchAll=false --coverageReporters=text-summary,lcov,html",
+    "test:ci": "NODE_ENV=test npx jest --testPathIgnorePatterns=\"visualization|auth-integration|__mocks__/d3.test\" --no-watch --passWithNoTests --ci --silent",
+    "test:ci:update": "NODE_ENV=test npx jest --testPathIgnorePatterns=\"visualization|auth-integration|__mocks__/d3.test\" --no-watch --passWithNoTests --ci --silent --updateSnapshot",
+    "test:ci:full": "NODE_ENV=test npx jest --no-watch --passWithNoTests --ci",
+    "test:unit": "NODE_ENV=test npx jest --testPathIgnorePatterns=\"visualization|auth|integration|__mocks__/d3.test\" --no-watch --ci",
+    "test:unit:essential": "NODE_ENV=test npx jest --testPathIgnorePatterns=\"visualization|auth|integration|__mocks__/d3.test|snap.test\" --no-watch --ci",
+    "test:visual": "NODE_ENV=test npx jest --testMatch=\"**/?(*.)+(snap).test.ts?(x)\" --no-watch --ci --updateSnapshot --silent",
+    "test:ui": "NODE_ENV=test npx jest \"components/ui/__tests__\" --no-watch --ci --silent",
+    "test:staged": "react-scripts test --ci --watchAll=false --findRelatedTests",
+    "test:debug": "react-scripts --inspect-brk test --runInBand --no-cache",
+    "lint": "eslint 'src/**/*.{js,jsx,ts,tsx}' --quiet --ignore-pattern 'src/test-utils/auth-test-utils.ts'",
+    "lint:fix": "eslint 'src/**/*.{js,jsx,ts,tsx}' --fix --ignore-pattern 'src/test-utils/auth-test-utils.ts'",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run",
+    "test:e2e": "start-server-and-test start http://localhost:3000 cypress:run",
+    "test:e2e:dev": "start-server-and-test start http://localhost:3000 cypress:open",
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
@@ -66,5 +91,8 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "msw": {
+    "workerDirectory": "public"
   }
 }

@@ -1,0 +1,96 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Card Components Snapshots renders Card component correctly 1`] = `
+<div
+  className="rounded-lg border bg-card text-card-foreground shadow-sm"
+>
+  Card Content
+</div>
+`;
+
+exports[`Card Components Snapshots renders Card with custom className correctly 1`] = `
+<div
+  className="rounded-lg border bg-card text-card-foreground shadow-sm custom-class"
+>
+  Custom Card
+</div>
+`;
+
+exports[`Card Components Snapshots renders CardContent component correctly 1`] = `
+<div
+  className="p-6 pt-0"
+>
+  Content
+</div>
+`;
+
+exports[`Card Components Snapshots renders CardDescription component correctly 1`] = `
+<p
+  className="text-sm text-muted-foreground"
+>
+  Description Content
+</p>
+`;
+
+exports[`Card Components Snapshots renders CardFooter component correctly 1`] = `
+<div
+  className="flex items-center p-6 pt-0"
+>
+  Footer Content
+</div>
+`;
+
+exports[`Card Components Snapshots renders CardHeader component correctly 1`] = `
+<div
+  className="flex flex-col space-y-1.5 p-6"
+>
+  Header Content
+</div>
+`;
+
+exports[`Card Components Snapshots renders CardTitle component correctly 1`] = `
+<h3
+  className="text-2xl font-semibold leading-none tracking-tight"
+>
+  Title Content
+</h3>
+`;
+
+exports[`Card Components Snapshots renders complete Card component structure correctly 1`] = `
+<div
+  className="rounded-lg border bg-card text-card-foreground shadow-sm"
+>
+  <div
+    className="flex flex-col space-y-1.5 p-6"
+  >
+    <h3
+      className="text-2xl font-semibold leading-none tracking-tight"
+    >
+      Card Title
+    </h3>
+    <p
+      className="text-sm text-muted-foreground"
+    >
+      Card Description
+    </p>
+  </div>
+  <div
+    className="p-6 pt-0"
+  >
+    Card Content
+  </div>
+  <div
+    className="flex items-center p-6 pt-0"
+  >
+    Card Footer
+  </div>
+</div>
+`;
+
+exports[`Card Components Snapshots renders retro Card correctly 1`] = `
+<div
+  className="rounded-lg bg-card text-card-foreground retro-card border-4 border-black shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] transition-all hover:translate-x-[3px] hover:translate-y-[3px] hover:shadow-[5px_5px_0px_0px_rgba(0,0,0,1)]"
+>
+  Retro Card
+</div>
+`;

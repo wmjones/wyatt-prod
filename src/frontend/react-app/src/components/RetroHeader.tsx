@@ -17,7 +17,10 @@ const RetroHeader: React.FC<RetroHeaderProps> = ({ title, subtitle }) => {
           <span className="inline-block ml-1 animate-blink">_</span>
         </p>
       )}
-      <div className="max-w-sm mx-auto my-6 h-2 bg-gradient-to-r from-retro-pink via-retro-purple to-retro-teal"></div>
+      <div
+        data-testid="gradient-divider"
+        className="max-w-sm mx-auto my-6 h-2 bg-gradient-to-r from-retro-pink via-retro-purple to-retro-teal">
+      </div>
     </div>
   );
 };
