@@ -1,15 +1,15 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`NormalDistribution Component Snapshots renders with custom attribution 1`] = `
-Object {
-  "children": Array [
-    Object {
-      "children": Array [
-        Object {
+{
+  "children": [
+    {
+      "children": [
+        {
           "children": null,
-          "props": Object {
+          "props": {
             "className": "chart",
-            "style": Object {
+            "style": {
               "aspectRatio": "600/300",
               "height": "auto",
               "maxWidth": "600px",
@@ -19,8 +19,8 @@ Object {
           "type": "svg",
         },
       ],
-      "props": Object {
-        "style": Object {
+      "props": {
+        "style": {
           "maxWidth": "600px",
           "position": "relative",
           "width": "100%",
@@ -28,13 +28,13 @@ Object {
       },
       "type": "div",
     },
-    Object {
-      "children": Array [
+    {
+      "children": [
         "Last updated by: ",
         "Custom User",
       ],
-      "props": Object {
-        "style": Object {
+      "props": {
+        "style": {
           "color": "#666",
           "fontSize": "0.9em",
           "fontStyle": "italic",
@@ -44,8 +44,8 @@ Object {
       "type": "p",
     },
   ],
-  "props": Object {
-    "style": Object {
+  "props": {
+    "style": {
       "alignItems": "center",
       "display": "flex",
       "flexDirection": "column",
@@ -57,15 +57,15 @@ Object {
 `;
 
 exports[`NormalDistribution Component Snapshots renders with default props 1`] = `
-Object {
-  "children": Array [
-    Object {
-      "children": Array [
-        Object {
+{
+  "children": [
+    {
+      "children": [
+        {
           "children": null,
-          "props": Object {
+          "props": {
             "className": "chart",
-            "style": Object {
+            "style": {
               "aspectRatio": "600/300",
               "height": "auto",
               "maxWidth": "600px",
@@ -75,8 +75,8 @@ Object {
           "type": "svg",
         },
       ],
-      "props": Object {
-        "style": Object {
+      "props": {
+        "style": {
           "maxWidth": "600px",
           "position": "relative",
           "width": "100%",
@@ -84,13 +84,13 @@ Object {
       },
       "type": "div",
     },
-    Object {
-      "children": Array [
+    {
+      "children": [
         "Last updated by: ",
         "System",
       ],
-      "props": Object {
-        "style": Object {
+      "props": {
+        "style": {
           "color": "#666",
           "fontSize": "0.9em",
           "fontStyle": "italic",
@@ -100,8 +100,8 @@ Object {
       "type": "p",
     },
   ],
-  "props": Object {
-    "style": Object {
+  "props": {
+    "style": {
       "alignItems": "center",
       "display": "flex",
       "flexDirection": "column",
