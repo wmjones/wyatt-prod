@@ -33,15 +33,17 @@ jobs:
     - name: Install dependencies
       run: npm ci
 
+    # Only use tests that don't rely on specific snapshot formats
+    # Use the no-snapshot flag for stable tests to prevent serialization issues
     - name: Run stable tests (skipping problematic ones)
-      run: npm run test:ci:update
+      run: npm run test:ci:no-snapshots
 
     - name: Run UI component tests
       run: npm run test:ui
       continue-on-error: true
 
     - name: Run visual snapshot tests
-      run: npm run test:visual
+      run: npm run test:visual:no-update
       continue-on-error: true
 
     - name: Generate coverage report

@@ -63,9 +63,9 @@ describe('NormalDistribution Component Snapshots', () => {
       .create(<NormalDistribution />)
       .toJSON();
 
-    // Normalize the style objects in snapshots to use Object format consistently
-    // This is a common issue with snapshot tests and style objects
-    expect(JSON.parse(JSON.stringify(tree))).toMatchSnapshot();
+    // Use a more consistent serialization approach by directly using the snapshot
+    // Instead of JSON.parse(JSON.stringify()) which can cause format differences
+    expect(tree).toMatchSnapshot();
   });
 
   it('renders with custom attribution', () => {
@@ -73,8 +73,8 @@ describe('NormalDistribution Component Snapshots', () => {
       .create(<NormalDistribution updatedBy="Custom User" />)
       .toJSON();
 
-    // Normalize the style objects in snapshots to use Object format consistently
-    expect(JSON.parse(JSON.stringify(tree))).toMatchSnapshot();
+    // Use a more consistent serialization approach by directly using the snapshot
+    expect(tree).toMatchSnapshot();
   });
 
   // We only need 2 snapshot tests:
