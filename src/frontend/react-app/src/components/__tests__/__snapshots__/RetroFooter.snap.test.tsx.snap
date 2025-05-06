@@ -1,0 +1,156 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RetroFooter Snapshots renders correctly 1`] = `
+<footer
+  className="mt-20 text-center"
+>
+  <div
+    className="zigzag mb-8"
+  />
+  <div
+    className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8"
+  >
+    <div>
+      <h4
+        className="retro-text text-xl text-retro-teal mb-4"
+      >
+        NAVIGATION
+      </h4>
+      <ul
+        className="space-y-2 mono-text"
+      >
+        <li>
+          <a
+            className="hover:text-retro-purple"
+            href="/"
+          >
+            Home
+          </a>
+        </li>
+        <li>
+          <a
+            className="hover:text-retro-purple"
+            href="/demo"
+          >
+            Demo
+          </a>
+        </li>
+        <li>
+          <a
+            className="hover:text-retro-purple"
+            href="/about"
+          >
+            About
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div>
+      <h4
+        className="retro-text text-xl text-retro-teal mb-4"
+      >
+        RESOURCES
+      </h4>
+      <ul
+        className="space-y-2 mono-text"
+      >
+        <li>
+          <a
+            className="hover:text-retro-purple"
+            href="https://d3js.org/"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            D3.js
+          </a>
+        </li>
+        <li>
+          <a
+            className="hover:text-retro-purple"
+            href="https://reactjs.org/"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            React
+          </a>
+        </li>
+        <li>
+          <a
+            className="hover:text-retro-purple"
+            href="https://aws.amazon.com/"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            AWS
+          </a>
+        </li>
+      </ul>
+    </div>
+    <div>
+      <h4
+        className="retro-text text-xl text-retro-teal mb-4"
+      >
+        CONNECT
+      </h4>
+      <p
+        className="mono-text mb-2"
+      >
+        Join our retro visualization community!
+      </p>
+      <div
+        className="flex justify-center space-x-4"
+      >
+        <a
+          aria-label="Email"
+          className="text-retro-purple hover:text-retro-pink text-xl"
+          href="mailto:contact@example.com"
+        >
+          <span>
+            📧
+          </span>
+        </a>
+        <a
+          aria-label="Chat"
+          className="text-retro-purple hover:text-retro-pink text-xl"
+          href="https://example.com/chat"
+        >
+          <span>
+            💬
+          </span>
+        </a>
+        <a
+          aria-label="Phone"
+          className="text-retro-purple hover:text-retro-pink text-xl"
+          href="tel:+12345678900"
+        >
+          <span>
+            📱
+          </span>
+        </a>
+      </div>
+    </div>
+  </div>
+  <p
+    className="mono-text text-sm"
+  >
+    D3 Visualization Dashboard - © 
+    2025
+     - Deployed via CI/CD Pipeline
+  </p>
+  <p
+    className="mono-text text-xs mt-2 text-gray-500"
+  >
+    <span
+      className="animate-blink"
+    >
+      ►
+    </span>
+     Best viewed with Netscape Navigator 
+    <span
+      className="animate-blink"
+    >
+      ◄
+    </span>
+  </p>
+</footer>
+`;

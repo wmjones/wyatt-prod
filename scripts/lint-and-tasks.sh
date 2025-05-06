@@ -262,6 +262,48 @@ else
   echo "Terraform plan skipped: environment file not found: $ENV_VAR_FILE" >> "$TERRAFORM_PLAN_LOG"
 fi
 
+# Run React tests if in dev environment and React files changed
+if [ "$CURRENT_ENV" = "dev" ]; then
+  echo -e "${YELLOW}Checking for React file changes...${NC}"
+  JEST_LOG="$(pwd)/jest_results.log"
+
+  # Create the log file header
+  echo "Jest test results:" > "$JEST_LOG"
+  echo "===================" >> "$JEST_LOG"
+  echo "" >> "$JEST_LOG"
+
+  # Get staged React files
+  if command -v git > /dev/null 2>&1 && git rev-parse --is-inside-work-tree > /dev/null 2>&1; then
+    REACT_FILES_CHANGED=$(git diff --name-only --cached | grep -E "src/frontend/react-app/.*\.(js|jsx|ts|tsx)$" || true)
+
+    if [ -n "$REACT_FILES_CHANGED" ]; then
+      echo -e "${YELLOW}React files changed. Running tests...${NC}"
+      echo "Changed files:" >> "$JEST_LOG"
+      echo "$REACT_FILES_CHANGED" >> "$JEST_LOG"
+      echo "" >> "$JEST_LOG"
+      echo "Test results:" >> "$JEST_LOG"
+      echo "------------" >> "$JEST_LOG"
+
+      # Run tests for changed files
+      cd "$PROJECT_ROOT/src/frontend/react-app"
+      if npm run test:staged -- $REACT_FILES_CHANGED --passWithNoTests >> "$JEST_LOG" 2>&1; then
+        echo -e "${GREEN}Jest tests passed!${NC}"
+        echo "OVERALL: TESTS PASSED" >> "$JEST_LOG"
+      else
+        echo -e "${RED}Jest tests failed. See $JEST_LOG for details.${NC}"
+        echo "OVERALL: TESTS FAILED" >> "$JEST_LOG"
+      fi
+      cd "$PROJECT_ROOT"
+    else
+      echo -e "${YELLOW}No React files changed. Skipping Jest tests.${NC}"
+      echo "No React files changed. Skipping Jest tests." >> "$JEST_LOG"
+    fi
+  else
+    echo -e "${YELLOW}Not in a git repository. Skipping Jest tests.${NC}"
+    echo "Not in a git repository. Skipping Jest tests." >> "$JEST_LOG"
+  fi
+fi
+
 echo -e "${GREEN}Done!${NC}"
 
 # Display log file locations
@@ -269,3 +311,4 @@ echo -e "${YELLOW}Log files created:${NC}"
 echo -e "  - Terraform formatting: ${TERRAFORM_LOG}"
 echo -e "  - Terraform plan results: ${TERRAFORM_PLAN_LOG}"
 echo -e "  - Pre-commit results: ${PRECOMMIT_LOG}"
+echo -e "  - Jest test results: ${JEST_LOG:-'(not created)'}"

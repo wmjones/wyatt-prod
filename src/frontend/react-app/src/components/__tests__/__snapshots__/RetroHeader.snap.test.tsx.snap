@@ -1,0 +1,43 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`RetroHeader Snapshots renders correctly with title and subtitle 1`] = `
+<div
+  className="text-center mb-12 relative"
+>
+  <h1
+    className="pixel-text text-4xl md:text-6xl font-bold text-retro-purple mb-4 text-shadow animate-bounce-slow"
+  >
+    Test Title
+  </h1>
+  <p
+    className="retro-text text-2xl md:text-3xl text-retro-teal"
+  >
+    Test Subtitle
+    <span
+      className="inline-block ml-1 animate-blink"
+    >
+      _
+    </span>
+  </p>
+  <div
+    className="max-w-sm mx-auto my-6 h-2 bg-gradient-to-r from-retro-pink via-retro-purple to-retro-teal"
+    data-testid="gradient-divider"
+  />
+</div>
+`;
+
+exports[`RetroHeader Snapshots renders correctly with title only 1`] = `
+<div
+  className="text-center mb-12 relative"
+>
+  <h1
+    className="pixel-text text-4xl md:text-6xl font-bold text-retro-purple mb-4 text-shadow animate-bounce-slow"
+  >
+    Test Title
+  </h1>
+  <div
+    className="max-w-sm mx-auto my-6 h-2 bg-gradient-to-r from-retro-pink via-retro-purple to-retro-teal"
+    data-testid="gradient-divider"
+  />
+</div>
+`;

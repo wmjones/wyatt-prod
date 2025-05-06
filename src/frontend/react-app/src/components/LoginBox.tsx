@@ -273,6 +273,7 @@ const LoginBox: React.FC = () => {
           variant="retro"
           className="w-full"
           disabled={isLoading}
+          data-testid="login-submit-button"
         >
           {isLoading ? 'LOGGING IN...' : 'LOGIN'}
         </Button>
@@ -283,6 +284,7 @@ const LoginBox: React.FC = () => {
             type="button"
             onClick={handleSwitchToSignUp}
             className="text-retro-purple underline"
+            data-testid="sign-up-link"
           >
             Sign up
           </button>
@@ -305,6 +307,7 @@ const LoginBox: React.FC = () => {
           className="w-full"
           onClick={handleSignOut}
           disabled={isLoading}
+          data-testid="logout-button"
         >
           {isLoading ? 'LOGGING OUT...' : 'LOGOUT'}
         </Button>
@@ -372,6 +375,7 @@ const LoginBox: React.FC = () => {
           variant="retro"
           className="w-full"
           disabled={isLoading}
+          data-testid="sign-up-submit-button"
         >
           {isLoading ? 'SIGNING UP...' : 'SIGN UP'}
         </Button>
@@ -425,6 +429,7 @@ const LoginBox: React.FC = () => {
           variant="retro"
           className="w-full"
           disabled={isLoading}
+          data-testid="verify-submit-button"
         >
           {isLoading ? 'VERIFYING...' : 'VERIFY'}
         </Button>
@@ -453,6 +458,7 @@ const LoginBox: React.FC = () => {
           className="flex items-center retro-button px-3 py-1 text-sm"
           aria-expanded={showDropdown}
           aria-haspopup="true"
+          data-testid="login-box-toggle"
         >
           {user ? (
             <span className="truncate max-w-[100px]">{user.username}</span>

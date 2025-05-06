@@ -1,57 +1,99 @@
-###############################################################################
-# Integrated Dev Container with Node 20, Python, Terraform, and Claude Code
-###############################################################################
 FROM node:20
 
 # Set build architecture argument
 ARG TARGETARCH="amd64"
 
-# Install basic development tools
-RUN apt update && apt install -y less \
-  git \
-  procps \
-  sudo \
-  fzf \
-  zsh \
-  man-db \
-  unzip \
-  gnupg2 \
-  iproute2 \
-  dnsutils \
-  aggregate \
-  jq \
-  curl \
-  wget \
-  ca-certificates \
-  locales
+# Avoid prompts during package installation
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install basic development tools and dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    less \
+    git \
+    procps \
+    sudo \
+    fzf \
+    zsh \
+    man-db \
+    unzip \
+    gnupg2 \
+    iproute2 \
+    dnsutils \
+    aggregate \
+    jq \
+    curl \
+    wget \
+    ca-certificates \
+    locales \
+    lsb-release \
+    software-properties-common \
+    python3 \
+    python3-venv \
+    python3-pip \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Install Trivy security scanner
+RUN apt-get update && apt-get install -y wget apt-transport-https gnupg lsb-release \
+    && wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | tee /usr/share/keyrings/trivy.gpg > /dev/null \
+    && echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | tee -a /etc/apt/sources.list.d/trivy.list \
+    && apt-get update \
+    && apt-get install -y trivy \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
 
 # Install GitHub CLI
 RUN curl -fsSL https://cli.github.com/packages/githubcli-archive-keyring.gpg | dd of=/usr/share/keyrings/githubcli-archive-keyring.gpg \
   && chmod go+r /usr/share/keyrings/githubcli-archive-keyring.gpg \
   && echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
-  && apt update \
-  && apt install -y gh
+  && apt-get update \
+  && apt-get install -y gh \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
 
 # Fix locale issues
 RUN localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
 ENV LANG=en_US.UTF-8
 ENV LC_ALL=en_US.UTF-8
 
-# Fix locale issues
-RUN localedef -i en_US -c -f UTF-8 -A /usr/share/locale/locale.alias en_US.UTF-8
-ENV LANG=en_US.UTF-8
-ENV LC_ALL=en_US.UTF-8
+# Install Terraform based on architecture
+RUN TERRAFORM_VERSION=1.8.4 && \
+    if [ "$TARGETARCH" = "arm64" ]; then \
+      wget -O terraform.zip https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_arm64.zip; \
+    else \
+      wget -O terraform.zip https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip; \
+    fi && \
+    unzip terraform.zip && \
+    mv terraform /usr/local/bin/ && \
+    rm terraform.zip
 
-# ---------------------------------------------------------------------------
-# Environment variables & versions
-# ---------------------------------------------------------------------------
-ARG TERRAFORM_VERSION=1.8.4
-ARG NODE_MAJOR=20
-ENV DEBIAN_FRONTEND=noninteractive \
-    PIP_DISABLE_PIP_VERSION_CHECK=1 \
-    PYTHONUNBUFFERED=1
+# Install terraform-docs
+RUN if [ "$TARGETARCH" = "arm64" ]; then \
+      curl -sSLo ./terraform-docs.tar.gz https://terraform-docs.io/dl/v0.16.0/terraform-docs-v0.16.0-linux-arm64.tar.gz; \
+    else \
+      curl -sSLo ./terraform-docs.tar.gz https://terraform-docs.io/dl/v0.16.0/terraform-docs-v0.16.0-linux-amd64.tar.gz; \
+    fi && \
+    tar -xzf terraform-docs.tar.gz && \
+    chmod +x terraform-docs && \
+    mv terraform-docs /usr/local/bin/ && \
+    rm terraform-docs.tar.gz
 
-# Modify the existing node user (which already has UID 1000) to be called vscode
+# Install AWS CLI v2
+RUN if [ "$TARGETARCH" = "arm64" ]; then \
+      curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv2.zip"; \
+    else \
+      curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"; \
+    fi && \
+    unzip awscliv2.zip && \
+    ./aws/install && \
+    rm -rf aws awscliv2.zip
+
+# Set up Python venv and pre-commit
+RUN python3 -m venv /opt/venv && \
+    /opt/venv/bin/pip install --no-cache-dir --upgrade pip pre-commit
+ENV PATH="/opt/venv/bin:${PATH}"
+
+# Modify the user (node user already exists with UID 1000)
 RUN usermod -l vscode node \
     && groupmod -n vscode node \
     && usermod -d /home/vscode -m vscode \
@@ -59,118 +101,40 @@ RUN usermod -l vscode node \
     && echo vscode ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/vscode \
     && chmod 0440 /etc/sudoers.d/vscode
 
-# Ensure vscode user has access to /usr/local/share
+# Ensure vscode user has access to required directories
 RUN mkdir -p /usr/local/share/npm-global && \
-  chown -R vscode:vscode /usr/local/share
-
-ARG USERNAME=vscode
-
-# Set `DEVCONTAINER` environment variable to help with orientation
-ENV DEVCONTAINER=true
-
-# Create pre-commit cache directory with proper permissions
-RUN mkdir -p /home/vscode/pre-commit-cache && \
+    chown -R vscode:vscode /usr/local/share && \
+    mkdir -p /home/vscode/pre-commit-cache && \
     chown -R vscode:vscode /home/vscode/pre-commit-cache
 
-# Set environment variable for all processes that run in the container
+# Set environment variables
+ENV DEVCONTAINER=true
 ENV PRE_COMMIT_HOME=/home/vscode/pre-commit-cache
 
 # Create workspace and config directories and set permissions
-RUN mkdir -p /workspace /home/vscode/.claude /home/vscode/.cache /home/vscode/.config/gh && \
-  chown -R vscode:vscode /workspace /home/vscode/.claude /home/vscode/.cache /home/vscode/.config/gh
+RUN mkdir -p /workspaces /home/vscode/.cache /home/vscode/.config/gh && \
+    chown -R vscode:vscode /workspaces /home/vscode/.cache /home/vscode/.config/gh
 
 WORKDIR /workspaces
 
-# ---------------------------------------------------------------------------
 # Install git-delta for improved diffs
-# ---------------------------------------------------------------------------
 RUN ARCH=$(dpkg --print-architecture) && \
-  wget "https://github.com/dandavison/delta/releases/download/0.18.2/git-delta_0.18.2_${ARCH}.deb" && \
-  sudo dpkg -i "git-delta_0.18.2_${ARCH}.deb" && \
-  rm "git-delta_0.18.2_${ARCH}.deb"
+    wget "https://github.com/dandavison/delta/releases/download/0.16.5/git-delta_0.16.5_${ARCH}.deb" && \
+    dpkg -i "git-delta_0.16.5_${ARCH}.deb" && \
+    rm "git-delta_0.16.5_${ARCH}.deb"
 
-# ---------------------------------------------------------------------------
-# Terraform CLI and terraform-docs
-# ---------------------------------------------------------------------------
-RUN ARCH=${TARGETARCH:-$(dpkg --print-architecture)} && \
-    if [ "$ARCH" = "arm64" ]; then \
-      wget -q https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_arm64.zip -O /tmp/terraform.zip; \
-    else \
-      wget -q https://releases.hashicorp.com/terraform/${TERRAFORM_VERSION}/terraform_${TERRAFORM_VERSION}_linux_amd64.zip -O /tmp/terraform.zip; \
-    fi \
- && unzip /tmp/terraform.zip -d /usr/local/bin \
- && rm /tmp/terraform.zip
-
-# Install terraform-docs
-RUN ARCH=${TARGETARCH:-$(dpkg --print-architecture)} && \
-    if [ "$ARCH" = "arm64" ]; then \
-      curl -sSLo ./terraform-docs.tar.gz https://terraform-docs.io/dl/v0.20.0/terraform-docs-v0.20.0-linux-arm64.tar.gz; \
-    else \
-      curl -sSLo ./terraform-docs.tar.gz https://terraform-docs.io/dl/v0.20.0/terraform-docs-v0.20.0-linux-amd64.tar.gz; \
-    fi \
- && tar -xzf terraform-docs.tar.gz \
- && chmod +x terraform-docs \
- && mv terraform-docs /usr/local/bin/ \
- && rm terraform-docs.tar.gz
-
-# ---------------------------------------------------------------------------
-# Python 3 tooling (pip + pre-commit)
-# ---------------------------------------------------------------------------
-RUN apt-get install -y --no-install-recommends python3 python3-venv python3-pip \
-    && python3 -m venv /opt/venv \
-    && /opt/venv/bin/pip install --no-cache-dir --upgrade pip pre-commit
-ENV PATH="/opt/venv/bin:${PATH}"
-
-# ---------------------------------------------------------------------------
-# Install Trivy security scanner
-# ---------------------------------------------------------------------------
-RUN apt-get install -y wget apt-transport-https gnupg lsb-release \
-    && wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | gpg --dearmor | tee /usr/share/keyrings/trivy.gpg > /dev/null \
-    && echo "deb [signed-by=/usr/share/keyrings/trivy.gpg] https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main" | tee -a /etc/apt/sources.list.d/trivy.list \
-    && apt-get update \
-    && apt-get install -y trivy
-
-# ---------------------------------------------------------------------------
-# Install AWS CLI v2
-# ---------------------------------------------------------------------------
-RUN ARCH=${TARGETARCH:-$(dpkg --print-architecture)} && \
-    if [ "$ARCH" = "arm64" ]; then \
-      curl "https://awscli.amazonaws.com/awscli-exe-linux-aarch64.zip" -o "awscliv2.zip"; \
-    else \
-      curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"; \
-    fi \
-    && unzip awscliv2.zip \
-    && ./aws/install \
-    && rm -rf aws awscliv2.zip
-
-# Set up non-root user
+# Switch to vscode user
 USER vscode
 
 # Configure npm global packages directory in user home
 ENV NPM_CONFIG_PREFIX=/home/vscode/.npm-global
 ENV PATH=$PATH:/home/vscode/.npm-global/bin
 
-# Set the default shell to bash rather than sh
+# Set default shell to zsh
 ENV SHELL /bin/zsh
 
-# ---------------------------------------------------------------------------
-# Claude Code CLI and MCP dependencies
-# ---------------------------------------------------------------------------
-RUN npm install -g @anthropic-ai/claude-code
-
-# MCP server dependencies
-RUN npm install -g \
-        @modelcontextprotocol/server-filesystem \
-        task-master-ai \
-        @upstash/context7-mcp
-
-# Add GitHub CLI aliases
-RUN echo 'alias gh-runs="gh run list"' >> /home/vscode/.bashrc && \
-    echo 'alias gh-watch="gh run watch"' >> /home/vscode/.bashrc && \
-    echo 'alias gh-view="gh run view"' >> /home/vscode/.bashrc && \
-    echo 'alias gh-runs="gh run list"' >> /home/vscode/.zshrc && \
-    echo 'alias gh-watch="gh run watch"' >> /home/vscode/.zshrc && \
-    echo 'alias gh-view="gh run view"' >> /home/vscode/.zshrc
+# Install Oh My Zsh
+RUN sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)" "" --unattended
 
 # Default shell on container start
 CMD [ "zsh" ]

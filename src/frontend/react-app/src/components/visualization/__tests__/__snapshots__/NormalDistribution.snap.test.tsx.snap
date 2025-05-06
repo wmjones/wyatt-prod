@@ -1,0 +1,97 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`NormalDistribution Component Snapshots renders with custom attribution 1`] = `
+<div
+  style={
+    {
+      "alignItems": "center",
+      "display": "flex",
+      "flexDirection": "column",
+      "width": "100%",
+    }
+  }
+>
+  <div
+    style={
+      {
+        "maxWidth": "600px",
+        "position": "relative",
+        "width": "100%",
+      }
+    }
+  >
+    <svg
+      className="chart"
+      style={
+        {
+          "aspectRatio": "600/300",
+          "height": "auto",
+          "maxWidth": "600px",
+          "width": "100%",
+        }
+      }
+    />
+  </div>
+  <p
+    style={
+      {
+        "color": "#666",
+        "fontSize": "0.9em",
+        "fontStyle": "italic",
+        "marginTop": "5px",
+      }
+    }
+  >
+    Last updated by: 
+    Custom User
+  </p>
+</div>
+`;
+
+exports[`NormalDistribution Component Snapshots renders with default props 1`] = `
+<div
+  style={
+    {
+      "alignItems": "center",
+      "display": "flex",
+      "flexDirection": "column",
+      "width": "100%",
+    }
+  }
+>
+  <div
+    style={
+      {
+        "maxWidth": "600px",
+        "position": "relative",
+        "width": "100%",
+      }
+    }
+  >
+    <svg
+      className="chart"
+      style={
+        {
+          "aspectRatio": "600/300",
+          "height": "auto",
+          "maxWidth": "600px",
+          "width": "100%",
+        }
+      }
+    />
+  </div>
+  <p
+    style={
+      {
+        "color": "#666",
+        "fontSize": "0.9em",
+        "fontStyle": "italic",
+        "marginTop": "5px",
+      }
+    }
+  >
+    Last updated by: 
+    System
+  </p>
+</div>
+`;
