@@ -1,113 +1,97 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`NormalDistribution Component Snapshots renders with custom attribution 1`] = `
-{
-  "children": [
+<div
+  style={
     {
-      "children": [
-        {
-          "children": null,
-          "props": {
-            "className": "chart",
-            "style": {
-              "aspectRatio": "600/300",
-              "height": "auto",
-              "maxWidth": "600px",
-              "width": "100%",
-            },
-          },
-          "type": "svg",
-        },
-      ],
-      "props": {
-        "style": {
-          "maxWidth": "600px",
-          "position": "relative",
-          "width": "100%",
-        },
-      },
-      "type": "div",
-    },
-    {
-      "children": [
-        "Last updated by: ",
-        "Custom User",
-      ],
-      "props": {
-        "style": {
-          "color": "#666",
-          "fontSize": "0.9em",
-          "fontStyle": "italic",
-          "marginTop": "5px",
-        },
-      },
-      "type": "p",
-    },
-  ],
-  "props": {
-    "style": {
       "alignItems": "center",
       "display": "flex",
       "flexDirection": "column",
       "width": "100%",
-    },
-  },
-  "type": "div",
-}
+    }
+  }
+>
+  <div
+    style={
+      {
+        "maxWidth": "600px",
+        "position": "relative",
+        "width": "100%",
+      }
+    }
+  >
+    <svg
+      className="chart"
+      style={
+        {
+          "aspectRatio": "600/300",
+          "height": "auto",
+          "maxWidth": "600px",
+          "width": "100%",
+        }
+      }
+    />
+  </div>
+  <p
+    style={
+      {
+        "color": "#666",
+        "fontSize": "0.9em",
+        "fontStyle": "italic",
+        "marginTop": "5px",
+      }
+    }
+  >
+    Last updated by: 
+    Custom User
+  </p>
+</div>
 `;
 
 exports[`NormalDistribution Component Snapshots renders with default props 1`] = `
-{
-  "children": [
+<div
+  style={
     {
-      "children": [
-        {
-          "children": null,
-          "props": {
-            "className": "chart",
-            "style": {
-              "aspectRatio": "600/300",
-              "height": "auto",
-              "maxWidth": "600px",
-              "width": "100%",
-            },
-          },
-          "type": "svg",
-        },
-      ],
-      "props": {
-        "style": {
-          "maxWidth": "600px",
-          "position": "relative",
-          "width": "100%",
-        },
-      },
-      "type": "div",
-    },
-    {
-      "children": [
-        "Last updated by: ",
-        "System",
-      ],
-      "props": {
-        "style": {
-          "color": "#666",
-          "fontSize": "0.9em",
-          "fontStyle": "italic",
-          "marginTop": "5px",
-        },
-      },
-      "type": "p",
-    },
-  ],
-  "props": {
-    "style": {
       "alignItems": "center",
       "display": "flex",
       "flexDirection": "column",
       "width": "100%",
-    },
-  },
-  "type": "div",
-}
+    }
+  }
+>
+  <div
+    style={
+      {
+        "maxWidth": "600px",
+        "position": "relative",
+        "width": "100%",
+      }
+    }
+  >
+    <svg
+      className="chart"
+      style={
+        {
+          "aspectRatio": "600/300",
+          "height": "auto",
+          "maxWidth": "600px",
+          "width": "100%",
+        }
+      }
+    />
+  </div>
+  <p
+    style={
+      {
+        "color": "#666",
+        "fontSize": "0.9em",
+        "fontStyle": "italic",
+        "marginTop": "5px",
+      }
+    }
+  >
+    Last updated by: 
+    System
+  </p>
+</div>
 `;
