@@ -26,27 +26,33 @@ const CursorTrail: React.FC = () => {
 
   useEffect(() => {
     const interval = setInterval(() => {
-      setCounter((prev) => prev + 1);
-
-      setTrail((prevTrail) => {
-        // Add new dot
-        const newTrail = [
-          ...prevTrail,
-          {
-            id: counter,
-            x: mousePos.x,
-            y: mousePos.y,
-            size: Math.random() * 15 + 5, // Random size between 5 and 20
-          },
-        ];
-
-        // Keep only the 15 most recent dots
-        return newTrail.slice(-15);
+      // Update counter first, then use its value for the new dot ID
+      setCounter((prev) => {
+        const newCounter = prev + 1;
+        
+        // Use the updated counter value in the trail update to ensure unique keys
+        setTrail((prevTrail) => {
+          // Add new dot with unique ID
+          const newTrail = [
+            ...prevTrail,
+            {
+              id: newCounter, // Use the updated counter value for the ID
+              x: mousePos.x,
+              y: mousePos.y,
+              size: Math.random() * 15 + 5, // Random size between 5 and 20
+            },
+          ];
+  
+          // Keep only the 15 most recent dots
+          return newTrail.slice(-15);
+        });
+        
+        return newCounter;
       });
     }, 50);
 
     return () => clearInterval(interval);
-  }, [mousePos, counter]);
+  }, [mousePos]); // Remove counter dependency as we're updating it correctly now
 
   return (
     <>

@@ -7,7 +7,10 @@ import { RenderWithUserResult } from './render-utils';
 // Create a custom renderer that includes providers
 const AllTheProviders = ({ children }: { children: React.ReactNode }) => {
   return (
-    <BrowserRouter future={{ v7_startTransition: true }}>
+    <BrowserRouter future={{ 
+      v7_startTransition: true,
+      v7_relativeSplatPath: true // Add this flag to address Future Flag Warning
+    }}>
       {children}
     </BrowserRouter>
   );

@@ -4,7 +4,24 @@
 import React from 'react';
 import { render, RenderOptions } from '@testing-library/react';
 import { MemoryRouter, MemoryRouterProps } from 'react-router-dom';
+// Import auth module 
 import * as authModule from '../utils/auth';
+
+// Set up the mock implementation for Jest
+jest.mock('../utils/auth', () => ({
+  getCurrentUser: jest.fn(),
+  signIn: jest.fn(),
+  signUp: jest.fn(),
+  confirmSignUp: jest.fn(),
+  signOut: jest.fn(),
+  getEnvConfig: jest.fn(),
+  AuthState: {
+    SIGNED_IN: 'SIGNED_IN',
+    SIGNED_OUT: 'SIGNED_OUT',
+    LOADING: 'LOADING',
+    CONFIG_ERROR: 'CONFIG_ERROR'
+  }
+}));
 
 // Import AuthState type from auth module for use in mocks
 import { AuthState } from '../utils/auth';
@@ -130,10 +147,11 @@ export function renderWithAuth(ui: React.ReactElement, options: RenderWithAuthOp
 
   // Helper to wrap component with all necessary providers
   const Wrapper = ({ children }: { children: React.ReactNode }) => {
-    return (
-      <MemoryRouter initialEntries={initialEntries} initialIndex={initialIndex}>
-        {children}
-      </MemoryRouter>
+    // Use React.createElement instead of JSX to avoid TypeScript errors in .ts files
+    return React.createElement(
+      MemoryRouter,
+      { initialEntries, initialIndex },
+      children
     );
   };
 

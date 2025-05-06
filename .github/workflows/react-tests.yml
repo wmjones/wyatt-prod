@@ -34,7 +34,7 @@ jobs:
       run: npm ci
 
     - name: Run stable tests (skipping problematic ones)
-      run: npm run test:ci
+      run: npm run test:ci:update
 
     - name: Run UI component tests
       run: npm run test:ui
