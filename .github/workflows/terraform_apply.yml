@@ -20,10 +20,39 @@ env:
   # No longer using tfvars file directly, using Terraform Cloud variables instead
 
 jobs:
+  # First check if we need to run React tests/build for dev branch
+  check_react_changes:
+    if: github.ref == 'refs/heads/dev'
+    runs-on: ubuntu-latest
+    outputs:
+      react_changes: ${{ steps.filter.outputs.react }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: dorny/paths-filter@v2
+        id: filter
+        with:
+          filters: |
+            react:
+              - 'src/frontend/react-app/**'
+
+  # Run React Tests and Build if changes detected in dev branch
+  react_build:
+    needs: check_react_changes
+    if: github.ref == 'refs/heads/dev' && needs.check_react_changes.outputs.react_changes == 'true'
+    uses: ./.github/workflows/react-tests.yml
+
   deployment_package_zip:
     uses: ./.github/workflows/deployment_package_zip.yml
+
   terraform:
-    needs: deployment_package_zip
+    # Run after deployment package and React build (if applicable)
+    needs: [deployment_package_zip, check_react_changes]
+    # If react_build job was needed, wait for it too
+    if: >-
+      always() &&
+      needs.deployment_package_zip.result == 'success' &&
+      (github.ref != 'refs/heads/dev' || needs.check_react_changes.outputs.react_changes != 'true' || (needs.check_react_changes.outputs.react_changes == 'true' && needs.react_build.result == 'success'))
     name: "Terraform Apply"
     runs-on: ubuntu-latest
     permissions:
@@ -60,3 +89,5 @@ jobs:
         with:
           run: ${{ steps.apply-run.outputs.run_id }}
           comment: "Apply Run from GitHub Actions CI ${{ github.sha }}"
+
+      # Skip frontend deploy - it will be triggered automatically from this workflow

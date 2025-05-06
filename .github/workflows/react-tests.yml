@@ -1,4 +1,4 @@
-name: React App Tests
+name: React App Tests and Build
 
 on:
   push:
@@ -11,11 +11,11 @@ on:
     paths:
       - 'src/frontend/react-app/**'
       - '.github/workflows/react-tests.yml'
+  workflow_dispatch:  # Allow manual triggering
 
 jobs:
   test:
     runs-on: ubuntu-latest
-
     defaults:
       run:
         working-directory: ./src/frontend/react-app
@@ -62,3 +62,41 @@ jobs:
         name: coverage-report
         path: ./src/frontend/react-app/coverage
         retention-days: 14
+
+  build:
+    needs: test
+    # Only run build job for non-PR pushes to main/dev or manual dispatch
+    if: (github.event_name == 'push' || github.event_name == 'workflow_dispatch') && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/dev')
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: ./src/frontend/react-app
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 18
+        cache: 'npm'
+        cache-dependency-path: 'src/frontend/react-app/package.json'
+
+    - name: Install dependencies
+      run: npm ci
+
+    - name: Build React app
+      run: CI=false npm run build
+      env:
+        NODE_OPTIONS: "--max_old_space_size=4096"
+
+    - name: Store build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: react-app-build
+        path: ./src/frontend/react-app/build
+        retention-days: 3
+
+    # We don't deploy from this workflow - the frontend_deploy.yml workflow
+    # will handle deployment after Terraform apply or manual trigger

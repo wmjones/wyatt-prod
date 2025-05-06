@@ -1,10 +1,10 @@
 name: Deploy Frontend React App
-# This workflow always deploys the React app after a successful Terraform apply
-# or when manually triggered, ensuring the latest build is always deployed
+# This workflow deploys the React app after a successful Terraform apply or React build
+# It uses pre-built artifacts when available to avoid rebuilding
 
 on:
   workflow_run:
-    workflows: ["Terraform Apply"]
+    workflows: ["Terraform Apply", "React App Tests and Build"]
     types:
       - completed
     branches:
@@ -14,6 +14,7 @@ on:
 
 permissions:
   contents: read   # Required for actions/checkout
+  actions: read    # Required to check artifacts from other workflows
 
 env:
   AWS_REGION: 'us-east-2'  # Update to match your S3 bucket region
@@ -21,19 +22,20 @@ env:
   NPM_VERSION: '8.19.3'  # Use a specific npm version for better compatibility
   ENVIRONMENT: >-
     ${{
-      github.event.workflow_run.head_branch == 'main' && 'prod' ||
+      (github.event.workflow_run.head_branch == 'main' || github.ref == 'refs/heads/main') && 'prod' ||
       'dev'
     }}
 
 jobs:
   deploy:
-    name: Build and Deploy React App
+    name: Deploy React App
     runs-on: ubuntu-latest
-    # Only run on manual dispatch or successful terraform apply on dev/main branch
+    # Only run on manual dispatch or successful workflow run on dev/main branch
     if: >-
       github.event_name == 'workflow_dispatch' ||
       (github.event_name == 'workflow_run' && github.event.workflow_run.conclusion == 'success' &&
        (github.event.workflow_run.head_branch == 'dev' || github.event.workflow_run.head_branch == 'main'))
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -41,15 +43,29 @@ jobs:
           fetch-depth: 0  # Fetch all history for comparing changes
           ref: ${{ github.event.workflow_run.head_branch || github.ref }}
 
-      - name: Always deploy React app after Terraform apply
-        id: check_changes
+      - name: Check source workflow
+        id: check_workflow
         run: |
-          # For both workflow_dispatch and workflow_run from Terraform Apply, always deploy
-          echo "Always deploying React app after Terraform apply or manual workflow dispatch"
+          WORKFLOW_NAME="${{ github.event.workflow_run.name }}"
+          echo "Source workflow: ${WORKFLOW_NAME}"
+
+          # Set flags based on the source workflow
+          if [[ "$WORKFLOW_NAME" == "React App Tests and Build" ]]; then
+            echo "from_react_workflow=true" >> $GITHUB_OUTPUT
+            echo "from_terraform_workflow=false" >> $GITHUB_OUTPUT
+          elif [[ "$WORKFLOW_NAME" == "Terraform Apply" ]]; then
+            echo "from_react_workflow=false" >> $GITHUB_OUTPUT
+            echo "from_terraform_workflow=true" >> $GITHUB_OUTPUT
+          else
+            # Manual trigger or other
+            echo "from_react_workflow=false" >> $GITHUB_OUTPUT
+            echo "from_terraform_workflow=false" >> $GITHUB_OUTPUT
+          fi
+
           echo "changes_detected=true" >> $GITHUB_OUTPUT
 
       - name: Configure AWS credentials
-        if: steps.check_changes.outputs.changes_detected == 'true'
+        if: steps.check_workflow.outputs.changes_detected == 'true'
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -57,7 +73,7 @@ jobs:
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Get AWS resources info
-        if: steps.check_changes.outputs.changes_detected == 'true'
+        if: steps.check_workflow.outputs.changes_detected == 'true'
         id: get-resources
         run: |
           # Get S3 bucket name
@@ -82,26 +98,50 @@ jobs:
           API_ENDPOINT=$(aws ssm get-parameter --name "/wyatt-personal-aws-${{ env.ENVIRONMENT }}/api_endpoint" --query "Parameter.Value" --output text 2>/dev/null || echo 'https://api.example.com')
           echo "api_endpoint=${API_ENDPOINT}" >> $GITHUB_OUTPUT
 
+      # Try to download the pre-built artifacts from the React workflow
+      - name: Download build artifacts from previous workflow
+        id: download_artifacts
+        if: steps.check_workflow.outputs.from_react_workflow == 'true'
+        uses: actions/download-artifact@v4
+        with:
+          name: react-app-build
+          path: src/frontend/react-app/build
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+          repository: ${{ github.repository }}
+          continue-on-error: true
+
+      # Check if we need to build - if coming from Terraform or if download failed
+      - name: Check if we need to build
+        id: need_build
+        run: |
+          if [[ "${{ steps.check_workflow.outputs.from_terraform_workflow }}" == "true" ]] || [[ ! -d "src/frontend/react-app/build" ]]; then
+            echo "Build needed - coming from Terraform workflow or no artifacts found"
+            echo "build_needed=true" >> $GITHUB_OUTPUT
+          else
+            echo "Using pre-built artifacts from React workflow"
+            echo "build_needed=false" >> $GITHUB_OUTPUT
+          fi
+
       - name: Setup Node.js
-        if: steps.check_changes.outputs.changes_detected == 'true'
+        if: steps.need_build.outputs.build_needed == 'true'
         uses: actions/setup-node@v4
         with:
           node-version: ${{ env.NODE_VERSION }}
-          # Don't use npm cache since package-lock.json is gitignored
 
       - name: Install specific npm version
-        if: steps.check_changes.outputs.changes_detected == 'true'
+        if: steps.need_build.outputs.build_needed == 'true'
         run: npm install -g npm@${{ env.NPM_VERSION }}
 
       - name: Install dependencies
-        if: steps.check_changes.outputs.changes_detected == 'true'
+        if: steps.need_build.outputs.build_needed == 'true'
         working-directory: src/frontend/react-app
         run: |
           npm install --no-save ajv@8.12.0 ajv-keywords@5.1.0
           npm install
 
       - name: Set environment variables for build
-        if: steps.check_changes.outputs.changes_detected == 'true'
+        if: steps.need_build.outputs.build_needed == 'true'
         run: |
           echo "REACT_APP_STAGE=${{ env.ENVIRONMENT }}" >> src/frontend/react-app/.env.production.local
           echo "REACT_APP_REGION=${{ env.AWS_REGION }}" >> src/frontend/react-app/.env.production.local
@@ -110,14 +150,13 @@ jobs:
           echo "REACT_APP_API_ENDPOINT=${{ steps.get-resources.outputs.api_endpoint }}" >> src/frontend/react-app/.env.production.local
 
       - name: Build React app
-        if: steps.check_changes.outputs.changes_detected == 'true'
+        if: steps.need_build.outputs.build_needed == 'true'
         working-directory: src/frontend/react-app
         env:
           NODE_OPTIONS: "--max_old_space_size=4096"
         run: CI=false npm run build
 
       - name: Deploy static assets to S3 with cache headers
-        if: steps.check_changes.outputs.changes_detected == 'true'
         run: |
           echo "Deploying static assets to bucket: ${{ steps.get-resources.outputs.s3_bucket }}"
           aws s3 sync src/frontend/react-app/build/ s3://${{ steps.get-resources.outputs.s3_bucket }}/ \
@@ -129,7 +168,6 @@ jobs:
             --exclude "asset-manifest.json"
 
       - name: Deploy HTML, JSON, and config files with no-cache headers
-        if: steps.check_changes.outputs.changes_detected == 'true'
         run: |
           echo "Deploying HTML and JSON files to bucket: ${{ steps.get-resources.outputs.s3_bucket }}"
           aws s3 sync src/frontend/react-app/build/ s3://${{ steps.get-resources.outputs.s3_bucket }}/ \
@@ -140,11 +178,9 @@ jobs:
             --exclude "static/**/*"
 
       - name: Invalidate CloudFront cache
-        if: steps.check_changes.outputs.changes_detected == 'true' && steps.get-resources.outputs.cloudfront_id != ''
+        if: steps.get-resources.outputs.cloudfront_id != ''
         run: |
           echo "Invalidating CloudFront distribution: ${{ steps.get-resources.outputs.cloudfront_id }}"
           aws cloudfront create-invalidation \
             --distribution-id ${{ steps.get-resources.outputs.cloudfront_id }} \
             --paths "/*"
-
-      # Deployment is never skipped now, so this step is not needed anymore
