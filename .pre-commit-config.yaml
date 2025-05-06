@@ -4,6 +4,7 @@ repos:
     rev: v5.0.0
     hooks:
       - id: trailing-whitespace
+        exclude: (.*\.snap|.*\.snap.test.tsx.snap)
       - id: end-of-file-fixer
       - id: check-yaml
       - id: check-merge-conflict
@@ -87,10 +88,10 @@ repos:
         pass_filenames: false
         verbose: true
 
-      # Run same tests as CI job on push (pre-push stage only)
+      # Run same tests as CI job on push but WITHOUT updating snapshots (pre-push stage only)
       - id: jest-all
-        name: "Jest - CI Tests Suite"
-        entry: bash -c "cd src/frontend/react-app && echo '=== Running base tests ===' && npm run test:ci:update > jest_all_results.log 2>&1 && if [ $? -ne 0 ]; then grep -Ev 'Warning:|Warn:' jest_all_results.log | cat; exit 1; fi && echo '=== Running UI tests (may continue on error) ===' && npm run test:ui >> jest_all_results.log 2>&1 || true && echo '=== Running visual tests (may continue on error) ===' && npm run test:visual >> jest_all_results.log 2>&1 || true"
+        name: "Jest - CI Tests Suite (No Snapshot Updates)"
+        entry: bash -c "cd src/frontend/react-app && echo '=== Running base tests (no snapshot updates) ===' && npm run test:ci:no-snapshots > jest_all_results.log 2>&1 && if [ $? -ne 0 ]; then grep -Ev 'Warning:|Warn:' jest_all_results.log | cat; exit 1; fi && echo '=== Running UI tests (may continue on error) ===' && npm run test:ui >> jest_all_results.log 2>&1 || true && echo '=== Running visual tests without snapshot updates (may continue on error) ===' && npm run test:visual:no-update >> jest_all_results.log 2>&1 || true"
         language: system
         pass_filenames: false
         stages: [pre-push]
@@ -103,6 +104,15 @@ repos:
         language: system
         pass_filenames: false
         stages: [pre-push]
+        verbose: true
+
+      # Manual hook for updating snapshots (manual stage only)
+      - id: jest-update-snapshots
+        name: "Jest - Update Snapshots (Manual Execution Only)"
+        entry: bash -c "cd src/frontend/react-app && echo '=== Updating Jest snapshots ===' && npm run test:update-snapshots && echo '=== Snapshots updated successfully ==='"
+        language: system
+        pass_filenames: false
+        stages: [manual]
         verbose: true
 
   # 7 — Local heavy gates (push-stage only)

@@ -133,7 +133,7 @@ exports[`RetroFooter Snapshots renders correctly 1`] = `
   <p
     className="mono-text text-sm"
   >
-    D3 Visualization Dashboard - ©
+    D3 Visualization Dashboard - © 
     2025
      - Deployed via CI/CD Pipeline
   </p>
@@ -145,7 +145,7 @@ exports[`RetroFooter Snapshots renders correctly 1`] = `
     >
       ►
     </span>
-     Best viewed with Netscape Navigator
+     Best viewed with Netscape Navigator 
     <span
       className="animate-blink"
     >
