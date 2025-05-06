@@ -28,7 +28,7 @@ jobs:
       with:
         node-version: 18
         cache: 'npm'
-        cache-dependency-path: './src/frontend/react-app/package-lock.json'
+        cache-dependency-path: 'src/frontend/react-app/package.json'
 
     - name: Install dependencies
       run: npm ci
