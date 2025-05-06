@@ -4,7 +4,7 @@
 import React from 'react';
 import { render, RenderOptions } from '@testing-library/react';
 import { MemoryRouter, MemoryRouterProps } from 'react-router-dom';
-// Import auth module 
+// Import auth module
 import * as authModule from '../utils/auth';
 
 // Set up the mock implementation for Jest

@@ -14,7 +14,7 @@ jest.mock('react-router-dom', () => {
 
 test('renders the app without crashing', () => {
   render(
-    <MemoryRouter future={{ 
+    <MemoryRouter future={{
       v7_startTransition: true,
       v7_relativeSplatPath: true // Add this flag to address Future Flag Warning
     }}>

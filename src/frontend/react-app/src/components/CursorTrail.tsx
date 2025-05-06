@@ -29,7 +29,7 @@ const CursorTrail: React.FC = () => {
       // Update counter first, then use its value for the new dot ID
       setCounter((prev) => {
         const newCounter = prev + 1;
-        
+
         // Use the updated counter value in the trail update to ensure unique keys
         setTrail((prevTrail) => {
           // Add new dot with unique ID
@@ -42,11 +42,11 @@ const CursorTrail: React.FC = () => {
               size: Math.random() * 15 + 5, // Random size between 5 and 20
             },
           ];
-  
+
           // Keep only the 15 most recent dots
           return newTrail.slice(-15);
         });
-        
+
         return newCounter;
       });
     }, 50);
